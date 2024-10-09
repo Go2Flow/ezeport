@@ -4,6 +4,7 @@ namespace Go2Flow\Ezport;
 
 use Go2Flow\Ezport\Commands\MakeCustomer;
 use Go2Flow\Ezport\Commands\PrepareProject;
+use Go2Flow\Ezport\Commands\PublishGetters;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Console\Scheduling\Schedule;
 use Go2Flow\Ezport\Finders\Find;
@@ -90,7 +91,8 @@ class EzportServiceProvider extends ServiceProvider
         if ($this->app->runningInConsole()) {
             $this->commands([
                 PrepareProject::class,
-                MakeCustomer::class
+                MakeCustomer::class,
+                PublishGetters::class
             ]);
         }
 
