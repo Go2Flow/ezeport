@@ -1,0 +1,4 @@
+use Go2Flow\Ezport\Finders\Abstracts\BaseInstructions;
+use Go2Flow\Ezport\Finders\Interfaces\InstructionInterface;
+
+class $CLASSNAME$ extends BaseInstructions implements InstructionInterface

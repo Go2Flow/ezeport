@@ -3,18 +3,19 @@
 namespace Go2Flow\Ezport\PrepareProject;
 
 use Go2Flow\Ezport\Models\Project;
+
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Support\Stringable;
-use Illuminate\Filesystem\FilesystemAdapter;
 
 class CustomerFilesCreator
 {
-    private FilesystemAdapter $disk;
+    private $disk;
 
     public function __construct(private Project $project)
     {
-        $this->disk = Storage::drive('customers');
+        $this->disk = new File();
     }
 
     public function createCustomer() : void
@@ -64,7 +65,7 @@ class CustomerFilesCreator
             $string = $string->prepend($class . "\n");
         }
 
-        return $string->prepend("namespace Go2Flow\Ezport\Customers\\" . $this->project->identifier . "\\" . $folder .  ";\n\n")
+        return $string->prepend("namespace App\Customers\\" . $this->project->identifier . "\\" . $folder .  ";\n\n")
             ->prepend("<?php \n\n");
     }
 
@@ -79,22 +80,27 @@ class CustomerFilesCreator
 
     private function getStub(?string $stub) : Stringable
     {
-        return Str::of(Storage::disk('stubs')->get($stub . '.stub'));
+        return Str::of(File::get('vendor/go2flow/ezport/stubs/' . $stub . '.stub'));
     }
 
     private function makeDirectory(string $path) : void
     {
-        $this->disk->makeDirectory($path);
+        $this->disk::makeDirectory($this->setPath($path));
     }
 
-    private function makeFile($path, $content) : void
+    private function makeFile(string $path, $content) : void
     {
-        $this->disk->put($this->project->identifier . $path . '.php', $content);
+        $this->disk::put($this->setPath($this->project->identifier . $path . '.php'), $content);
     }
 
-    private function fileExists($path) : bool
+    private function fileExists(string $path) : bool
     {
-        return $this->disk->exists($this->project->identifier . '/' . $path . '.php');
+        return $this->disk::exists($this->setPath($this->project->identifier . '/' . $path . '.php'));
+    }
+
+    private function setPath(string $path) : string
+    {
+        return 'app/Customers/'  . $path;
     }
 
     private function instructions() : array

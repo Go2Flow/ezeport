@@ -1,0 +1,11 @@
+use App\UploadAdapters\Adapter;
+
+class $CLASSNAME$ extends Adapter {
+
+    protected function getterList() : array {
+
+        return [
+            'nameGetter' => fn () => (string) $this->type->properties('text'),
+        ];
+    }
+}

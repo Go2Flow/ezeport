@@ -9,7 +9,7 @@ use Go2Flow\Ezport\Models\GenericModel;
 use Go2Flow\Ezport\Models\Project;
 use Go2Flow\Ezport\PrepareProject\CreateProject;
 use Go2Flow\Ezport\PrepareProject\CreateProjectCache;
-use Go2Flow\Ezport\Console\Prepare\Deleter;
+use Go2Flow\Ezport\Commands\Console\Prepare\Deleter;
 use Go2Flow\Ezport\Upload\UploadManager;
 use Illuminate\Support\Str;
 
@@ -22,7 +22,7 @@ use function Laravel\Prompts\progress;
 
 class ProjectSpecificCommands
 {
-    public function __construct(private Project $project){}
+    public function __construct(private readonly Project $project){}
 
     public function addToUpload(?string $type = null): string
     {

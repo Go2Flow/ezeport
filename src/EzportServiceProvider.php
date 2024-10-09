@@ -2,6 +2,7 @@
 
 namespace Go2Flow\Ezport;
 
+use Go2Flow\Ezport\Commands\MakeCustomer;
 use Go2Flow\Ezport\Commands\PrepareProject;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Console\Scheduling\Schedule;
@@ -89,7 +90,7 @@ class EzportServiceProvider extends ServiceProvider
         if ($this->app->runningInConsole()) {
             $this->commands([
                 PrepareProject::class,
-
+                MakeCustomer::class
             ]);
         }
 

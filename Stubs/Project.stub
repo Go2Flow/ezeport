@@ -1,0 +1,50 @@
+{ 
+    public function get(): array {
+            return [
+            Set::Project('$IDENTIFIER$')
+                ->name('$NAME$')
+                ->settings($this->settings()),
+            Set::Connector()
+                ->username('username')
+                ->password('password')
+                ->host('url')
+                ->local(),
+        ];
+    }
+
+    private function settings(): array
+    {
+        return [
+            'taxes' => [
+                'standard' => '8.1',
+            ],
+
+            'currencies' => [
+                'standard' => 'CHF'
+            ],
+
+            'cms_pages' => [
+                'product' => 'Product',
+                'category' => 'Product Listing'
+            ],
+            'categories' =>  [
+                'parent' => '$NAME$'
+            ],
+            'sales_channels' => [
+                'standard' => '$NAME$'
+            ],
+            'media_folders' => [
+                'standard' => 'Shopware Imported Media'
+            ],
+            'machine_states' => [
+                'order_transaction' => [
+                    'paid' 
+                ],
+                'order' => [
+                    'open', 
+                    'completed' 
+                ]
+            ]
+        ];
+    }
+}

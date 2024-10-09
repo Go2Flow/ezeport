@@ -1,0 +1,28 @@
+
+use App\Finders\Abstracts\BaseInstructions;
+use App\Finders\Interfaces\InstructionInterface;
+
+class $CLASSNAME$ extends BaseInstructions implements InstructionInterface
+{
+    public function get(): array
+    {
+        return [
+            'shop' => [
+                [
+                   'identifier' => // short string that will be used for naming folders. Cannot contain special characters.
+                ],
+                [
+                    'name' => // the actual shop name§ ,
+                    'settings' => [],
+                    'cache' => [],
+                ]
+            ],
+            'connectors' => [
+                'shop' => [], 
+                // If you want, you can create a connector here. You'll need to provide a password, username and host. 
+                // Do note, this will be pushed to Git. It is better to use the connector:make command.
+                'ftp' => [],
+            ]
+        ];
+    }
+}
