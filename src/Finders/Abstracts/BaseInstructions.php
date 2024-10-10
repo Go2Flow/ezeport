@@ -7,7 +7,7 @@ use Go2Flow\Ezport\Instructions\Setters\Base;
 use Go2Flow\Ezport\Models\Project;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
-use Stringable;
+use Illuminate\Support\Stringable;
 
 abstract class BaseInstructions
 {

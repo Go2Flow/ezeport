@@ -115,7 +115,7 @@ class GenericModel extends BaseModel
         return $class;
     }
 
-    public function setContentAndRelations($data)
+    public function setContentAndRelations($data) : self
     {
         foreach ($data as $key => $item) {
             $field = ($item instanceof Collection || is_array($item)) && collect($item)->first() instanceof Generic

@@ -20,7 +20,7 @@ class PublishGetters extends Command
      *
      * @var string
      */
-    protected $description = 'Command description';
+    protected $description = 'Publishes the getters to App/Getters';
 
     /**
      * Execute the console command.

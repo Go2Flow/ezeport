@@ -25,7 +25,7 @@ class XmlImportError extends Mailable
         $this->project = Project::find($project);
     }
 
-    public function build()
+    public function build() : void
     {
         $this
             ->mailcoachMail('swi1-error', [

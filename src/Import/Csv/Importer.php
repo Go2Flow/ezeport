@@ -16,12 +16,12 @@ class Importer {
     {
     }
 
-    public function getItems()
+    public function getItems() : Collection
     {
         return $this->prepareItems($this->instructions->get('imports'));
     }
 
-    private function prepareItems($instructions)
+    private function prepareItems($instructions) : Collection
     {
         $items = collect();
 
@@ -56,7 +56,7 @@ class Importer {
         );
     }
 
-    private function getData($instruction)
+    private function getData($instruction) : Collection
     {
         $importer = (new Import($instruction->get('structure')));
 
@@ -68,7 +68,7 @@ class Importer {
         );
     }
 
-    private function getPath()
+    private function getPath() : string
     {
         return $this->instructions->getJobConfig()['path'] . '/';
     }

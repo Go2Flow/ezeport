@@ -2,8 +2,8 @@
 
 namespace Go2Flow\Ezport\ContentTypes;
 
-use Go2Flow\Ezport\Helpers\Content;
-use Go2Flow\Ezport\Helpers\Log;
+use Go2Flow\Ezport\ContentTypes\Helpers\Content;
+use Go2Flow\Ezport\ContentTypes\Helpers\Log;
 use Go2Flow\Ezport\Finders\Find;
 use Go2Flow\Ezport\Models\GenericModel;
 use Go2Flow\Ezport\Models\Project;
@@ -67,7 +67,7 @@ class Generic
      * deletes the underlying GenericModel
      */
 
-    public function delete()
+    public function delete() : void
     {
         (new Log($this))->delete();
 
@@ -211,7 +211,7 @@ class Generic
      * remove a key from the properties attribute
      */
 
-    public function propertiesForget($input = null)
+    public function propertiesForget($input = null) : self
     {
         $this->forget('content', $input);
 
@@ -222,7 +222,7 @@ class Generic
      * remove a key from the relations attribute
      */
 
-    public function relationsForget(string $input = null)
+    public function relationsForget(string $input = null) : self
     {
         $this->forget('modelRelations', $input);
 
@@ -233,7 +233,7 @@ class Generic
      * remove a key from the shopware attribute
      */
 
-    public function shopwareForget($input = null)
+    public function shopwareForget($input = null) : self
     {
         $this->forget('shopware', $input);
 
@@ -295,7 +295,7 @@ class Generic
         return $this->project = $this->project ?? Project::find($this->contentData->project_id);
     }
 
-    public function __get($name)
+    public function __get($name) :?string
     {
         return $this->contentData->$name;
     }
@@ -315,19 +315,6 @@ class Generic
         }
 
         throw new \BadMethodCallException("Method {$method} does not exist on this object");
-    }
-
-    protected function setShopwareIds($array, $fields = ['id' => 'id']): array
-    {
-
-        foreach ($fields as $from => $to) {
-
-            $array = $this->shopware($from)
-                ? array_merge($array, [$to => $this->shopware($from)])
-                : $array;
-        }
-
-        return $array;
     }
 
     private function forget($field, $input = null)

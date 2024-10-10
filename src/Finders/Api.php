@@ -21,10 +21,6 @@ class Api extends Base implements ApiInterface
         return $this->object;
     }
 
-    /**
-     * @return FtpApi|ShopSixApi|ShopFiveApi|StoreLocatorSixApi
-     */
-
     protected function getObject(Project $project, string $type): object
     {
         $this->type = Str::of($type);

@@ -2,11 +2,11 @@
 
 namespace Go2Flow\Ezport\Models;
 
-use App\ContentTypes\Interfaces\LogInterface;
-use App\Models\Action;
+use Go2Flow\Ezport\ContentTypes\Interfaces\LogInterface;
 use Illuminate\Database\Eloquent\Casts\AsCollection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Error extends Model implements LogInterface
 {
@@ -14,7 +14,7 @@ class Error extends Model implements LogInterface
 
     protected $guarded  = [];
 
-    public function action() {
+    public function action() : BelongsTo {
 
         return $this->belongsTo(Action::class);
     }

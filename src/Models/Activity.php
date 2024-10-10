@@ -5,6 +5,8 @@ namespace Go2Flow\Ezport\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Casts\AsCollection;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Collection;
 
 class Activity extends Model
 {
@@ -26,7 +28,7 @@ class Activity extends Model
         'properties' => AsCollection::class,
     ];
 
-    public function action()
+    public function action() : BelongsTo
     {
         return $this->belongsTo(Action::class);
     }

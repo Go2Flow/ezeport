@@ -4,6 +4,7 @@ namespace Go2Flow\Ezport\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
      * App\Models\Connector
@@ -17,7 +18,6 @@ use Illuminate\Database\Eloquent\Model;
 class Connector extends Model
 {
 
-
     use HasFactory;
 
     protected $guarded = [];
@@ -26,12 +26,12 @@ class Connector extends Model
         'password',
     ];
 
-    public function project()
+    public function project() : BelongsTo
     {
         return $this->belongsTo(Project::class);
     }
 
-    public function getValues()
+    public function getValues() : array
     {
         return [
             'host' => $this->host,

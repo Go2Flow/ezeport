@@ -2,11 +2,9 @@
 
 namespace Go2Flow\Ezport\Models;
 
-use App\Models\Error;
-use App\Models\Project;
-use Go2Flow\Ezport\Models\Activity;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
@@ -26,7 +24,7 @@ class Action extends Model
 
     protected $guarded = [];
 
-    public function project()
+    public function project() : BelongsTo
     {
         return $this->belongsTo(Project::class);
     }

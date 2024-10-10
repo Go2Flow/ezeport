@@ -10,7 +10,7 @@ class Transformer {
 
     private Collection $items;
 
-    public function __construct(private CsvImport $instructions ) {}
+    public function __construct(private readonly CsvImport $instructions ) {}
 
     public function setItems(Collection $items) : self {
 
