@@ -7,7 +7,7 @@ use Go2Flow\Ezport\Models\Project;
 use Illuminate\Support\Stringable;
 
 /**
- * @method static Api Api(Project $project, string $type)
+ * @method static Api Api(Project $project, string $type, ?string $name = null)
  * @method static Instruction Instruction(Project $project, string $type)
  * @method static Config Config(Project $project)
  * @method static Upload Upload(Project $project, string $type)

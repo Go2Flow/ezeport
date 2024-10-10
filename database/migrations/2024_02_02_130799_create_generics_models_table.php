@@ -19,11 +19,12 @@ return new class extends Migration
             $table->string('type');
             $table->longText('content')->nullable();
             $table->longText('shopware')->nullable();
-            $table->timestamps();
-            $table->index('type'); 
-            $table->index('unique_id'); 
-            $table->index(['unique_id', 'type']);  
+            $table->string('name')->nullable();
             $table->foreignId('project_id')->nullable()->constrained()->oncascade('delete');
+            $table->index('type');
+            $table->index('unique_id');
+            $table->index(['unique_id', 'type']);
+            $table->timestamps();
         });
     }
 

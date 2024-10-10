@@ -9,7 +9,7 @@ use Go2Flow\Ezport\Models\GenericModel;
 use Go2Flow\Ezport\Models\Project;
 use Go2Flow\Ezport\PrepareProject\CreateProject;
 use Go2Flow\Ezport\PrepareProject\CreateProjectCache;
-use Go2Flow\Ezport\Commands\Console\Prepare\Deleter;
+use Go2Flow\Ezport\Commands\Prepare\Deleter;
 use Go2Flow\Ezport\Upload\UploadManager;
 use Illuminate\Support\Str;
 
@@ -22,7 +22,7 @@ use function Laravel\Prompts\progress;
 
 class ProjectSpecificCommands
 {
-    public function __construct(private readonly Project $project){}
+    public function __construct(private Project $project){}
 
     public function addToUpload(?string $type = null): string
     {
@@ -60,19 +60,14 @@ class ProjectSpecificCommands
             options: ['create', 'update']
         );
 
-        if ($newOrUpdate == 'create')
-        {
-            if (($types = collect(['shopFive', 'shopSix', 'ftp'])->diff($this->project->connectors()->pluck('type')))->count() == 0) {
-                return 'All connectors already set up';
-            }
-        }
-        else {
-            $types = $this->project->connectors()->pluck('type');
-        }
+        $name = select(
+            label: 'Please give the name of the connector would you like to ' . $newOrUpdate . '?',
+            options: collect(['shopFive', 'shopSix', 'ftp'])->mapWithKeys(fn ($type) => [$type => Str::ucfirst($type)])->toArray(),
+        );
 
         $connectorType = select(
             label: 'What type of connector would you like to ' . $newOrUpdate . '?',
-            options: $types->mapWithKeys(fn ($type) => [$type => Str::ucfirst($type)])->toArray(),
+            options: collect(['shopFive', 'shopSix', 'ftp'])->mapWithKeys(fn ($type) => [$type => Str::ucfirst($type)])->toArray(),
         );
 
         $host = text(
@@ -95,9 +90,14 @@ class ProjectSpecificCommands
             options: ['production', 'staging']
         );
 
-        $connector = ($newOrUpdate == 'update')
-            ? $this->project->connectors()->whereType($connectorType)->first()
-            : new Connector;
+        $connector = (!$newOrUpdate == 'update')
+            ? new Connector
+            : $this->project->connectors()
+                ->whereType($connectorType)
+                ->when(
+                    $name,
+                    fn($item) => $item->where('name', $name)
+                )->first();
 
         $connector->fill([
             'type' => $connectorType ,
@@ -105,8 +105,9 @@ class ProjectSpecificCommands
             'username' => $username == '' ? $connector->username : $username,
             'password' => $password == '' ? $connector->password : $password,
             'environment' => $environment,
-            'project_id' => $this->project->id
-            ])->save();
+            'project_id' => $this->project->id,
+            'name' => $name ?? null
+        ])->save();
 
         return 'Connector ' . $newOrUpdate . 'd';
     }
@@ -125,7 +126,7 @@ class ProjectSpecificCommands
                 options: [
                     'runFtpClean' => 'ftp',
                     'runShopClean' => 'shop'
-                    ]
+                ]
             );
         }
 

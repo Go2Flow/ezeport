@@ -15,22 +15,32 @@ use Illuminate\Support\Stringable;
 class Api extends Base implements ApiInterface
 {
     private Stringable $type;
+    private ?string $name;
 
     public function get()
     {
         return $this->object;
     }
 
-    protected function getObject(Project $project, string $type): object
+    /**
+     * @return FtpApi|ShopSixApi|ShopFiveApi|StoreLocatorSixApi
+     */
+
+    protected function getObject(Project $project, string $type, ?string $name = null): object
     {
         $this->type = Str::of($type);
-        return  new ($this->getClass())(
+
+        return new ($this->getClass())(
             $project->connectors()
-                ->firstWhere(
+                ->where(
                     'type',
                     $this->matchConnector('type', 'Type of ' . $this->type->toString() . ' not found')
-                )->getValues(),
-                Find::instruction($project, 'Api')->find($type)?->getConfig() ?? collect()
+                )->when(
+                    $name,
+                    fn ($query) => $query->where('name', $name)
+                )->first()
+                ->getValues(),
+            Find::instruction($project, 'Api')->find($type)?->getConfig() ?? collect()
         );
     }
 
