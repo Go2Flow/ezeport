@@ -107,7 +107,7 @@ class TypeGetter implements BuilderContract
             return $this;
         }
 
-        throw new \Exception('Method ' . $name . ' does not exist');
+        throw new \Exception('Method ' . $method . ' does not exist');
     }
 
     private function checkIfExistsOnQueryBuilder(string $name, ?array $arguments): mixed
