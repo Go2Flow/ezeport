@@ -50,7 +50,7 @@ use Illuminate\Database\Query\Builder as QueryBuilder;
 
 class TypeGetter implements BuilderContract
 {
-    private Builder $query;
+    private $query;
 
     public function __construct(string $type, Project $project)
     {
@@ -68,19 +68,21 @@ class TypeGetter implements BuilderContract
      * Where the content type is on shopware
      */
 
-    public function whereOnShopware(): self
+    public function whereOnShop(): self
     {
-        return $this->query->whereNot('shopware', '[]');
+        return $this->query->whereNot('shop', '[]');
 
     }
 
     /**
      * find by unique_id
+     * @param int|string $id
+     * @param string[] $columns
      */
 
-    public function find(?string $unique_id): ?Generic
+    public function find(int|string $id, $columns = ['*']): ?Generic
     {
-        return $this->query->firstWhere('unique_id', $unique_id)?->toContentType();
+        return $this->query->firstWhere('unique_id', $id)?->toContentType();
     }
 
     /**
@@ -92,15 +94,15 @@ class TypeGetter implements BuilderContract
         return $this->query->find($id)?->toContentType();
     }
 
-    public function __call(string $name, ?array $arguments)
+    public function __call($method, array|null $parameters)
     {
-        if (method_exists($this, $name)) return $this->$name(...$arguments);
+        if (method_exists($this, $method)) return $this->$method(...$parameters);
 
-        if ($response = $this->checkIfExistsOnQueryBuilder($name, $arguments)) return $response;
+        if ($response = $this->checkIfExistsOnQueryBuilder($method, $parameters)) return $response;
 
-        if (Str::startsWith($name, 'where')) {
+        if (Str::startsWith($method, 'where')) {
 
-            $this->query = $this->query->dynamicWhere($name, $arguments);
+            $this->query = $this->query->dynamicWhere($method, $parameters);
 
             return $this;
         }

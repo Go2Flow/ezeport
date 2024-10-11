@@ -8,6 +8,7 @@ use Go2Flow\Ezport\Instructions\Setters\Types\ShopImport as SetShopImport;
 use Go2Flow\Ezport\Models\Project;
 use Go2Flow\Ezport\Process\Import\Helpers\HasStructure;
 use Go2Flow\Ezport\Process\Jobs\ShopImport;
+use Illuminate\Support\Collection;
 
 class Controller
 {
@@ -25,7 +26,7 @@ class Controller
         if (!$this->structure instanceof SetShopImport) throw new \Exception("The found file is not of the correct type", 1);
     }
 
-    public function assign()
+    public function assign() : Collection
     {
         $items = $this->structure->get('items')($this->api);
 
@@ -37,7 +38,7 @@ class Controller
             );
     }
 
-    public function process($chunk)
+    public function process($chunk) : void
     {
         collect($this->structure->get('process')($chunk, $this->api))
             ->each(function ($item) {
@@ -48,7 +49,7 @@ class Controller
             });
     }
 
-    private function createGenericModel($array)
+    private function createGenericModel($array) : void
     {
         $class = new Generic(array_merge([
             'project_id' => $this->project->id,
@@ -56,17 +57,17 @@ class Controller
         ], $array['uniqueId'] ? ['unique_id' => $array['uniqueId']] : []));
 
         $class->properties($array['content']['properties']);
-        $class->shopware($array['content']['shopware']);
+        $class->shop($array['content']['shop']);
 
         $class->updateOrCreate(true);
     }
 
-    private function prepareContent($item, $identifier)
+    private function prepareContent($item, string $identifier) : array
     {
         $array = [];
         $uniqueId = $item->{$identifier} ?? null;
 
-        foreach (['properties', 'shopware'] as $attribute) {
+        foreach (['properties', 'shop'] as $attribute) {
 
             $array[$attribute] = [];
 

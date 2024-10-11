@@ -150,7 +150,7 @@ class ShopSix  extends BaseInstructions implements InstructionInterface {
                             'Status' => 1,
                         ]
                     ]
-                )->shopware(
+                )->shop(
                     fn ($item) => [
                         'id' => $item->id,
                         'products' => collect($item->lineItems)

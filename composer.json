@@ -20,7 +20,8 @@
     "extra": {
         "laravel": {
             "providers": [
-                "Go2Flow\\Ezport\\EzportServiceProvider"
+                "Go2Flow\\Ezport\\EzportServiceProvider",
+                "Go2Flow\\Ezport\\EzportContentTypeServiceProvider"
             ]
         }
     },

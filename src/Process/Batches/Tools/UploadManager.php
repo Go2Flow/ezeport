@@ -1,17 +1,17 @@
 <?php
 
-namespace Go2Flow\Ezport\Upload;
+namespace Go2Flow\Ezport\Process\Batches\Tools;
 
-use Go2Flow\Ezport\Models\Project;
 use Go2Flow\Ezport\Finders\Find;
-use Go2Flow\Ezport\Instructions\Setters\Upload;
+use Go2Flow\Ezport\Instructions\Setters\Types\Upload;
+use Go2Flow\Ezport\Models\Project;
 use Illuminate\Support\Collection;
 
 class UploadManager
 {
-    public $project;
-    private $batch;
-    private $all;
+    public Project $project;
+    private Collection $batch;
+    private Collection $all;
 
     public function __construct(Project $project)
     {
@@ -29,21 +29,20 @@ class UploadManager
         return $this->batch;
     }
 
-    public function batch(array $data): self
+    public function batch(Collection|array $items): self
     {
-        $this->batch = $this->prepareBatchWithinstruction($data);
+        $this->batch = $this->prepareBatchWithinstruction($items);
 
         return $this;
     }
 
-    private function prepareBatchWithInstruction(array $data, $instructions = null)
+    private function prepareBatchWithInstruction(Collection|array $items, $instructions = null) : Collection
     {
-
         if (!$instructions) $instructions = Find::instruction($this->project, 'upload');
 
-        return collect($data)->flatmap(
+        return collect($items)->flatmap(
             function ($key) use ($instructions) {
-                if (is_array($key) || $key instanceof Collection) return [$this->prepareBatchWithInstruction($key)->toArray()];
+                if (is_array($key) || $key instanceof Collection) return [$this->prepareBatchWithInstruction($key, $instructions)->toArray()];
 
                 $instruction = $instructions->find($key);
 

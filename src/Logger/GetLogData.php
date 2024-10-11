@@ -81,7 +81,7 @@ class GetLogData
 
     public function shopware() : self {
 
-        return $this->whereType('shopware');
+        return $this->whereType('shop');
     }
 
     public function api() : self {

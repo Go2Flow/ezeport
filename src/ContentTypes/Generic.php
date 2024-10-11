@@ -19,7 +19,7 @@ use Illuminate\Support\Str;
 * @property bool $updated
 * @property bool $touched
 * @property ?Collection $content
-* @property ?Collection $shopware
+* @property ?Collection $shop
 */
 
 class Generic
@@ -204,7 +204,7 @@ class Generic
 
     public function shopware($input = null)
     {
-        return $this->contentData->getOrSetData($input, 'shopware');
+        return $this->contentData->getOrSetData($input, 'shop');
     }
 
     /**
@@ -233,9 +233,9 @@ class Generic
      * remove a key from the shopware attribute
      */
 
-    public function shopwareForget($input = null) : self
+    public function shopForget($input = null) : self
     {
-        $this->forget('shopware', $input);
+        $this->forget('shop', $input);
 
         return $this;
     }
@@ -246,7 +246,7 @@ class Generic
 
     public function shop($input = null)
     {
-        return $this->contentData->getOrSetData($input, 'shopware');
+        return $this->contentData->getOrSetData($input, 'shop');
     }
 
     /**

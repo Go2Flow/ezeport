@@ -18,7 +18,7 @@ return new class extends Migration
             $table->boolean('touched')->default(true);
             $table->string('type');
             $table->longText('content')->nullable();
-            $table->longText('shopware')->nullable();
+            $table->longText('shop')->nullable();
             $table->string('name')->nullable();
             $table->foreignId('project_id')->nullable()->constrained()->oncascade('delete');
             $table->index('type');

@@ -16,7 +16,7 @@ class ShopImport extends Basic implements ImportInstructionInterface {
     protected closure $items;
     protected closure $process;
     protected Collection $properties;
-    protected Collection $shopware;
+    protected Collection $shop;
     protected GetProxy $api;
 
     public function __construct(string $key, private array $config = [])
@@ -25,7 +25,7 @@ class ShopImport extends Basic implements ImportInstructionInterface {
         $this->type = $this->key;
 
         $this->properties = collect();
-        $this->shopware = collect();
+        $this->shop = collect();
 
         $this->items = fn () => null;
         $this->process = fn () => null;
@@ -74,7 +74,11 @@ class ShopImport extends Basic implements ImportInstructionInterface {
 
     public function shopware(Closure $shopware) : self
     {
-        return $this->pushToCollection('shopware', $shopware);
+        return $this->pushToCollection('shop', $shopware);
+
+    }public function shop(Closure $shopware) : self
+    {
+        return $this->pushToCollection('shop', $shopware);
     }
 
     public function type(string $type) : self

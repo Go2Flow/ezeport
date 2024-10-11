@@ -10,7 +10,7 @@ use Go2Flow\Ezport\Models\Project;
 use Go2Flow\Ezport\PrepareProject\CreateProject;
 use Go2Flow\Ezport\PrepareProject\CreateProjectCache;
 use Go2Flow\Ezport\Process\Batches\JobBatcher;
-use Go2Flow\Ezport\Upload\UploadManager;
+use Go2Flow\Ezport\Process\Batches\Tools\UploadManager;
 use Illuminate\Support\Str;
 use function Laravel\Prompts\confirm;
 use function Laravel\Prompts\password;

@@ -3,12 +3,12 @@
 namespace Go2Flow\Ezport\Process\Batches;
 
 use Go2Flow\Ezport\Finders\Find;
-use Go2Flow\Ezport\Instructions\Setters\Jobs;
+use Go2Flow\Ezport\Instructions\Setters\Types\Jobs;
 use Go2Flow\Ezport\Models\Project;
 use Go2Flow\Ezport\Process\Batches\Tools\Batch as BatchTool;
 use Go2Flow\Ezport\Process\Batches\Tools\ManageActions;
 use Go2Flow\Ezport\Process\Batches\Tools\Prepare;
-use Go2Flow\Ezport\Upload\UploadManager;
+use Go2Flow\Ezport\Process\Batches\Tools\UploadManager;
 use Illuminate\Bus\Batch;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Queue;
@@ -37,11 +37,11 @@ class JobBatcher
 
     public function executeJobsBatch(Collection $jobs, array $lock = []): Batch
     {
+
         return $this->batch->setActions($this->action)
             ->setQueue($this->action->getQueue())
             ->run(
-                $jobs[0],
-                $jobs[1],
+                $jobs,
                 $lock
             );
     }
@@ -109,9 +109,8 @@ class JobBatcher
     {
 
         $jobs = $instruction->getJobs();
-        $jobNames = $instruction->getJobNames();
 
-        return collect([
+        return
             match($method) {
                 'upload' => $this->prepare->prepareUpload($jobs, $type),
                 'import' => $this->prepare->prepareImport($jobs, $type),
@@ -119,10 +118,7 @@ class JobBatcher
                 'ftpClean' => $this->prepare->prepareClean($jobs, $type),
                 'transform' => $this->prepare->prepareTransform($jobs, $type),
                 default => throw new \Exception('No prepare method found for ' . $method),
-
-            },
-            $jobNames
-        ]);
+            };
     }
 
     private function prepareBatch(string $method, string $type): Collection

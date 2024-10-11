@@ -95,7 +95,9 @@ class Prepare {
     {
         $importInstructions = Find::instruction($this->project, 'import');
 
-        return collect($jobInstructions)->flatmap(
+
+
+        return collect($jobInstructions)->map(
             fn ($job) => $importInstructions
                 ->byKey($job)
                 ->GetJob()
@@ -106,9 +108,7 @@ class Prepare {
     {
         $transformInstructions = Find::instruction($this->project, 'transform');
 
-
-
-        return collect($jobInstructions)->flatmap(
+        return collect($jobInstructions)->map(
             fn ($job) => $transformInstructions
                 ->byKey($job)
                 ->GetJob()

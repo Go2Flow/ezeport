@@ -27,10 +27,10 @@ class Batch {
         return $this;
     }
 
-    public function run(Collection $jobBatch, Collection $stepNames, array $lock = []): BusBatch
+    public function run(Collection $jobBatch, array $lock = []): BusBatch
     {
-        if ($jobBatch->first() instanceof Collection) return $this->executeRecursiveBatch($jobBatch, $stepNames, $lock);
-        $this->action->setStep($stepNames->shift());
+
+        if ($jobBatch->first() instanceof Collection) return $this->executeRecursiveBatch($jobBatch, $lock);
 
         return $this->createBatch(
             $jobBatch,
@@ -43,12 +43,12 @@ class Batch {
         );
     }
 
-    private function executeRecursiveBatch(Collection $collection, Collection $stepNames, array $lock): BusBatch
+    private function executeRecursiveBatch(Collection $collection, array $lock): BusBatch
     {
+        $key = $collection->keys()->first();
         $items = $collection->shift();
-        $stepName = $stepNames->shift();
 
-        if (!$items || $items->count() === 0) return $this->executeRecursiveBatch($collection, $stepNames, $lock);
+        if (!$items || $items->count() === 0) return $this->executeRecursiveBatch($collection, $lock);
 
         if ($collection->count() === 0) {
             return $this->createBatch(
@@ -65,10 +65,9 @@ class Batch {
         return $this->createBatch(
             $items,
             $lock,
-            function () use ($collection, $stepName, $stepNames, $lock) {
-
-                $this->action->setStep($stepName);
-                return $this->executeRecursiveBatch($collection, $stepNames, $lock);
+            function () use ($collection, $key, $lock) {
+                $this->action->setStep($key);
+                return $this->executeRecursiveBatch($collection, $lock);
             }
         );
     }
@@ -84,6 +83,8 @@ class Batch {
             });
 
         if ($then) $batch->then($then);
+
+        Log::info(json_encode($batch));
 
         return $batch->onQueue($this->queue)
             ->dispatch();
