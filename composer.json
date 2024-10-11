@@ -1,7 +1,7 @@
 {
     "name": "go2flow/ezport",
     "description": "An importer/exporter package",
-    "type": "library",
+    "type": "project",
     "license": "MIT",
     "keywords": [
         "laravel",
