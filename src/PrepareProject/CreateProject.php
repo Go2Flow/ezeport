@@ -3,8 +3,8 @@
 namespace Go2Flow\Ezport\PrepareProject;
 
 use Go2Flow\Ezport\Finders\Find;
-use Go2Flow\Ezport\Instructions\Setters\Connector;
-use Go2Flow\Ezport\Instructions\Setters\Project as SetProject;
+use Go2Flow\Ezport\Instructions\Setters\Types\Connector;
+use Go2Flow\Ezport\Instructions\Setters\Types\Project as SetProject;
 use Go2Flow\Ezport\Models\Project;
 use Illuminate\Support\Collection;
 

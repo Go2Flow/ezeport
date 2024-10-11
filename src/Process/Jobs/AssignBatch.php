@@ -2,7 +2,7 @@
 
 namespace Go2Flow\Ezport\Process\Jobs;
 
-use Go2Flow\Ezport\Instructions\Setters\Schedule;
+use Go2Flow\Ezport\Instructions\Setters\Types\Schedule;
 use Go2Flow\Ezport\Models\Project;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;

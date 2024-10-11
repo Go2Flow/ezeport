@@ -3,11 +3,11 @@
 namespace Go2Flow\Ezport\Instructions\Getters;
 
 use Go2Flow\Ezport\Finders\Find;
-use Go2Flow\Ezport\Instructions\Setters\Api;
-use Go2Flow\Ezport\Instructions\Setters\Upload;
-use Go2Flow\Ezport\Instructions\Setters\UploadProcessor;
+use Go2Flow\Ezport\Instructions\Setters\Types\Api;
+use Go2Flow\Ezport\Instructions\Setters\Types\Transform;
+use Go2Flow\Ezport\Instructions\Setters\Types\Upload;
+use Go2Flow\Ezport\Instructions\Setters\Types\UploadProcessor;
 use Go2Flow\Ezport\Models\Project;
-use Go2Flow\Ezport\Instructions\Setters\Transform;
 
 class Get {
 

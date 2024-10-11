@@ -1,12 +1,13 @@
 <?php
 
-namespace Go2Flow\Ezport\Instructions\Setters;
+namespace Go2Flow\Ezport\Instructions\Setters\Types;
 
 use Closure;
 use Go2Flow\Ezport\Cleaners\ShopwareSix\BaseCleaner;
 use Go2Flow\Ezport\Connectors\ShopwareSix\Api;
 use Go2Flow\Ezport\Finders\Find;
 use Go2Flow\Ezport\Instructions\Setters\Interfaces\JobInterface;
+use Go2Flow\Ezport\Instructions\Setters\Set;
 use Go2Flow\Ezport\Process\Jobs\AssignClean;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;

@@ -1,9 +1,9 @@
 <?php
 
-namespace Go2Flow\Ezport\Instructions\Setters;
+namespace Go2Flow\Ezport\Instructions\Setters\Types;
 
-use Go2Flow\Ezport\ContentTypes\Generic;
 use Closure;
+use Go2Flow\Ezport\ContentTypes\Generic;
 use Illuminate\Support\Str;
 
 class UploadField extends Base {

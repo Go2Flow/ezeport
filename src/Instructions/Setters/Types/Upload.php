@@ -1,6 +1,6 @@
 <?php
 
-namespace Go2Flow\Ezport\Instructions\Setters;
+namespace Go2Flow\Ezport\Instructions\Setters\Types;
 
 use Closure;
 use Go2Flow\Ezport\ContentTypes\Generic;
@@ -9,6 +9,7 @@ use Go2Flow\Ezport\ContentTypes\Helpers\TypeGetter;
 use Go2Flow\Ezport\Instructions\Getters\Get;
 use Go2Flow\Ezport\Instructions\Getters\GetProxy;
 use Go2Flow\Ezport\Instructions\Setters\Interfaces\JobInterface;
+use Go2Flow\Ezport\Instructions\Setters\Set;
 use Go2Flow\Ezport\Models\GenericModel;
 use Go2Flow\Ezport\Process\Jobs\UploadWithInstruction;
 use Illuminate\Contracts\Database\Query\Builder;

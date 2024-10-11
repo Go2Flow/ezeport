@@ -1,14 +1,15 @@
 <?php
 
-namespace Go2Flow\Ezport\Instructions\Setters;
+namespace Go2Flow\Ezport\Instructions\Setters\Types;
 
 use Go2Flow\Ezport\ContentTypes\Generic;
-use Go2Flow\Ezport\Models\GenericModel;
+use Go2Flow\Ezport\Process\Jobs\AssignTransform;
 use Go2Flow\Ezport\Process\Jobs\Transform as TransformJob;
+use Go2Flow\Ezport\Models\GenericModel;
 use Illuminate\Contracts\Database\Query\Builder;
 use Illuminate\Support\Collection;
 
-class Transform extends Base
+class Transform extends Basic
 {
     protected ?\closure $prepare = null;
     protected Collection $processes;
@@ -26,6 +27,8 @@ class Transform extends Base
                 $this->$type = $config[$type];
             }
         }
+
+        $this->job = (new Job)->class(AssignTransform::class);
 
         $this->processes = collect();
     }
@@ -68,21 +71,21 @@ class Transform extends Base
         return $this;
     }
 
-    public function jobs()
+    public function getJobs()
     {
         $config = $this->config ? ($this->config)() : collect();
 
         return !$this->items
             ? collect([new TransformJob($this->project->id, $this->key->toString(), null, $config) ])
-            : $this->items->chunk(25)
-            ->map(
-                fn ($chunk) => new TransformJob(
-                    $this->project->id,
-                    $this->key->toString(),
-                    $chunk,
-                    $config
-                )
-            );
+            : $this->items->chunk(50)
+                ->map(
+                    fn ($chunk) => new TransformJob(
+                        $this->project->id,
+                        $this->key->toString(),
+                        $chunk,
+                        $config
+                    )
+                );
     }
 
     public function pluck(): self
@@ -112,12 +115,12 @@ class Transform extends Base
     {
         $chunk
             ? GenericModel::whereProjectId($this->project->id)
-                ->whereIn('id', $chunk)
-                ->get()
-                ->toContentType()
-                ->each(
-                    fn ($item) => $this->runThroughProcesses($item, $config)
-                )
+            ->whereIn('id', $chunk)
+            ->get()
+            ->toContentType()
+            ->each(
+                fn ($item) => $this->runThroughProcesses($item, $config)
+            )
             : $this->runThroughProcesses(null, $config);
     }
 

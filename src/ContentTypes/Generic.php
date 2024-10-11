@@ -5,9 +5,9 @@ namespace Go2Flow\Ezport\ContentTypes;
 use Go2Flow\Ezport\ContentTypes\Helpers\Content;
 use Go2Flow\Ezport\ContentTypes\Helpers\Log;
 use Go2Flow\Ezport\Finders\Find;
+use Go2Flow\Ezport\Instructions\Setters\Types\Upload;
 use Go2Flow\Ezport\Models\GenericModel;
 use Go2Flow\Ezport\Models\Project;
-use Go2Flow\Ezport\Instructions\Setters\Upload;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 

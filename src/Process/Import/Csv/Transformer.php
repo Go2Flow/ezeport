@@ -3,7 +3,7 @@
 namespace Go2Flow\Ezport\Process\Import\Csv;
 
 use Go2Flow\Ezport\ContentTypes\Generic;
-use Go2Flow\Ezport\Instructions\Setters\CsvImport;
+use Go2Flow\Ezport\Instructions\Setters\Types\CsvImport;
 use Illuminate\Support\Collection;
 
 class Transformer {

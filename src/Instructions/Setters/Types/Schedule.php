@@ -1,11 +1,11 @@
 <?php
 
-namespace Go2Flow\Ezport\Instructions\Setters;
+namespace Go2Flow\Ezport\Instructions\Setters\Types;
 
 use Go2Flow\Ezport\Instructions\Setters\Tools\TimeChecker;
 use Go2Flow\Ezport\Process\Batches\JobBatcher;
+use Go2Flow\Ezport\Process\Batches\Tools\UploadManager;
 use Go2Flow\Ezport\Process\Jobs\AssignBatch;
-use Go2Flow\Ezport\Upload\UploadManager;
 use Illuminate\Bus\Batch;
 use Illuminate\Cache\Lock;
 use Illuminate\Support\Str;

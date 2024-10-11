@@ -3,7 +3,7 @@
 namespace Go2Flow\Ezport\Finders;
 
 use Go2Flow\Ezport\Getters\Transformers\Standard;
-use Go2Flow\Ezport\Instructions\Setters\Transform as SetTransform;
+use Go2Flow\Ezport\Instructions\Setters\Types\Transform as SetTransform;
 use Go2Flow\Ezport\Models\Project;
 
 class Transform extends Base{

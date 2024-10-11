@@ -1,6 +1,6 @@
 <?php
 
-namespace Go2Flow\Ezport\Instructions\Setters;
+namespace Go2Flow\Ezport\Instructions\Setters\Types;
 
 use Illuminate\Support\Collection;
 
@@ -35,6 +35,11 @@ class Jobs extends Base{
     public function import() : self {
 
         return $this->setKey('import');
+    }
+
+    public function transform() : self {
+
+        return $this->setKey('transform');
     }
 
     public function partial() : self {
@@ -88,9 +93,13 @@ class Jobs extends Base{
      * they will be worked through in order with one step being completed before the next
      */
 
-    public function step(array|Collection $items)
+    public function step(Step|array|Collection $content, string $name = '') : self
     {
-        $this->steps->push($items);
+        $this->steps->push(
+            $content instanceof Step
+                ? $content
+                : new Step($name, $content)
+        );
 
         return $this;
     }

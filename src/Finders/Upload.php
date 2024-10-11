@@ -3,7 +3,7 @@
 namespace Go2Flow\Ezport\Finders;
 
 use Go2Flow\Ezport\Getters\Uploads\StandardShopSix;
-use Go2Flow\Ezport\Instructions\Setters\Upload as SetUpload;
+use Go2Flow\Ezport\Instructions\Setters\Types\Upload as SetUpload;
 use Go2Flow\Ezport\Models\Project;
 
 class Upload extends Base{

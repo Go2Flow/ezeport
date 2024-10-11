@@ -3,8 +3,8 @@
 namespace Go2Flow\Ezport\Process\Import\Csv;
 
 use Go2Flow\Ezport\ContentTypes\Generic;
-use Go2Flow\Ezport\Instructions\Setters\CsvImport;
-use Go2Flow\Ezport\Instructions\Setters\CsvImportStep;
+use Go2Flow\Ezport\Instructions\Setters\Types\CsvImport;
+use Go2Flow\Ezport\Instructions\Setters\Types\CsvImportStep;
 use Go2Flow\Ezport\Models\Project;
 use Go2Flow\Ezport\Process\Import\Csv\Imports\Import;
 use Illuminate\Support\Collection;

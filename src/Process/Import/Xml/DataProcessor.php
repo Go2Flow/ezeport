@@ -5,7 +5,7 @@ namespace Go2Flow\Ezport\Process\Import\Xml;
 use Exception;
 use Go2Flow\Ezport\ContentTypes\Generic;
 use Go2Flow\Ezport\Finders\Find;
-use Go2Flow\Ezport\Instructions\Setters\XmlImport;
+use Go2Flow\Ezport\Instructions\Setters\Types\XmlImport;
 use Go2Flow\Ezport\Models\Project;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;

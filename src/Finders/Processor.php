@@ -3,7 +3,7 @@
 namespace Go2Flow\Ezport\Finders;
 
 use Go2Flow\Ezport\Getters\Processors\StandardShopSix;
-use Go2Flow\Ezport\Instructions\Setters\UploadProcessor;
+use Go2Flow\Ezport\Instructions\Setters\Types\UploadProcessor;
 use Go2Flow\Ezport\Models\Project;
 use Illuminate\Support\Str;
 

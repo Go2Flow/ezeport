@@ -3,7 +3,7 @@
 namespace Go2Flow\Ezport\Finders\Abstracts;
 
 use Go2Flow\Ezport\Instructions\Getters\GetProxy;
-use Go2Flow\Ezport\Instructions\Setters\Base;
+use Go2Flow\Ezport\Instructions\Setters\Types\Base;
 use Go2Flow\Ezport\Models\Project;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;

@@ -1,11 +1,11 @@
 <?php
 
-namespace Go2Flow\Ezport\Instructions\Setters;
+namespace Go2Flow\Ezport\Instructions\Setters\Types;
 
+use Closure;
 use Go2Flow\Ezport\Finders\Find;
 use Go2Flow\Ezport\Instructions\Getters\Get;
 use Go2Flow\Ezport\Instructions\Getters\GetProxy;
-use Closure;
 use Illuminate\Support\Collection;
 
 class UploadProcessor extends Base {

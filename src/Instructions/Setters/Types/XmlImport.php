@@ -1,10 +1,11 @@
 <?php
 
-namespace Go2Flow\Ezport\Instructions\Setters;
+namespace Go2Flow\Ezport\Instructions\Setters\Types;
 
 use Closure;
 use Go2Flow\Ezport\Instructions\Interfaces\ImportInstructionInterface;
 use Go2Flow\Ezport\Instructions\Setters\Interfaces\JobInterface;
+use Go2Flow\Ezport\Instructions\Setters\Set;
 use Go2Flow\Ezport\Process\Jobs\AssignXml;
 use Illuminate\Support\Collection;
 

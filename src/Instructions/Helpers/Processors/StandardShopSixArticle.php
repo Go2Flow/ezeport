@@ -4,12 +4,12 @@ namespace Go2Flow\Ezport\Instructions\Helpers\Processors;
 
 use Go2Flow\Ezport\Connectors\ShopwareSix\ShopSix;
 use Go2Flow\Ezport\ContentTypes\Generic;
+use Go2Flow\Ezport\Finders\Api;
 use Go2Flow\Ezport\Instructions\Setters\Set;
-use Go2Flow\Ezport\Instructions\Setters\UploadProcessor;
+use Go2Flow\Ezport\Instructions\Setters\Types\UploadProcessor;
 use Go2Flow\Ezport\Logger\LogOutput;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
-use Go2Flow\Ezport\Finders\Api;
 
 trait StandardShopSixArticle
 {

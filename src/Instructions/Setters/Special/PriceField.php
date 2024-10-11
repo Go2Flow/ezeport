@@ -2,11 +2,11 @@
 
 namespace Go2Flow\Ezport\Instructions\Setters\Special;
 
+use Closure;
 use Go2Flow\Ezport\ContentTypes\Generic;
 use Go2Flow\Ezport\Instructions\Helpers\Uploads\ArticleFields;
 use Go2Flow\Ezport\Instructions\Helpers\Uploads\FieldHelpers;
-use Go2Flow\Ezport\Instructions\Setters\UploadField;
-use Closure;
+use Go2Flow\Ezport\Instructions\Setters\Types\UploadField;
 use Illuminate\Support\Str;
 
 class PriceField extends UploadField {

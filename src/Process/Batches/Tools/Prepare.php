@@ -6,7 +6,6 @@ use Go2Flow\Ezport\Finders\Find;
 use Go2Flow\Ezport\Models\GenericModel;
 use Go2Flow\Ezport\Models\Project;
 use Go2Flow\Ezport\Process\Jobs\ModifyModel;
-use Go2Flow\Ezport\Upload\UploadManager;
 use Illuminate\Support\Collection;
 
 class Prepare {
@@ -31,8 +30,10 @@ class Prepare {
     public function prepareImport(Collection $collection, string $type): Collection
     {
         return $this->cleanCollection(
-            $collection->map(
-                fn ($item) => $this->import($item)
+            $collection->mapWithKeys(
+                fn ($step, $index) => [
+                    $step->getKey() == '' ? $index : $step->getKey() => $this->import($step->getcontent())
+                ]
             )->when(
                 $type == 'full',
                 fn ($collection) => $collection->prepend(
@@ -47,11 +48,11 @@ class Prepare {
         );
     }
 
-    public function prepareTransform(Collection $jobs, string $type) : Collection
+    public function prepareTransform(Collection $collection, string $type) : Collection
     {
         return
             $this->cleanCollection(
-                $jobs->map(fn ($item) => $this->transform($item))
+                $collection->mapWithKeys(fn ($step, $index) => [$step->getKey() == '' ? $index : $step->getKey() => $this->transform($step->getContent())])
             );
     }
 
@@ -59,7 +60,7 @@ class Prepare {
     {
         return
             $this->cleanCollection(
-                $jobs->map(fn ($item) => $this->upload($item))
+                $jobs->mapWithKeys(fn ($step, $index) => [$step->getKey() == '' ? $index : $step->getKey() => $this->upload($step->getContent())])
             )->push(
                 $this->createModifyModelJobs(
                     $this->uploadManager->getAll(),
@@ -75,14 +76,15 @@ class Prepare {
     {
         return $collection
             ->filter()
-            ->values()
             ->map(
-                fn ($item) => $item instanceof Collection ? $this->cleanCollection($item) : $item
+                fn ($item) => $item instanceof Collection
+                    ? $this->cleanCollection($item)
+                    : $item
             );
     }
 
 
-    private function upload(array $batch): Collection
+    private function upload(Collection $batch): Collection
     {
         return $this->uploadManager
             ->batch($batch)
@@ -93,7 +95,7 @@ class Prepare {
     {
         $importInstructions = Find::instruction($this->project, 'import');
 
-        return collect($jobInstructions)->map(
+        return collect($jobInstructions)->flatmap(
             fn ($job) => $importInstructions
                 ->byKey($job)
                 ->GetJob()
@@ -104,7 +106,9 @@ class Prepare {
     {
         $transformInstructions = Find::instruction($this->project, 'transform');
 
-        return collect($jobInstructions)->map(
+
+
+        return collect($jobInstructions)->flatmap(
             fn ($job) => $transformInstructions
                 ->byKey($job)
                 ->GetJob()

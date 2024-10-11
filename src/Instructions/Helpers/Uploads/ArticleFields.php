@@ -3,7 +3,7 @@
 namespace Go2Flow\Ezport\Instructions\Helpers\Uploads;
 
 use Go2Flow\Ezport\Instructions\Setters\Set;
-use Go2Flow\Ezport\Instructions\Setters\UploadField;
+use Go2Flow\Ezport\Instructions\Setters\Types\UploadField;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 

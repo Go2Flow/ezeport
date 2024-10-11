@@ -5,7 +5,7 @@ namespace Go2Flow\Ezport\Instructions\Setters\Special;
 use Go2Flow\Ezport\Finders\Api;
 use Go2Flow\Ezport\Instructions\Setters\Special\ArticleProcessorSub\ArticleProcessorApiCalls;
 use Go2Flow\Ezport\Instructions\Setters\Special\ArticleProcessorSub\ArticleProcessorPatch;
-use Go2Flow\Ezport\Instructions\Setters\UploadProcessor;
+use Go2Flow\Ezport\Instructions\Setters\Types\UploadProcessor;
 use Go2Flow\Ezport\Logger\LogOutput;
 use Illuminate\Support\Collection;
 

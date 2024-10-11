@@ -1,6 +1,6 @@
 <?php
 
-namespace Go2Flow\Ezport\Instructions\Setters;
+namespace Go2Flow\Ezport\Instructions\Setters\Types;
 
 use Closure;
 use Go2Flow\Ezport\Instructions\Setters\Interfaces\JobInterface;

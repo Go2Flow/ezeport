@@ -4,7 +4,7 @@ namespace Go2Flow\Ezport\Process\Import\Shopware;
 
 use Go2Flow\Ezport\ContentTypes\Generic;
 use Go2Flow\Ezport\Finders\Find;
-use Go2Flow\Ezport\Instructions\Setters\ShopImport as SetShopImport;
+use Go2Flow\Ezport\Instructions\Setters\Types\ShopImport as SetShopImport;
 use Go2Flow\Ezport\Models\Project;
 use Go2Flow\Ezport\Process\Import\Helpers\HasStructure;
 use Go2Flow\Ezport\Process\Jobs\ShopImport;
