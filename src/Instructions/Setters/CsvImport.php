@@ -2,9 +2,9 @@
 
 namespace Go2Flow\Ezport\Instructions\Setters;
 
-use Go2Flow\Ezport\Instructions\Setters\Interfaces\JobInterface;
-use Go2Flow\Ezport\Jobs\AssignCsv;
 use Closure;
+use Go2Flow\Ezport\Instructions\Setters\Interfaces\JobInterface;
+use Go2Flow\Ezport\Process\Jobs\AssignCsv;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 

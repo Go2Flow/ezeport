@@ -5,13 +5,13 @@ namespace Go2Flow\Ezport;
 use Go2Flow\Ezport\Commands\MakeCustomer;
 use Go2Flow\Ezport\Commands\PrepareProject;
 use Go2Flow\Ezport\Commands\PublishGetters;
-use Illuminate\Support\ServiceProvider;
-use Illuminate\Console\Scheduling\Schedule;
 use Go2Flow\Ezport\Finders\Find;
-use Go2Flow\Ezport\Jobs\CleanActivityLog;
 use Go2Flow\Ezport\Models\Action;
 use Go2Flow\Ezport\Models\Project;
+use Go2Flow\Ezport\Process\Jobs\CleanActivityLog;
+use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\ServiceProvider;
 
 class EzportServiceProvider extends ServiceProvider
 {

@@ -2,19 +2,17 @@
 
 namespace Go2Flow\Ezport\Instructions\Setters;
 
+use Closure;
 use Go2Flow\Ezport\ContentTypes\Generic;
 use Go2Flow\Ezport\ContentTypes\Helpers\Content;
 use Go2Flow\Ezport\ContentTypes\Helpers\TypeGetter;
 use Go2Flow\Ezport\Instructions\Getters\Get;
 use Go2Flow\Ezport\Instructions\Getters\GetProxy;
 use Go2Flow\Ezport\Instructions\Setters\Interfaces\JobInterface;
-use Go2Flow\Ezport\Instructions\Setters\UploadField;
-use Go2Flow\Ezport\Instructions\Setters\UploadProcessor;
-use Go2Flow\Ezport\Jobs\UploadWithInstruction;
 use Go2Flow\Ezport\Models\GenericModel;
-use Closure;
-use Illuminate\Support\Collection;
+use Go2Flow\Ezport\Process\Jobs\UploadWithInstruction;
 use Illuminate\Contracts\Database\Query\Builder;
+use Illuminate\Support\Collection;
 
 class Upload extends Basic implements JobInterface
 {

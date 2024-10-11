@@ -3,12 +3,12 @@
 namespace Go2Flow\Ezport\Instructions\Setters;
 
 use Go2Flow\Ezport\Instructions\Setters\Tools\TimeChecker;
-use Go2Flow\Ezport\Jobs\AssignBatch;
-use Go2Flow\Ezport\Jobs\Batches\JobBatcher;
+use Go2Flow\Ezport\Process\Batches\JobBatcher;
+use Go2Flow\Ezport\Process\Jobs\AssignBatch;
 use Go2Flow\Ezport\Upload\UploadManager;
 use Illuminate\Bus\Batch;
-use Illuminate\Support\Str;
 use Illuminate\Cache\Lock;
+use Illuminate\Support\Str;
 use Illuminate\Support\Stringable;
 
 class Schedule extends Base

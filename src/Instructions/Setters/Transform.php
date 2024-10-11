@@ -3,8 +3,8 @@
 namespace Go2Flow\Ezport\Instructions\Setters;
 
 use Go2Flow\Ezport\ContentTypes\Generic;
-use Go2Flow\Ezport\Jobs\Transform as TransformJob;
 use Go2Flow\Ezport\Models\GenericModel;
+use Go2Flow\Ezport\Process\Jobs\Transform as TransformJob;
 use Illuminate\Contracts\Database\Query\Builder;
 use Illuminate\Support\Collection;
 

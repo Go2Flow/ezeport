@@ -2,12 +2,12 @@
 
 namespace Go2Flow\Ezport\Cleaners\ShopwareSix;
 
+use Closure;
 use Go2Flow\Ezport\Connectors\ShopwareSix\Api;
 use Go2Flow\Ezport\Connectors\ShopwareSix\ShopSix;
 use Go2Flow\Ezport\ContentTypes\ActivityLog;
-use Go2Flow\Ezport\Jobs\CleanShop;
 use Go2Flow\Ezport\Models\Project;
-use Closure;
+use Go2Flow\Ezport\Process\Jobs\CleanShop;
 use Illuminate\Support\Collection;
 
 abstract class BaseCleaner

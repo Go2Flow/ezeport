@@ -2,14 +2,14 @@
 
 namespace Go2Flow\Ezport\Instructions\Setters;
 
+use Closure;
 use Go2Flow\Ezport\Cleaners\ShopwareSix\BaseCleaner;
 use Go2Flow\Ezport\Connectors\ShopwareSix\Api;
 use Go2Flow\Ezport\Finders\Find;
 use Go2Flow\Ezport\Instructions\Setters\Interfaces\JobInterface;
-use Go2Flow\Ezport\Jobs\AssignClean;
-use Closure;
-use Illuminate\Support\Str;
+use Go2Flow\Ezport\Process\Jobs\AssignClean;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Str;
 
 class ShopCleaner extends Basic implements JobInterface {
 

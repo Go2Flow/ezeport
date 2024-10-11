@@ -3,7 +3,7 @@
 namespace Go2Flow\Ezport\Instructions\Setters;
 
 use Go2Flow\Ezport\Instructions\Setters\Interfaces\JobInterface;
-use Go2Flow\Ezport\Jobs\AssignClean;
+use Go2Flow\Ezport\Process\Jobs\AssignClean;
 use Illuminate\Support\Collection;
 
 class FtpCleaner extends Basic implements JobInterface {

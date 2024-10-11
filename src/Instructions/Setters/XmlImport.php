@@ -2,10 +2,10 @@
 
 namespace Go2Flow\Ezport\Instructions\Setters;
 
+use Closure;
 use Go2Flow\Ezport\Instructions\Interfaces\ImportInstructionInterface;
 use Go2Flow\Ezport\Instructions\Setters\Interfaces\JobInterface;
-use Go2Flow\Ezport\Jobs\AssignXml;
-use Closure;
+use Go2Flow\Ezport\Process\Jobs\AssignXml;
 use Illuminate\Support\Collection;
 
 class XmlImport extends Basic implements JobInterface, ImportInstructionInterface {

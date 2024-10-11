@@ -2,9 +2,9 @@
 
 namespace Go2Flow\Ezport\Finders;
 
-use Go2Flow\Ezport\Import\StandardImports;
 use Go2Flow\Ezport\Instructions\Interfaces\ImportInstructionInterface;
 use Go2Flow\Ezport\Models\Project;
+use Go2Flow\Ezport\Process\Import\StandardImports;
 
 class Import extends Base{
 

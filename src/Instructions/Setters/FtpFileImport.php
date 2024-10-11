@@ -5,9 +5,9 @@ namespace Go2Flow\Ezport\Instructions\Setters;
 use Go2Flow\Ezport\Finders\Api;
 use Go2Flow\Ezport\Instructions\Interfaces\ImportInstructionInterface;
 use Go2Flow\Ezport\Instructions\Setters\Interfaces\JobInterface;
-use Go2Flow\Ezport\Jobs\AssignFtpFileImport;
-use Go2Flow\Ezport\Jobs\FtpFileImport as FtpFileImportJob;
 use Go2Flow\Ezport\Jobs\FileImport;
+use Go2Flow\Ezport\Process\Jobs\AssignFtpFileImport;
+use Go2Flow\Ezport\Process\Jobs\FtpFileImport as FtpFileImportJob;
 use Illuminate\Support\Collection;
 
 class FtpFileImport extends Basic implements JobInterface, ImportInstructionInterface

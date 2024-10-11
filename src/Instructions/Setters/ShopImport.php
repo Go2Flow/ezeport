@@ -2,11 +2,11 @@
 
 namespace Go2Flow\Ezport\Instructions\Setters;
 
+use Closure;
 use Go2Flow\Ezport\Instructions\Getters\Get;
 use Go2Flow\Ezport\Instructions\Getters\GetProxy;
 use Go2Flow\Ezport\Instructions\Interfaces\ImportInstructionInterface;
-use Go2Flow\Ezport\Jobs\AssignShopImport;
-use Closure;
+use Go2Flow\Ezport\Process\Jobs\AssignShopImport;
 use Illuminate\Support\Collection;
 
 class ShopImport extends Basic implements ImportInstructionInterface {
