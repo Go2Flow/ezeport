@@ -24,7 +24,7 @@ class Controller
 
         $this->api = $this->structure->get('api')($project);
 
-        if (!$this->structure instanceof SetShopImport) throw new EzportImportException ("The found file is not of the correct type", 1);
+        if (!$this->structure instanceof SetShopImport) throw new EzportImportException("The found file is not of the correct type", 1);
     }
 
     public function assign() : Collection

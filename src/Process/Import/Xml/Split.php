@@ -2,15 +2,12 @@
 
 namespace Go2Flow\Ezport\Process\Import\Xml;
 
-use Exception;
+
 use Go2Flow\Ezport\Finders\Find;
-use Go2Flow\Ezport\Mail\XmlImportError;
 use Go2Flow\Ezport\Models\Project;
-use Go2Flow\Ezport\Process\Errors\EzportXmlImportError;
+use Go2Flow\Ezport\Process\Errors\EzportlmportException;
 use Go2Flow\Ezport\Process\Jobs\XmlImport;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Mail;
 use XMLReader;
 
 class Split{
@@ -54,7 +51,7 @@ class Split{
                 $string .= $error->message . 'at ' . $error->line . PHP_EOL;
             }
 
-            throw new EzportXmlImportError($string);
+            throw new EzportlmportException(json_encode(['project_id' => $this->project->id, 'message' => $string]));
         }
 
         $node = $path->pop();
