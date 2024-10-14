@@ -20,7 +20,7 @@ class PublishGetHelpers extends Command
      *
      * @var string
      */
-    protected $description = 'Publishes the getters to App/GetHelpers';
+    protected $description = 'Publishes the getters to App/Ezport/GetHelpers';
 
     /**
      * Execute the console command.
@@ -31,10 +31,10 @@ class PublishGetHelpers extends Command
 
         File::copyDirectory(
             $path,
-            base_path('app/GetHelpers')
+            base_path('app/Ezport/GetHelpers')
         );
 
-        foreach (File::directories('app/GetHelpers') as $dir){
+        foreach (File::directories('app/Ezport/GetHelpers') as $dir){
 
             foreach (File::files($dir) as $file) {
 

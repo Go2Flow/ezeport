@@ -6,6 +6,7 @@ use Go2Flow\Ezport\ContentTypes\Generic;
 use Go2Flow\Ezport\Finders\Find;
 use Go2Flow\Ezport\Instructions\Setters\Types\ShopImport as SetShopImport;
 use Go2Flow\Ezport\Models\Project;
+use Go2Flow\Ezport\Process\Errors\EzportImportException;
 use Go2Flow\Ezport\Process\Import\Helpers\HasStructure;
 use Go2Flow\Ezport\Process\Jobs\ShopImport;
 use Illuminate\Support\Collection;
@@ -23,7 +24,7 @@ class Controller
 
         $this->api = $this->structure->get('api')($project);
 
-        if (!$this->structure instanceof SetShopImport) throw new \Exception("The found file is not of the correct type", 1);
+        if (!$this->structure instanceof SetShopImport) throw new EzportImportException ("The found file is not of the correct type", 1);
     }
 
     public function assign() : Collection

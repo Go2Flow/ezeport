@@ -3,6 +3,7 @@
 namespace Go2Flow\Ezport\Instructions\Setters\Types;
 
 use Go2Flow\Ezport\ContentTypes\Generic;
+use Go2Flow\Ezport\Process\Errors\EzportSetterException;
 use Go2Flow\Ezport\Process\Jobs\AssignTransform;
 use Go2Flow\Ezport\Process\Jobs\Transform as TransformJob;
 use Go2Flow\Ezport\Models\GenericModel;
@@ -99,7 +100,7 @@ class Transform extends Basic
 
         if (! $instruction instanceof Builder && ! $instruction instanceof Collection) {
 
-            throw new \Exception("the prepare closure must return a collection or a query builder");
+            throw new EzportSetterException("the prepare closure must return a collection or a query builder");
         }
 
         $this->items = $instruction instanceof Builder

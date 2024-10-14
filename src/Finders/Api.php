@@ -4,6 +4,7 @@ namespace Go2Flow\Ezport\Finders;
 
 use Go2Flow\Ezport\Connectors\ApiInterface;
 use Go2Flow\Ezport\Models\Project;
+use Go2Flow\Ezport\Process\Errors\EzportFinderException;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use Go2Flow\Ezport\Connectors\Ftp\Api as FtpApi;
@@ -48,7 +49,7 @@ class Api extends Base implements ApiInterface
     {
         if (class_exists($class = $this->getPath())) return $class;
 
-        throw new \Exception('Class ' . $class . ' not found');
+        throw new EzportFinderException('Class ' . $class . ' not found');
     }
 
     private function getPath(): string
@@ -71,7 +72,7 @@ class Api extends Base implements ApiInterface
 
         if ($response) return $response[$field];
 
-        throw new \Exception($message);
+        throw new EzportFinderException($message);
     }
 
     private function getConnectors(): Collection

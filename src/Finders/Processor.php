@@ -2,9 +2,10 @@
 
 namespace Go2Flow\Ezport\Finders;
 
-use Go2Flow\Ezport\Getters\Processors\StandardShopSix;
+use Go2Flow\Ezport\GetHelpers\Processors\StandardShopSix;
 use Go2Flow\Ezport\Instructions\Setters\Types\UploadProcessor;
 use Go2Flow\Ezport\Models\Project;
+use Go2Flow\Ezport\Process\Errors\EzportFinderException;
 use Illuminate\Support\Str;
 
 class Processor extends Base{
@@ -18,7 +19,7 @@ class Processor extends Base{
             if ($instruction = (new $processor($project))->find($string)) return $instruction;
         }
 
-        throw new \Exception('Processor ' . $string . ' not found');
+        throw new EzportFinderException('Processor ' . $string . ' not found');
     }
 
     private function checkProjectSpecificProcessors(Project $project, $string) : ?UploadProcessor

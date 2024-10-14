@@ -6,7 +6,7 @@ use Go2Flow\Ezport\ContentTypes\Generic;
 use Go2Flow\Ezport\Finders\Abstracts\BaseInstructions;
 use Go2Flow\Ezport\Finders\Interfaces\InstructionInterface;
 use Go2Flow\Ezport\Instructions\Setters\Set;
-use Str;
+use Illuminate\Support\Str;
 
 class Ftp extends BaseInstructions implements InstructionInterface {
 

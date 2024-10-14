@@ -9,6 +9,7 @@ use Go2Flow\Ezport\Process\Batches\Tools\Batch as BatchTool;
 use Go2Flow\Ezport\Process\Batches\Tools\ManageActions;
 use Go2Flow\Ezport\Process\Batches\Tools\Prepare;
 use Go2Flow\Ezport\Process\Batches\Tools\UploadManager;
+use Go2Flow\Ezport\Process\Errors\EzportProcessException;
 use Illuminate\Bus\Batch;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Queue;
@@ -117,7 +118,7 @@ class JobBatcher
                 'shopClean' => $this->prepare->prepareClean($jobs, $type),
                 'ftpClean' => $this->prepare->prepareClean($jobs, $type),
                 'transform' => $this->prepare->prepareTransform($jobs, $type),
-                default => throw new \Exception('No prepare method found for ' . $method),
+                default => throw new EzportProcessException('No prepare method found for ' . $method),
             };
     }
 
@@ -137,7 +138,7 @@ class JobBatcher
             ->filter(fn ($instruction) => $instruction->getType() == $type && $instruction->correctEnv())
             ->first();
 
-        if (!$instruction) throw new \Exception('No instruction found for ' . $method . ' and ' . $type . ' and ' . config('app.env'));
+        if (!$instruction) throw new EzportProcessException('No instruction found for ' . $method . ' and ' . $type . ' and ' . config('app.env'));
 
         return $instruction;
     }

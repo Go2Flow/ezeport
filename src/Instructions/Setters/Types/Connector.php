@@ -2,6 +2,8 @@
 
 namespace Go2Flow\Ezport\Instructions\Setters\Types;
 
+use Go2Flow\Ezport\Process\Errors\EzportSetterException;
+
 /**
  * @method username(string $string)
  * @method host(string $string)
@@ -46,14 +48,14 @@ class Connector extends Base {
 
         if (in_array($method, $this->fields))
         {
-            if (! is_string($arguments[0])) throw new \Exception("Method {$method} must be a string in " . __CLASS__);
+            if (! is_string($arguments[0])) throw new EzportSetterException("Method {$method} must be a string in " . __CLASS__);
 
             $this->$method = $arguments[0];
 
             return $this;
         }
 
-        throw new \Exception("Method {$method} does not exist in " . __CLASS__);
+        throw new EzportSetterException("Method {$method} does not exist in " . __CLASS__);
     }
 
     private function setEnvironment(string $string) : self {

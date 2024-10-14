@@ -7,7 +7,7 @@ use ArrayAccess;
 
 class Config extends Base implements ArrayAccess {
 
-    public $config;
+    public array $config;
 
     protected function getObject(Project $project) : self
     {

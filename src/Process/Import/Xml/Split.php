@@ -6,6 +6,7 @@ use Exception;
 use Go2Flow\Ezport\Finders\Find;
 use Go2Flow\Ezport\Mail\XmlImportError;
 use Go2Flow\Ezport\Models\Project;
+use Go2Flow\Ezport\Process\Errors\EzportXmlImportError;
 use Go2Flow\Ezport\Process\Jobs\XmlImport;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
@@ -53,7 +54,7 @@ class Split{
                 $string .= $error->message . 'at ' . $error->line . PHP_EOL;
             }
 
-            $this->sendEmail($string);
+            throw new EzportXmlImportError($string);
         }
 
         $node = $path->pop();
@@ -83,15 +84,5 @@ class Split{
                 );
             }
         );
-    }
-
-    private function sendEmail($message) {
-
-        Log::info($message);
-
-        Mail::to($this->project->settings('email'))
-            ->send(new XmlImportError($this->project->id, $message));
-
-        throw new exception($message);
     }
 }

@@ -3,6 +3,7 @@
 namespace Go2Flow\Ezport\Instructions\Setters\Types;
 
 use Go2Flow\Ezport\Models\Project;
+use Go2Flow\Ezport\Process\Errors\EzportSetterException;
 use Illuminate\Support\Str;
 use Illuminate\Support\Stringable;
 
@@ -39,7 +40,7 @@ abstract class Base {
 
     public function get(string $key)
     {
-        if (! property_exists($this, $key)) throw new \Exception("Attribute {$key} does not exist in " . __CLASS__);
+        if (! property_exists($this, $key)) throw new EzportSetterException("Attribute {$key} does not exist in " . __CLASS__);
 
         return $this->$key;
     }

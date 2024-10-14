@@ -6,6 +6,7 @@ use Go2Flow\Ezport\Finders\Interfaces\InstructionInterface;
 use Go2Flow\Ezport\Instructions\Setters\Tools\EmptyInstruction;
 use Go2Flow\Ezport\Models\Project;
 use Exception;
+use Go2Flow\Ezport\Process\Errors\EzportFinderException;
 
 class Instruction extends Base {
 
@@ -13,7 +14,7 @@ class Instruction extends Base {
     {
         $instance = $this->getCorrectOrEmptyInstructionObject($project, $string);
 
-        if (! $instance instanceof InstructionInterface) throw new Exception("The found file is not of the correct type", 1);
+        if (! $instance instanceof InstructionInterface) throw new EzportFinderException("The found file is not of the correct type", 1);
 
         return $instance;
     }

@@ -6,6 +6,7 @@ use Closure;
 use Go2Flow\Ezport\Instructions\Interfaces\ImportInstructionInterface;
 use Go2Flow\Ezport\Instructions\Setters\Interfaces\JobInterface;
 use Go2Flow\Ezport\Instructions\Setters\Set;
+use Go2Flow\Ezport\Process\Errors\EzportSetterException;
 use Go2Flow\Ezport\Process\Jobs\AssignXml;
 use Illuminate\Support\Collection;
 
@@ -92,7 +93,7 @@ class XmlImport extends Basic implements JobInterface, ImportInstructionInterfac
             return $this;
         }
 
-        throw new \Exception("Method {$method} does not exist in " . __CLASS__);
+        throw new EzportSetterException("Method {$method} does not exist in " . __CLASS__);
     }
 
     protected function setSpecificFields() : array
@@ -101,5 +102,4 @@ class XmlImport extends Basic implements JobInterface, ImportInstructionInterfac
             'action' => $this->key->toString(),
         ];
     }
-
 }

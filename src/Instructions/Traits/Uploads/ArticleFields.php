@@ -4,6 +4,7 @@ namespace Go2Flow\Ezport\Instructions\Traits\Uploads;
 
 use Go2Flow\Ezport\Instructions\Setters\Set;
 use Go2Flow\Ezport\Instructions\Setters\Types\UploadField;
+use Go2Flow\Ezport\Process\Errors\EzportSetterException;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 
@@ -31,7 +32,7 @@ trait ArticleFields
                     $item->contains('configurationSettings') => $this->setConfigurationSettingsField(),
                     $item->contains('visibilities') => $this->setVisibilitiesField(),
                     $item->contains('categories') => $this->setCategoriesField(),
-                    default => throw new \Exception('Method ' . $item . ' does not exist')
+                    default => throw new EzportSetterException('Method ' . $item . ' does not exist')
                 };
             }
         );

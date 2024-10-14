@@ -5,6 +5,7 @@ namespace Go2Flow\Ezport\Instructions\Setters\Types;
 use Go2Flow\Ezport\Instructions\Setters\Tools\TimeChecker;
 use Go2Flow\Ezport\Process\Batches\JobBatcher;
 use Go2Flow\Ezport\Process\Batches\Tools\UploadManager;
+use Go2Flow\Ezport\Process\Errors\EzportSetterException;
 use Go2Flow\Ezport\Process\Jobs\AssignBatch;
 use Illuminate\Bus\Batch;
 use Illuminate\Cache\Lock;
@@ -151,7 +152,7 @@ class Schedule extends Base
                 if (is_String($day)) return $this->daysArray[Str::lower($day)];
                 if (is_int($day) && $day < 7 && $day >= 0) return $day;
 
-                throw new \Exception("Days must be a week day written out or an integer between 0 and 6");
+                throw new EzportSetterException("Days must be a week day written out or an integer between 0 and 6");
             }
         )->toArray();
 
@@ -166,7 +167,7 @@ class Schedule extends Base
     {
         foreach (['start', 'end'] as $time) {
             if (!preg_match('/^([0-1][0-9]|2[0-3]):([0-5][0-9])$/', $$time)) {
-                throw new \Exception("{$$time} is not a valid time");
+                throw new EzportSetterException("{$$time} is not a valid time");
             }
         }
 
@@ -188,7 +189,7 @@ class Schedule extends Base
     }
 
     /**
-     * provide anoder Schedule task here to have it run directly after.
+     * provide another Schedule task here to have it run directly after.
      * If you use 'unique' the lock will be passed to the next task
      */
 
@@ -247,7 +248,7 @@ class Schedule extends Base
             }
         }
 
-        throw new \Exception("{$method} is not a valid method");
+        throw new EzportSetterException("{$method} is not a valid method");
     }
 
     private function addToTimes($key, $value) : self

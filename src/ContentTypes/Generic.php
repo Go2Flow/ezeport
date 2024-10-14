@@ -8,6 +8,7 @@ use Go2Flow\Ezport\Finders\Find;
 use Go2Flow\Ezport\Instructions\Setters\Types\Upload;
 use Go2Flow\Ezport\Models\GenericModel;
 use Go2Flow\Ezport\Models\Project;
+use Go2Flow\Ezport\Process\Errors\EzportContentTypeException;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 
@@ -154,7 +155,7 @@ class Generic
         $structure = Find::instruction($this->project(), 'Upload')->find($type);
 
         if (!$structure) {
-            throw new \Exception('No structure found for ' . $type);
+            throw new EzportContentTypeException('No structure found for ' . $type);
         }
 
         $this->setUpload = $structure;
@@ -308,13 +309,13 @@ class Generic
 
             if (!property_exists($this->contentData, Str::after($method, 'set'))) {
 
-                throw new \Exception('Property ' . Str::after($method, 'set') . ' does not exist');
+                throw new EzportContentTypeException('Property ' . Str::after($method, 'set') . ' does not exist');
             }
 
             $this->contentData->{Str::after($method, 'set')} = $arguments[0];
         }
 
-        throw new \BadMethodCallException("Method {$method} does not exist on this object");
+        throw new EzportContentTypeException("Method {$method} does not exist on this object");
     }
 
     private function forget($field, $input = null)
@@ -328,7 +329,7 @@ class Generic
             $this->setStructureByType();
 
             if (!$this->setUpload) {
-                throw new \Exception('No structure found for ' . $this->getType() . '. You might need to set it manually');
+                throw new EzportContentTypeException('No structure found for ' . $this->getType() . '. You might need to set it manually');
             }
         }
     }

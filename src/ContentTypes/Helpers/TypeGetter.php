@@ -41,6 +41,7 @@ namespace Go2Flow\Ezport\ContentTypes\Helpers;
 use Go2Flow\Ezport\ContentTypes\Generic;
 use Go2Flow\Ezport\Models\GenericModel;
 use Go2Flow\Ezport\Models\Project;
+use Go2Flow\Ezport\Process\Errors\EzportContentTypeException;
 use Illuminate\Contracts\Database\Query\Builder as BuilderContract;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
@@ -107,7 +108,7 @@ class TypeGetter implements BuilderContract
             return $this;
         }
 
-        throw new \Exception('Method ' . $method . ' does not exist');
+        throw new EzportContentTypeException('Method ' . $method . ' does not exist');
     }
 
     private function checkIfExistsOnQueryBuilder(string $name, ?array $arguments): mixed

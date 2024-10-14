@@ -24,6 +24,7 @@ use Go2Flow\Ezport\Instructions\Setters\Types\Upload;
 use Go2Flow\Ezport\Instructions\Setters\Types\UploadField;
 use Go2Flow\Ezport\Instructions\Setters\Types\UploadProcessor;
 use Go2Flow\Ezport\Instructions\Setters\Types\XmlImport;
+use Go2Flow\Ezport\Process\Errors\EzportSetterException;
 use Illuminate\Support\Stringable;
 
 /**
@@ -62,6 +63,6 @@ class Set {
             }
         }
 
-        throw new \Exception('Class not found');
+        throw new EzportSetterException('Class not found');
     }
 }
