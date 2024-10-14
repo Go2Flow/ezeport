@@ -27,8 +27,7 @@ class XmlImportError extends Mailable
 
     public function build() : void
     {
-        $this
-            ->mailcoachMail('swi1-error', [
+        $this->mailcoachMail('swi1-error', [
                 'project' => $this->project->name,
                 'time' => now()->format('Y-m-d H:i:s'),
                 'content' => $this->string,

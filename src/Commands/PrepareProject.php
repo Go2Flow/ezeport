@@ -2,9 +2,9 @@
 
 namespace Go2Flow\Ezport\Commands;
 
+use Go2Flow\Ezport\Commands\PrepareProject\CreateProject;
+use Go2Flow\Ezport\Commands\PrepareProject\CreateProjectCache;
 use Go2Flow\Ezport\Models\Project;
-use Go2Flow\Ezport\PrepareProject\CreateProject;
-use Go2Flow\Ezport\PrepareProject\CreateProjectCache;
 use Illuminate\Console\Command;
 
 class PrepareProject extends Command
@@ -14,7 +14,7 @@ class PrepareProject extends Command
      *
      * @var string
      */
-    protected $signature = 'project:prepare {project}' ;
+    protected $signature = 'ezproject:prepare {project}' ;
 
     /**
      * The console command description.

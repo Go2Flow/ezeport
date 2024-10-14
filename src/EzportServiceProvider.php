@@ -4,7 +4,7 @@ namespace Go2Flow\Ezport;
 
 use Go2Flow\Ezport\Commands\MakeCustomer;
 use Go2Flow\Ezport\Commands\PrepareProject;
-use Go2Flow\Ezport\Commands\PublishGetters;
+use Go2Flow\Ezport\Commands\PublishGetHelpers;
 use Go2Flow\Ezport\Finders\Find;
 use Go2Flow\Ezport\Models\Action;
 use Go2Flow\Ezport\Models\Project;
@@ -28,6 +28,7 @@ class EzportServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+
         $this->callAfterResolving(
             Schedule::class,
             function (Schedule $schedule) {
@@ -84,15 +85,13 @@ class EzportServiceProvider extends ServiceProvider
             __DIR__.'/../database/migrations' => database_path('migrations'),
         ]);
 
-
         $this->loadRoutesFrom(__DIR__ . './../routes/console.php');
-
 
         if ($this->app->runningInConsole()) {
             $this->commands([
                 PrepareProject::class,
                 MakeCustomer::class,
-                PublishGetters::class
+                PublishGetHelpers::class
             ]);
         }
 

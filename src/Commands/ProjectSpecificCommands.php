@@ -3,12 +3,12 @@
 namespace Go2Flow\Ezport\Commands;
 
 use Go2Flow\Ezport\Commands\Prepare\Deleter;
+use Go2Flow\Ezport\Commands\PrepareProject\CreateProject;
+use Go2Flow\Ezport\Commands\PrepareProject\CreateProjectCache;
 use Go2Flow\Ezport\Finders\Api;
 use Go2Flow\Ezport\Models\Connector;
 use Go2Flow\Ezport\Models\GenericModel;
 use Go2Flow\Ezport\Models\Project;
-use Go2Flow\Ezport\PrepareProject\CreateProject;
-use Go2Flow\Ezport\PrepareProject\CreateProjectCache;
 use Go2Flow\Ezport\Process\Batches\JobBatcher;
 use Go2Flow\Ezport\Process\Batches\Tools\UploadManager;
 use Illuminate\Support\Str;
@@ -21,7 +21,7 @@ use function Laravel\Prompts\text;
 
 class ProjectSpecificCommands
 {
-    public function __construct(private Project $project){}
+    public function __construct(private readonly Project $project){}
 
     public function addToUpload(?string $type = null): string
     {

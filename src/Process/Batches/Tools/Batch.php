@@ -84,8 +84,6 @@ class Batch {
 
         if ($then) $batch->then($then);
 
-        Log::info(json_encode($batch));
-
         return $batch->onQueue($this->queue)
             ->dispatch();
     }

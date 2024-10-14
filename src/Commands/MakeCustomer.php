@@ -2,7 +2,7 @@
 
 namespace Go2Flow\Ezport\Commands;
 
-use Go2Flow\Ezport\PrepareProject\CustomerFilesCreator;
+use Go2Flow\Ezport\Commands\PrepareProject\CustomerFilesCreator;
 use Go2Flow\Ezport\Models\Project;
 use Illuminate\Console\Command;
 use Illuminate\Support\Str;
@@ -15,7 +15,7 @@ class MakeCustomer extends Command
      *
      * @var string
      */
-    protected $signature = 'customer:make';
+    protected $signature = 'ezcustomer:make';
 
     /**
      * The console command description.

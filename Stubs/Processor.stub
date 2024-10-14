@@ -1,10 +1,10 @@
-use App\ContentTypes\CustomProperty;
-use App\Uploader\Processors\ProcessorInterface;
-use App\Uploader\Processors\PropertyGroupProcessor;
+use Go2Flow\Ezport\ContentTypes\CustomProperty;
+use Go2Flow\Ezport\Uploader\Processors\ProcessorInterface;
+use Go2Flow\Ezport\Uploader\Processors\PropertyGroupProcessor;
 use Illuminate\Support\Collection;
 
 class $CLASSNAME$ extends PropertyGroupProcessor implements ProcessorInterface {
-    
+
     public function process() : void {
 
         // $class = ContentType::Class
