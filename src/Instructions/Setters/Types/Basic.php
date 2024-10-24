@@ -9,6 +9,7 @@ class Basic extends Base implements JobInterface {
 
     protected ?Job $job;
     protected ?string $jobClass = null;
+    protected ?\Closure $process;
 
     public function __construct(string $key){
 
@@ -46,5 +47,16 @@ class Basic extends Base implements JobInterface {
     protected function setSpecificFields() : array
     {
         return [];
+    }
+
+    /**
+     * The data is passed one item from the prepare closure to the process closure.
+     */
+
+    public function process(\Closure $closure) : self {
+
+        $this->process = $closure;
+
+        return $this;
     }
 }

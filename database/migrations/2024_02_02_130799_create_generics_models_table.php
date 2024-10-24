@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        if (!Schema::hasTable('generics')) {
+        if (!Schema::hasTable('generic_models')) {
 
             Schema::create('generic_models', function (Blueprint $table) {
                 $table->id();

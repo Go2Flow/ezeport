@@ -14,7 +14,7 @@ class FtpFileImport extends Basic implements JobInterface, ImportInstructionInte
 {
 
     protected ?\closure $prepare = null;
-    protected \closure $process;
+    protected ?\closure $process;
     protected array $config = [];
 
     public function __construct(string $key)

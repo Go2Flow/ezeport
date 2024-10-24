@@ -14,7 +14,7 @@ class ShopImport extends Basic implements ImportInstructionInterface {
     protected string $type;
     protected string $uniqueId;
     protected closure $items;
-    protected closure $process;
+    protected ?closure $process;
     protected Collection $properties;
     protected Collection $shop;
     protected GetProxy $api;

@@ -9,12 +9,21 @@ use Go2Flow\Ezport\Finders\Find;
 use Go2Flow\Ezport\Models\Action;
 use Go2Flow\Ezport\Models\Project;
 use Go2Flow\Ezport\Process\Jobs\CleanActivityLog;
+use Go2Flow\Ezport\Events\Listeners\JobFailed as JobFailedListener;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Queue\Events\JobFailed;
+
 
 class EzportServiceProvider extends ServiceProvider
 {
+
+    protected $listen = [
+        JobFailed::class => [
+            JobFailedListener::class
+        ]
+    ];
     /**
      * Register any application services.
      */
