@@ -11,24 +11,27 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create(
-            'actions',
-            function (Blueprint $table) {
-                $table->id();
-                $table->foreignId('project_id')
-                    ->constrained()
-                    ->cascadeOnDelete();
-                $table->string('name');
-                $table->string('type');
-                $table->boolean('active')
-                    ->default(true);
-                $table->timestamps();
-                $table->dateTime('finished_at')
-                    ->nullable();
-                $table->string('queue')->nullable();
-                $table->string('step')->nullable();
-            }
-        );
+        if (!Schema::hasTable('actions')) {
+
+            Schema::create(
+                'actions',
+                function (Blueprint $table) {
+                    $table->id();
+                    $table->foreignId('project_id')
+                        ->constrained()
+                        ->cascadeOnDelete();
+                    $table->string('name');
+                    $table->string('type');
+                    $table->boolean('active')
+                        ->default(true);
+                    $table->timestamps();
+                    $table->dateTime('finished_at')
+                        ->nullable();
+                    $table->string('queue')->nullable();
+                    $table->string('step')->nullable();
+                }
+            );
+        }
     }
 
     /**

@@ -15,7 +15,7 @@ class FtpCleaner extends Basic implements JobInterface {
 
     public function __construct(string $key)
     {
-        $this->key = $this->processKey($key);
+        parent::__construct($key);
 
         $this->job = Set::Job()
             ->class(AssignClean::class);

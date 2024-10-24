@@ -22,6 +22,7 @@ class CreateProject
             $this->project->identifier = $identifier;
         }
 
+
         $this->instructions =  Find::instruction($this->project, 'Project')->collect();
     }
 

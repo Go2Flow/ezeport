@@ -11,8 +11,8 @@ class Config extends Base implements ArrayAccess {
 
     protected function getObject(Project $project) : self
     {
-        $this->config = file_exists(app_path('Customers/') . ucfirst($project->identifier) . '/config.php')
-            ? include(app_path('Customers/') . ucfirst($project->identifier) . '/config.php')
+        $this->config = file_exists($this->instructionPath($project->identifier, 'config.php'))
+            ? include($this->instructionPath($project->identifier, 'config.php'))
             : [];
 
         return $this;

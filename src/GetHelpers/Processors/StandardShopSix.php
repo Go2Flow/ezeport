@@ -23,8 +23,6 @@ class StandardShopSix extends BaseInstructions implements InstructionInterface
                 ->process(
                     function (Collection $items, Api $api) {
 
-                        foreach ($items as $item)
-
                         foreach ($items->chunk(10) as $chunk){
 
                             $response = $api->customer()->bulk(
@@ -36,15 +34,14 @@ class StandardShopSix extends BaseInstructions implements InstructionInterface
                                 ->toArray()
                             )->body()?->data;
 
-                            if ($response) {
+                            if (! $response) continue;
 
-                                $customers = collect($response->customer);
+                            $customers = collect($response->customer);
 
-                                while($chunk->count() > 0) {
-                                    $item = $chunk->shift();
-                                    $item->shopware(['id' => $customers->shift()]);
-                                    $item->updateOrCreate();
-                                }
+                            while($chunk->count() > 0) {
+                                $item = $chunk->shift();
+                                $item->shopware(['id' => $customers->shift()]);
+                                $item->updateOrCreate();
                             }
                         }
                     }
@@ -53,7 +50,7 @@ class StandardShopSix extends BaseInstructions implements InstructionInterface
                 ->process(
                     function (Collection $items, Api $api) {
 
-                        $current = collect($api->manufacturer()->get(500)->body()->data);
+                        $current = collect($api->manufacturer()->limit(500)->search()->body()->data);
 
                         if ($current->isEmpty()) $create = $items;
                         else {
@@ -254,7 +251,6 @@ class StandardShopSix extends BaseInstructions implements InstructionInterface
                         }
                     )
                 )
-
         ];
     }
 }

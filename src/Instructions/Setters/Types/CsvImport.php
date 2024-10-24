@@ -18,7 +18,7 @@ class CsvImport extends Basic implements JobInterface
 
     public function __construct(string $key)
     {
-        $this->key = $this->processKey($key);
+        parent::__construct($key);
         $this->class = Str::of($key)->ucfirst()->singular()->toString();
 
         $this->imports = collect();

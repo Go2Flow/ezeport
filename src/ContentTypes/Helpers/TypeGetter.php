@@ -8,6 +8,7 @@ namespace Go2Flow\Ezport\ContentTypes\Helpers;
  * @method Builder make(array $attributes = [])
  * @method Builder whereKey($id)
  * @method Builder whereKeyNot($id)
+ * @method Builder create(Collection|array $attributes)
  * @method Builder where($column, $operator = null, $value = null, $boolean = 'and')
  * @method Builder firstWhere($column, $operator = null, $value = null, $boolean = 'and')
  * @method Builder orWhere($column, $operator = null, $value = null)
@@ -53,37 +54,37 @@ class TypeGetter implements BuilderContract
 {
     private $query;
 
-    public function __construct(string $type, Project $project)
+    public function __construct(
+        private readonly string $type,
+        private readonly Project $project
+    )
     {
-        $this->query = GenericModel::where('type', $type)
-            ->with('children')
-            ->where('project_id', $project->id);
+        $this->query = null;
     }
 
     public function query(): Builder
     {
-        return $this->query;
+        return $this->querySetter();
     }
 
     /**
      * Where the content type is on shopware
      */
 
-    public function whereOnShop(): self
+    public function whereOnShop() : self
     {
-        return $this->query->whereNot('shop', '[]');
+        $this->query = $this->querySetter()->whereNot('shop', '[]');
 
+        return $this;
     }
 
     /**
      * find by unique_id
-     * @param int|string $id
-     * @param string[] $columns
      */
 
     public function find(int|string $id, $columns = ['*']): ?Generic
     {
-        return $this->query->firstWhere('unique_id', $id)?->toContentType();
+        return $this->querySetter()->firstWhere('unique_id', $id)?->toContentType();
     }
 
     /**
@@ -92,7 +93,28 @@ class TypeGetter implements BuilderContract
 
     public function findById(?int $id): ?Generic
     {
-        return $this->query->find($id)?->toContentType();
+        return $this->querySetter()->find($id)?->toContentType();
+    }
+
+    /** like a standard model create, but you don't need to set 'type' and 'project_id' */
+
+    public function create(array|Collection $attributes = []): Generic
+    {
+
+        if (! isset($attributes['unique_id']) || Content::type($this->type, $this->project)->find($attributes['unique_id']) ===  null)
+        {
+            return GenericModel::create(
+                collect($attributes)->merge([
+                    'type' => $this->type,
+                    'project_id' => $this->project->id
+                ])->toArray()
+            )->toContentType();
+        }
+
+        throw new EzportContentTypeException(
+            "The project of {$this->project->name} already has a model of type {$this->type} with the unique_id of {$attributes['unique_id']}. This combination must be unique."
+        );
+
     }
 
     public function __call($method, array|null $parameters)
@@ -103,7 +125,7 @@ class TypeGetter implements BuilderContract
 
         if (Str::startsWith($method, 'where')) {
 
-            $this->query = $this->query->dynamicWhere($method, $parameters);
+            $this->query = $this->querySetter()->dynamicWhere($method, $parameters);
 
             return $this;
         }
@@ -113,9 +135,9 @@ class TypeGetter implements BuilderContract
 
     private function checkIfExistsOnQueryBuilder(string $name, ?array $arguments): mixed
     {
-        if (!$this->checkEsistence($name)) return false;
+        if (!$this->checkExistence($name)) return false;
 
-        $response = $this->query->$name(...$arguments);
+        $response = $this->querySetter()->$name(...$arguments);
 
         if ($response instanceof Generic) return $response;
         if ($response instanceof GenericModel || $response instanceof Collection) return $response->toContentType();
@@ -125,12 +147,24 @@ class TypeGetter implements BuilderContract
         return $this;
     }
 
-    private function checkEsistence($name): bool
+    private function checkExistence(string $name): bool
     {
         foreach ([Builder::class, BuildsQueries::class, QueryBuilder::class] as $class) {
             if (method_exists($class, $name)) return true;
         }
 
         return false;
+    }
+
+    private function querySetter() : Builder
+    {
+        if (! $this->query) {
+
+            $this->query = GenericModel::where('type', $this->type)
+                ->where('project_id', $this->project->id)
+                ->with('children');
+            }
+
+        return $this->query;
     }
 }

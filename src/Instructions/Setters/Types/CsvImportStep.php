@@ -15,7 +15,7 @@ class CsvImportStep extends Base {
      * set the file to import
      */
 
-    public function file(string $string)
+    public function file(string $string)  : self
     {
         $this->file = $string;
 

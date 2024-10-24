@@ -24,10 +24,9 @@ class Processor extends Base{
 
     private function checkProjectSpecificProcessors(Project $project, $string) : ?UploadProcessor
     {
-        $path = 'App\\Customers\\' . Str::ucfirst($project->identifier). '\Instructions\Processors';
 
-        return (class_exists($path))
-            ? (new $path($project))->find($string)
+        return (class_exists($this->instructionPath($project->identifier, 'Processors')))
+            ? (new ($this->instructionPath($project->identifier, 'Processors'))($project))->find($string)
             : null;
     }
 }

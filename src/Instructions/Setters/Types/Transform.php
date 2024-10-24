@@ -19,7 +19,7 @@ class Transform extends Basic
 
     public function __construct(string $key, array $config = [])
     {
-        $this->key = $this->processKey($key);
+        parent::__construct($key);
 
         foreach (['prepare', 'process'] as $type) {
             if (isset($config[$type])) {

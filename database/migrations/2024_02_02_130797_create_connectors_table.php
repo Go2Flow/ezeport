@@ -11,16 +11,19 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('connectors', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('project_id')->constrained()->onDelete('cascade');
-            $table->string('type');
-            $table->string('username');
-            $table->string('password');
-            $table->string('host');
-            $table->string('environment')->default('production');
-            $table->timestamps();
-        });
+        if (! Schema::hasTable('connectors')) {
+
+            Schema::create('connectors', function (Blueprint $table) {
+                $table->id();
+                $table->foreignId('project_id')->constrained()->onDelete('cascade');
+                $table->string('type');
+                $table->string('username');
+                $table->string('password');
+                $table->string('host');
+                $table->string('environment')->default('production');
+                $table->timestamps();
+            });
+        }
     }
 
     /**

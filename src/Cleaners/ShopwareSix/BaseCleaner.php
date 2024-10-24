@@ -16,7 +16,7 @@ abstract class BaseCleaner
     protected int $deleteChunkSize = 5;
     const PAGECOUNT = 500;
 
-    protected $difference;
+    protected Collection $difference;
     protected string $type;
     protected Collection $database;
 
@@ -98,7 +98,7 @@ abstract class BaseCleaner
 
     }
 
-    protected function idGetter(int $page = 1)
+    protected function idGetter(int $page = 1) : ?\stdClass
     {
         return $this->api->{$this->type}()
             ->page($page)

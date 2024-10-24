@@ -27,12 +27,12 @@ class XmlImport extends Basic implements JobInterface, ImportInstructionInterfac
     {
         parent::__construct($key);
 
-        foreach ($this->setSpecialFields as $key) {
-            $this->{$key} = collect($config[$key] ?? []);
+        foreach ($this->setSpecialFields as $field) {
+            $this->{$field} = collect($config[$field] ?? []);
         }
 
-        foreach ($this->setStandardFields as $key) {
-            $this->{$key} = $config[$key] ?? null;
+        foreach ($this->setStandardFields as $field) {
+            $this->{$field} = $config[$field] ?? null;
         }
 
         $this->jobClass = AssignXml::class;
@@ -57,7 +57,7 @@ class XmlImport extends Basic implements JobInterface, ImportInstructionInterfac
         return $this;
     }
 
-    private function newSet($name, $content)
+    private function newSet($name, $content) : self
     {
         $this->$name->push(
             $content instanceof XmlImport
@@ -75,20 +75,20 @@ class XmlImport extends Basic implements JobInterface, ImportInstructionInterfac
      * @method self path(array $path)
      */
 
-    public function __call($method, $content)
+    public function __call($method, $arguments)
     {
-        if (method_exists($this, $method)) return $this->$method(...$content);
+        if (method_exists($this, $method)) return $this->$method(...$arguments);
 
         if (in_array($method, $this->setSpecialFields))
         {
-            $this->{$method} = $this->$method->merge($content[0]);
+            $this->{$method} = $this->$method->merge($arguments[0]);
 
             return $this;
         }
 
         if (in_array($method, $this->setStandardFields))
         {
-            $this->$method = $content[0];
+            $this->$method = $arguments[0];
 
             return $this;
         }

@@ -22,7 +22,7 @@ class ShopCleaner extends Basic implements JobInterface {
 
     public function __construct(string $key, ?Closure $ids = null , private array $config = [])
     {
-        $this->key = $this->processKey($key);
+        parent::__construct($key);
         $this->items = collect();
 
         if ($ids) $this->ids = $ids;

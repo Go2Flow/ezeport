@@ -12,7 +12,7 @@ use Illuminate\Support\Collection;
 class ShopImport extends Basic implements ImportInstructionInterface {
 
     protected string $type;
-    protected string $unique_id;
+    protected string $uniqueId;
     protected closure $items;
     protected closure $process;
     protected Collection $properties;
@@ -21,7 +21,7 @@ class ShopImport extends Basic implements ImportInstructionInterface {
 
     public function __construct(string $key, private array $config = [])
     {
-        $this->key = $this->processKey($key);
+        parent::__construct($key);
         $this->type = $this->key;
 
         $this->properties = collect();
@@ -72,13 +72,13 @@ class ShopImport extends Basic implements ImportInstructionInterface {
         return $this->pushToCollection('properties', $properties);
     }
 
-    public function shopware(Closure $shopware) : self
+    public function shopware(Closure $shop) : self
     {
-        return $this->pushToCollection('shop', $shopware);
+        return $this->pushToCollection('shop', $shop);
 
-    }public function shop(Closure $shopware) : self
+    }public function shop(Closure $shop) : self
     {
-        return $this->pushToCollection('shop', $shopware);
+        return $this->pushToCollection('shop', $shop);
     }
 
     public function type(string $type) : self
@@ -105,7 +105,7 @@ class ShopImport extends Basic implements ImportInstructionInterface {
         return $this;
     }
 
-    private function setString(string $type, string $string)
+    private function setString(string $type, string $string) : self
     {
         $this->$type = $string;
 

@@ -11,15 +11,18 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('errors', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('action_id')->nullable();
-            $table->string('error_type');
-            $table->longText('properties')->nullable();
-            $table->longText('description');
-            $table->string('level')->nullable();
-            $table->timestamps();
-        });
+        if (!Schema::hasTable('errors')) {
+
+            Schema::create('errors', function (Blueprint $table) {
+                $table->id();
+                $table->foreignId('action_id')->nullable();
+                $table->string('error_type');
+                $table->longText('properties')->nullable();
+                $table->longText('description');
+                $table->string('level')->nullable();
+                $table->timestamps();
+            });
+        }
     }
 
     /**

@@ -25,6 +25,7 @@ use Go2Flow\Ezport\Instructions\Setters\Types\UploadField;
 use Go2Flow\Ezport\Instructions\Setters\Types\UploadProcessor;
 use Go2Flow\Ezport\Instructions\Setters\Types\XmlImport;
 use Go2Flow\Ezport\Process\Errors\EzportSetterException;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Stringable;
 
 /**
@@ -37,7 +38,7 @@ use Illuminate\Support\Stringable;
  * @method static Job Job(array|null $config = [])
  * @method static Schedule Schedule()
  * @method static Project Project(string $key, array $config = [])
- * @method static ShopCleaner ShopCleaner(string $key, ?Closure $ids = null , array $config = [])
+ * @method static ShopCleaner ShopCleaner(string $key, ?\Closure $ids = null , array $config = [])
  * @method static ShopImport ShopImport(string $key, array $config = [])
  * @method static Transform Transform(string $key, array $config = [])
  * @method static Upload Upload(string $key)

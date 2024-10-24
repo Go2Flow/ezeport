@@ -27,8 +27,8 @@ class Upload extends Basic implements JobInterface
 
     public function __construct(string $key)
     {
+        parent::__construct($key);
         $this->getters = collect();
-        $this->key = $this->processKey($key);
         $this->job = Set::job()
             ->class(UploadWithInstruction::class);
     }

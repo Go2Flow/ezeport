@@ -5,7 +5,7 @@ namespace Go2Flow\Ezport\Finders;
 use Go2Flow\Ezport\Finders\Interfaces\InstructionInterface;
 use Go2Flow\Ezport\Instructions\Setters\Tools\EmptyInstruction;
 use Go2Flow\Ezport\Models\Project;
-use Exception;
+
 use Go2Flow\Ezport\Process\Errors\EzportFinderException;
 
 class Instruction extends Base {
@@ -19,10 +19,10 @@ class Instruction extends Base {
         return $instance;
     }
 
-    private function getCorrectOrEmptyInstructionObject(Project $project, string $string) : object
+    private function getCorrectOrEmptyInstructionObject(Project $project, string $folder) : object
     {
-        return (class_exists('App\Customers\\' . ucfirst($project->identifier) . '\Instructions' . '\\' . ucfirst($string)))
-            ? new ('App\Customers\\' . ucfirst($project->identifier) . '\Instructions' . '\\' . ucfirst($string))($project)
+        return (class_exists($this->instructionPath($project->identifier, $folder)))
+            ? new ($this->instructionPath($project->identifier, $folder))($project)
             : new EmptyInstruction($project);
     }
 }

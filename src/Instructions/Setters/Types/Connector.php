@@ -18,7 +18,7 @@ class Connector extends Base {
     protected ?string $password;
     protected ?string $host;
     protected ?string $environment;
-    protected $fields = ['username', 'password', 'host'];
+    protected array $fields = ['username', 'password', 'host'];
 
     public function __construct(string $key, array $config = [])
     {

@@ -11,21 +11,24 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('generic_models', function (Blueprint $table) {
-            $table->id();
-            $table->string('unique_id')->nullable();
-            $table->boolean('updated')->default(true);
-            $table->boolean('touched')->default(true);
-            $table->string('type');
-            $table->longText('content')->nullable();
-            $table->longText('shop')->nullable();
-            $table->string('name')->nullable();
-            $table->foreignId('project_id')->nullable()->constrained()->oncascade('delete');
-            $table->index('type');
-            $table->index('unique_id');
-            $table->index(['unique_id', 'type']);
-            $table->timestamps();
-        });
+        if (!Schema::hasTable('generics')) {
+
+            Schema::create('generic_models', function (Blueprint $table) {
+                $table->id();
+                $table->string('unique_id')->nullable();
+                $table->boolean('updated')->default(true);
+                $table->boolean('touched')->default(true);
+                $table->string('type');
+                $table->longText('content')->nullable();
+                $table->longText('shop')->nullable();
+                $table->string('name')->nullable();
+                $table->foreignId('project_id')->nullable()->constrained()->oncascade('delete');
+                $table->index('type');
+                $table->index('unique_id');
+                $table->index(['unique_id', 'type']);
+                $table->timestamps();
+            });
+        }
     }
 
     /**
