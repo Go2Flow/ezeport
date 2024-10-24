@@ -2,6 +2,7 @@
 
 namespace Go2Flow\Ezport\Models;
 
+use Go2Flow\Ezport\ContentTypes\Interfaces\LogInterface;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -18,7 +19,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
      * @property Project $project
      */
 
-class Action extends Model
+class Action extends Model implements LogInterface
 {
     use HasFactory;
 

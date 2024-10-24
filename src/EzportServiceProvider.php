@@ -14,16 +14,12 @@ use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Queue\Events\JobFailed;
+use Illuminate\Support\Facades\Event;
 
 
 class EzportServiceProvider extends ServiceProvider
 {
 
-    protected $listen = [
-        JobFailed::class => [
-            JobFailedListener::class
-        ]
-    ];
     /**
      * Register any application services.
      */
@@ -37,58 +33,19 @@ class EzportServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        Event::listen(
+            JobFailed::class,
+            JobFailedListener::class,
+        );
 
-        $this->callAfterResolving(
-            Schedule::class,
-            function (Schedule $schedule) {
-            $schedule->call(
-                function () {
-                    foreach (Project::get() as $project) {
-                        Find::instruction($project, 'Schedule')
-                            ?->getAndSet()
-                            ->each(
-                                function ($instruction, $loop) {
-
-                                    if (!$instruction->isTime()) return;
-
-                                    // if ($instruction->getEnvironment() !== config('app.env')) return;
-
-                                    if ($instruction->get('unique')) {
-                                        $lock = Cache::lock(
-                                            $instruction->setKey($loop)->get('key'),
-                                            3600
-                                        );
-
-                                        if (!$lock->get()) return;
-                                    }
-
-                                    $instruction->jobs($lock ?? []);
-                                }
-                            );
-                    }
-                }
-            )->everyMinute();
-
-            $schedule->command('horizon:snapshot')->everyFiveMinutes();
-            $schedule->command('queue:prune-batches')->daily();
-
-            $schedule->command('backup:run --only-db')->daily()->at('05:50');
-            $schedule->command('backup:clean')->daily()->at('06:30');
-
-            $schedule->call(
-                function () {
-                    Action::where('active', true)
-                        ->where('created_at', '<', now()
-                        ->subHours(3))
-                        ->get()
-                        ->each->update(['active' => false]);
-                }
-            )->everyThirtyMinutes();
-
-            $schedule->job(
-                new CleanActivityLog()
-            )->daily();
-        });
+        $this->app->alias(
+            'Content',
+            'Go2Flow\Ezport\ContentTypes\Helpers\Content'
+        );
+        $this->app->alias(
+            'Find',
+            'Go2Flow\Ezport\ContentTypes\Finders\Find'
+        );
 
         $this->publishesMigrations([
             __DIR__.'/../database/migrations' => database_path('migrations'),
@@ -103,6 +60,5 @@ class EzportServiceProvider extends ServiceProvider
                 PublishGetHelpers::class
             ]);
         }
-
     }
 }

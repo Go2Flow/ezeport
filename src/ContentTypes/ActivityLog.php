@@ -2,83 +2,109 @@
 
 namespace Go2Flow\Ezport\ContentTypes;
 
+use Go2Flow\Ezport\ContentTypes\Interfaces\LogInterface;
 use Go2Flow\Ezport\Models\Action;
 use Go2Flow\Ezport\Models\Activity;
+use Go2Flow\Ezport\Models\Error;
 
 class ActivityLog {
 
-    private Activity $activity;
+    private ?LogInterface $activity;
 
     public function __construct() {
-
         $this->activity = new Activity();
+    }
+
+    public function type(string $type = 'standard') : self
+    {
+        $this->activity = match($type) {
+            'error' => new Error(),
+            default => new Activity(),
+        };
+
+        return $this;
     }
 
     public function uniqueId(string $unique_id) : self
     {
-        $this->activity->unique_id = $unique_id;
-
-        return $this;
+        return $this->setField($unique_id, 'unique_id');
     }
 
     public function action(Action $action) : self
     {
-        $this->activity->action_id = $action->id;
-
-        return $this;
+        return $this->setField($action->id, 'action_id');
     }
 
     public function model(Generic $model) : self
     {
-        $this->activity->generic_model_id = $model->id;
-
-        return $this;
+        return $this->setField($model->id, 'generic_model_id');
     }
 
     public function properties(array $properties) : self
     {
-        $this->activity->properties = $properties;
-
-        return $this;
+        return $this->setField($properties, 'properties');
+    }
+    public function level(string $level) : self
+    {
+        return $this->setField($level, 'level');
     }
 
     public function log(string $description) : void
     {
-        $this->activity->description = $description;
+        $this->setField($description, 'description');
 
         $this->activity->save();
     }
 
     public function isJob() : self
     {
-        return $this->setActivityType('failed_job');
+        return $this->type('error')
+            ->setErrorType('job');
     }
 
     public function isShop() : self
     {
-        return $this->setActivityType('shop');
+        return $this->type('standard')
+            ->setActivityType('shop');
+    }
+
+    public function isError() : self
+    {
+        return $this->type('error');
     }
 
     public function isModel() : self
     {
-        return $this->setActivityType('generic_model');
+        return $this->type('generic_model')
+            ->setActivityType('generic_model');
     }
 
     public function isApi() : self
     {
-        return $this->setActivityType('api');
+        return $this->type('error')
+            ->setErrorType('api');
     }
 
-    public function type(string $type) : self
+    public function contentType(string $type) : self
     {
-        $this->activity->generic_model_type = $type;
+        return $this->setField($type, 'generic_model_type');
+    }
 
-        return $this;
+    private function setErrorType(string $type) : self
+    {
+        return $this->setField($type, 'error_type');
     }
 
     private function setActivityType(string $activityType) : self
     {
-        $this->activity->activity_type = $activityType;
+        return $this->setField($activityType, 'activity_type');
+    }
+
+    private function setField(mixed $value, string $key) : self
+    {
+        if (! $this->activity) $this->type('standard');
+
+        $this->activity->$key = $value;
 
         return $this;
     }

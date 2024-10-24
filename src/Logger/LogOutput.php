@@ -27,8 +27,7 @@ class LogOutput
     public function log($message, $priority): void
     {
         if ($this->log) {
-            $this->log
-                ->level($priority)
+            $this->log->level($priority)
             ->log(json_encode($message));
         }
 
