@@ -41,53 +41,69 @@ class ArticleProcessor extends UploadProcessor {
 
     private function createArticles(Collection $items) {
 
-        foreach ($items as $item)
-        {
-            $response = $this->apiCalls->create($item);
-            $this->processResponse($response, $item);
+        $response = $this->apiCalls->bulkProducts($items->toShopArray());
+
+        $products = $response->body()?->data->product;
+
+        if (!$products) {
+            $string = 'uploading of Products to shopware failed. Product ids: ' . $items->map(fn ($item) => $item->unique_id)->implode(', ');
+
+            $this->logProblem($string, 'high');
+            return;
+        }
+
+        $i = 0;
+
+        foreach ($items as $item) {
+
+            $item->shopware(['id' => $products[$i]]);
+            $item->updateOrCreate(false);
+
+            $i += 1;
+
+            if (isset($item->toShopArray()['children'])) $i += count($item->toShopArray()['children']);
         }
     }
 
     private function patchArticles(Collection $items) {
 
-        foreach ($items as $item)
-        {
-            if ( ! $product = $this->apiCalls->getProduct($item->shopware('id')))
-            {
-                (new LogOutput($this->project->id))->api()->log(
-                    'could not find Product ' . $item->unique_id . ' in Shopware',
+        $products = $this->apiCalls->getProducts($items);
+
+        if ($products->count() !== $items->count()) {
+
+            $ids = $products->pluck('id');
+
+            [$existing, $missing] = $products->partition(
+                fn ($item) => $ids->contains($item->id)
+            );
+
+            foreach ($missing as $item) {
+                $this->logProblem(
+                    'could not find Product ' . $item->unique_id . 'with id'. $item->shopware('id') . ' in Shopware',
                     'high'
                 );
-
-                continue;
             }
 
-            $this->patch->setData($item->toShopArray())
-                ->setProduct($product)
-                ->options()
-                ->categories()
-                ->configurationSettings()
-                ->children()
-                ->unSet()
-                ->article();
+            $items = $existing->map(fn ($exist) => $items->filter(fn ($item) => $item->shopware('id') == $exist->id)->first());
         }
+
+        $this->patch
+            ->setData($items->toShopArray())
+            ->setProducts($products)
+            ->options()
+            ->categories()
+            ->configurationSettings()
+            ->children()
+            ->unSet()
+            ->articles();
+
     }
 
-    private function processResponse($response, $item) {
-
-        if (!$response || $response->status() != '200') {
-            $this->logProblem('error writing' . $item->contentType  . ' ' . $item->unique_id);
-        } else {
-            $item->shopware(['id' => $response->body()->data->id]);
-            $item->updateOrCreate(false);
-        }
-    }
-
-    private function logProblem(string $problem): void
+    private function logProblem(string $problem, $level = 'high'): void
     {
         (new LogOutput($this->project->id))->api()->log(
             $problem,
-            'high'
+            $level
         );
     }
 }

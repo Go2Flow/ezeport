@@ -3,13 +3,12 @@
 namespace Go2Flow\Ezport\Instructions\Setters\Special\ArticleProcessorSub;
 
 use Illuminate\Support\Collection;
-use Illuminate\Support\Str;
 
 class ArticleProcessorPatch
 {
-    private array $data;
-    private object $product;
-    private $unsetters = [
+    private Collection $data;
+    private Collection $products;
+    private array $unsetters = [
         'children',
         'visibilities',
         'configuratorSettings',
@@ -18,98 +17,179 @@ class ArticleProcessorPatch
         'taxId',
     ];
 
-    public function __construct(private ArticleProcessorApiCalls $apiCalls) {}
+    public function __construct(private readonly ArticleProcessorApiCalls $apiCalls) {}
 
     public function setData(array $data) : self
     {
-        $this->data = $data;
+        $this->data = collect($data);
 
         return $this;
     }
 
-    public function setProduct(object $product) : self
+    public function setProducts(Collection $products) : self
     {
-        $this->product = $product;
+        $this->products = $products;
 
         return $this;
     }
 
     public function unSet() : self
     {
-        foreach ($this->unsetters as $unsetter) {
-            unset($this->data[$unsetter]);
+        $this->data = $this->data->map(
+            fn ($data) => collect($data)->filter(
+                fn ($item, $key) => !in_array($key, $this->unsetters)
+            )->toArray()
+        );
+
+        return $this;
+    }
+
+    public function options() : self {
+
+        if(($leftovers = $this->prepareLeftovers('options', 'optionId'))->count() > 0) {
+
+            $this->apiCalls->deleteProperty(
+                $leftovers->toArray()
+
+            );
         }
 
         return $this;
     }
 
-    public function options () : self {
-
-        if (($leftovers = $this->getRemovals('properties'))->count() == 0) return $this;
-
-        $this->apiCalls->deleteProperty(
-            $this->prepareLeftovers($leftovers, 'optionId')
-        );
-
-        return $this;
-    }
 
     public function categories() : self {
 
-        if (($leftovers = $this->getRemovals('categories'))->count() == 0) return $this;
+        if (($leftovers = $this->prepareLeftovers('categories', 'categoryId'))->count() > 0) {
+            $this->apiCalls->deleteCategory(
+                $leftovers->toArray()
+            );
+        }
 
-        $this->apiCalls->deleteCategory(
-            $this->prepareLeftovers($leftovers, 'categoryId')
-        );
 
         return $this;
     }
 
     public function configurationSettings() : self
     {
-        [$dbIds, $shopwareIds] = $this->getConfigutationIds();
+        $add = collect();
+        $delete = collect();
 
-        $options = $this->prepareConfiguratorSettingsOptions($dbIds->diff($shopwareIds), $this->data['id']);
-        if ($options->count() > 0) $this->apiCalls->configuratorSettings($options->toArray(), 'bulk');
+        foreach ($this->getConfigurationIds() as [$productId, $dbIds, $shopwareIds]) {
 
-        $options = $this->prepareConfiguratorSettingsOptions($shopwareIds->diff($dbIds), $this->data['id']);
-        if ($options->count() > 0) $this->apiCalls->configuratorSettings($options->toArray(), 'bulkDelete');
+            $add = $add->merge($this->prepareConfiguratorSettingsOptions($dbIds->diff($shopwareIds), $productId));
+            $delete = $delete->merge($this->prepareConfiguratorSettingsOptions($shopwareIds->diff($dbIds), $productId));
+        }
+
+        if ($add->count() > 0) $this->apiCalls->configuratorSettings($add->toArray());
+        if ($delete->count() > 0) $this->prepareConfiguratorSettingsDelete($delete);
+
 
         return $this;
+    }
+
+    private function prepareConfiguratorSettingsDelete(Collection $delete) : void
+    {
+
+        $response = $delete->flatMap(
+            function ($item) {
+                $product = $this->products->filter(fn ($product) => $product->id == $item['productId'])->first();
+
+                return collect($product->configuratorSettings)->filter(fn ($setting) => $setting->optionId == $item['optionId'])->map(
+                    fn ($item) => ['id' => $item->id]
+                );
+            }
+        )->filter()->values();
+
+        if ($response->count() > 0) {
+            $this->apiCalls->configuratorSettings($response->toArray(), 'bulkDelete');
+        }
     }
 
     public function children(): self
     {
-        if (($children = collect($this->data['children'] ?? []))->count() === 0) return $this;
+        $deletes = collect();
+        $children = collect();
 
-        $deletes = $this->findChildrenThatShouldBeDeleted(
-            collect($this->product->children),
-            $children
-        );
+        foreach ($this->data as $data) {
+            $product = collect($this->getCorrectProduct($data['id']));
+            $subChildren = collect($data['children'] ?? []);
 
-        if (($deletes)->count() > 0) {
-            $this->apiCalls->deleteProducts($deletes->values()->toArray());
+            $children = $children->merge(
+                $subChildren->map(
+                    function ($child) use ($data, $product) {
+
+                        $child['parentId'] = $data['id'];
+
+
+                        $id = collect($product['children'])->filter(
+                            fn ($variant) => $variant->productNumber == $child['productNumber']
+                        )->first()?->id;
+
+                        if ($id) $child['id'] = $id;
+
+                        return $child;
+                    }
+                )
+            );
+
+            $deletes = $deletes->merge(
+                $this->findChildrenThatShouldBeDeleted(
+                    collect($product['children']),
+                    $subChildren
+                )
+            );
         }
 
-        $this->apiCalls->bulkProducts(
-            $this->prepareChildrenForUpload($children, $this->product, $this->data['id'])
-        );
+        if ($deletes->count() > 0) {
+            $this->apiCalls->deleteProducts($deletes->values()->toArray());
+        }
+        if ($children->count() > 0) {
+
+            $this->apiCalls->bulkProducts($children->values()->toArray());
+        }
 
         return $this;
     }
 
-    public function article() : self {
-        $this->apiCalls->patch($this->data);
+    public function articles() : self {
+        $response = $this->apiCalls->bulkProducts($this->data->toArray());
 
         return $this;
     }
 
-    private function getConfigutationIds() : array
+    private function getConfigurationIds() : Collection
     {
-        return [
-            collect($this->data['configuratorSettings'] ?? [])->pluck('optionId'),
-            collect($this->product->configuratorSettings)->pluck('optionId')
-        ];
+        $response = collect();
+        foreach ($this->products as $product) {
+            $response->push([
+                $product->id,
+                collect($this->getCorrectData($product->id)['configuratorSettings'] ?? [])->pluck('optionId'),
+                collect($product->configuratorSettings)->pluck('optionId')
+            ]);
+        }
+
+
+        return $response;
+    }
+
+    private function prepareLeftovers($type, string $key) : Collection {
+
+        $leftovers = collect();
+
+        foreach ($this->getRemovals($type) as $removal) {
+            if ($removal['ids']->count() == 0) continue;
+
+            foreach ($removal['ids'] as $id) {
+
+                $leftovers->push([
+                    'productId' => $removal['productId'],
+                    $key => $id
+                ]);
+            }
+        }
+
+        return $leftovers;
     }
 
     private function prepareConfiguratorSettingsOptions(Collection $ids, string $productId) : Collection
@@ -126,43 +206,24 @@ class ArticleProcessorPatch
 
     private function getRemovals(string $type): Collection
     {
-
-        if ($types = $this->product->$type) {
-            $leftovers = collect($types)
+        return $this->products->map(
+            fn ($product) => [ 'productId' => $product->id,
+                'ids' => collect($product->$type)
                 ->pluck('id')
                 ->diff(
-                    collect($this->data[$type] ?? [])->pluck('id')
-                );
-
-            if ($leftovers->count() > 0) return $leftovers;
-        }
-
-        return collect();
+                    collect($this->getCorrectData($product->id)[$type] ?? [])->pluck('id')
+                )
+            ]);
     }
 
-    private function prepareLeftovers(Collection $leftovers, string $key) : array {
+    private function getCorrectData(string $id) {
 
-        return $leftovers->map(
-            fn ($option) => [
-                'productId' => $this->data['id'],
-                $key => $option
-            ]
-        )->values()
-            ->toArray();
+        return $this->data->filter(fn ($item) => $item['id'] == $id)->first();
     }
 
-    private function prepareChildrenForUpload(Collection $children, object $product, string $id) : array
-    {
-        return $children->map(
-            function ($child) use ($id, $product) {
-                if ($childId = collect($product->children)->filter(fn ($variant) => $variant->productNumber == $child['productNumber'])->first()?->id) {
-                    $child['id'] = $childId;
-                }
+    private function getCorrectProduct(string $id) {
 
-                return array_merge($child, ['parentId' => $id]);
-            }
-        )->values()
-        ->toArray();
+        return $this->products->filter(fn ($product) => $product->id == $id)->first();
     }
 
     private function findChildrenThatShouldBeDeleted(Collection $productChildren, Collection $children) : Collection

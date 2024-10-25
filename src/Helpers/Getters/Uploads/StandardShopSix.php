@@ -147,7 +147,7 @@ class StandardShopSix extends BaseInstructions implements InstructionInterface
 
             Set::Upload('PropertyGroups')
                 ->fields([
-                    $this->setBasicUploadField('name', 'text'),
+                    ['name' => fn ($item, $config) => $item->properties($config['name']?? 'name')],
                     $this->setShopwareIdField()
                 ])->processor(
                     Get::Processor('PropertyGroup')

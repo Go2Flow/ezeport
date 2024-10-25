@@ -4,11 +4,10 @@ namespace Go2Flow\Ezport\Instructions\Setters\Special\ArticleProcessorSub;
 
 use Go2Flow\Ezport\Finders\Api;
 use Go2Flow\Ezport\Connectors\ShopwareSix\ShopSix;
-use stdClass;
 
 class ArticleProcessorApiCalls {
 
-    public function __construct(private Api $api) {}
+    public function __construct(private readonly Api $api) {}
 
     public function create($item) {
         return $this->api->product()
@@ -32,9 +31,9 @@ class ArticleProcessorApiCalls {
         );
     }
 
-    public function configuratorSettings(array $array, $action)
+    public function configuratorSettings(array $array, $action = 'bulk')
     {
-        $this->api->productConfiguratorSetting()->$action(
+        $response = $this->api->productConfiguratorSetting()->$action(
             $array,
         );
     }
@@ -53,7 +52,7 @@ class ArticleProcessorApiCalls {
         );
     }
 
-    public function getProduct($id) : ?object {
+    public function getProducts($items) : ?object {
         return collect($this->api->product()
             ->association(
                 ShopSix::association([
@@ -64,8 +63,11 @@ class ArticleProcessorApiCalls {
                     'configuratorSettings',
                 ])
             )->filter(
-                ShopSix::filter(['value' => $id])
+                ShopSix::filter([
+                    'value' => $items->map->shopware('id')->toArray(),
+                    'type' => 'equalsAny'
+                ])
             )->search()
-            ->body()?->data)->first();
+            ->body()?->data);
     }
 }

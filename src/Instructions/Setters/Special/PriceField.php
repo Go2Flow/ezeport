@@ -1,15 +1,15 @@
 <?php
 
 namespace Go2Flow\Ezport\Instructions\Setters\Special;
-
 use Closure;
 use Go2Flow\Ezport\ContentTypes\Generic;
 use Go2Flow\Ezport\Helpers\Traits\Uploads\ArticleFields;
 use Go2Flow\Ezport\Helpers\Traits\Uploads\FieldHelpers;
+use Go2Flow\Ezport\Instructions\Setters\Interfaces\UploadFieldInterface;
 use Go2Flow\Ezport\Instructions\Setters\Types\UploadField;
 use Illuminate\Support\Str;
 
-class PriceField extends UploadField {
+class PriceField extends UploadField implements UploadFieldInterface {
 
     use FieldHelpers, ArticleFields;
 
@@ -26,51 +26,53 @@ class PriceField extends UploadField {
         $this->key = Str::of($key);
     }
 
-    public function price(Closure $price) {
+    public function price(Closure $price) : self
+    {
         $this->price = $price;
 
         return $this;
     }
 
 
-    public function discount (Closure $discount) {
+    public function discount (Closure $discount) : self
+    {
         $this->discount = $discount;
 
         return $this;
     }
 
-    public function add()
+    public function add()  : self
     {
         $this->addOrRemove = 'add';
 
         return $this;
     }
 
-    public function remove()
+    public function remove() : self
     {
         $this->addOrRemove = 'remove';
 
         return $this;
     }
 
-    public function gross()
+    public function gross() : self
     {
         $this->addOrRemove = 'remove';
 
         return $this;
     }
 
-    public function net()
+    public function net() : self
     {
         $this->addOrRemove = 'add';
 
         return $this;
     }
 
-    public function process(Generic $item, array $config) : array|null {
+    public function process(Generic $item, array $config) : array {
 
         return [
-            'key' => $this->key ? $this->key->toString() : null,
+            'key' => $this->key?->toString(),
             'value' => $this->calculatePriceWithDiscount(
                 ($this->price)($item),
                 $this->discount ? ($this->discount)($item) : null,
