@@ -136,7 +136,7 @@ class StandardShopSix extends BaseInstructions implements InstructionInterface
             Set::Upload('Manufacturers')
                 ->items(fn () => Content::type('Manufacturer', $this->project))
                 ->fields([
-                    ['name' => fn ($item) => $item->properties('text')],
+                    ['name' => fn ($item, $config) => $item->properties($config['name']?? 'name')],
                     $this->setShopwareIdField(),
                 ]),
 

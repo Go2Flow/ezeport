@@ -2,7 +2,7 @@
 
 namespace Go2Flow\Ezport\Finders;
 
-use Go2Flow\Ezport\GetHelpers\Uploads\StandardShopSix;
+use Go2Flow\Ezport\Helpers\Getters\Uploads\StandardShopSix;
 use Go2Flow\Ezport\Instructions\Setters\Types\Upload as SetUpload;
 use Go2Flow\Ezport\Models\Project;
 use Go2Flow\Ezport\Process\Errors\EzportFinderException;

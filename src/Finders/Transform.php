@@ -2,7 +2,7 @@
 
 namespace Go2Flow\Ezport\Finders;
 
-use Go2Flow\Ezport\GetHelpers\Transformers\Standard;
+use Go2Flow\Ezport\Helpers\Getters\Transformers\Standard;
 use Go2Flow\Ezport\Instructions\Setters\Types\Transform as SetTransform;
 use Go2Flow\Ezport\Models\Project;
 use Go2Flow\Ezport\Process\Errors\EzportFinderException;

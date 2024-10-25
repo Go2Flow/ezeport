@@ -4,7 +4,7 @@ namespace Go2Flow\Ezport;
 
 use Go2Flow\Ezport\Commands\MakeCustomer;
 use Go2Flow\Ezport\Commands\PrepareProject;
-use Go2Flow\Ezport\Commands\PublishGetHelpers;
+use Go2Flow\Ezport\Commands\PublishHelpers;
 use Go2Flow\Ezport\Finders\Find;
 use Go2Flow\Ezport\Models\Action;
 use Go2Flow\Ezport\Models\Project;
@@ -58,7 +58,7 @@ class EzportServiceProvider extends ServiceProvider
             $this->commands([
                 PrepareProject::class,
                 MakeCustomer::class,
-                PublishGetHelpers::class
+                PublishHelpers::class
             ]);
         }
     }
