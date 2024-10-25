@@ -18,6 +18,7 @@ use Illuminate\Support\Str;
      * @property int $project_id
      * @property string $unique_id
      * @property string $type
+     * @property string $name
      * @property bool $updated
      * @property bool $touched
      * @property ?Collection $content
@@ -97,6 +98,10 @@ class GenericModel extends BaseModel
 
         $original = $this->getOriginal();
         $exists = $this->exists;
+
+        if ($name = $this->content->filter(fn ($item, $key) => Str::lower($key) === 'name')?->first()){
+            $this->name = $name;
+        }
 
         $this->save();
 

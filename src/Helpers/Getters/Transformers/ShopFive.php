@@ -1,6 +1,6 @@
 <?php
 
-namespace Go2Flow\Ezport\GetHelpers\Transformers;
+namespace Go2Flow\Ezport\Helpers\Getters\Transformers;
 
 use Go2Flow\Ezport\ContentTypes\Generic;
 use Go2Flow\Ezport\ContentTypes\Helpers\Content;

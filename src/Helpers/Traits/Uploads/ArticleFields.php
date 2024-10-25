@@ -1,6 +1,6 @@
 <?php
 
-namespace Go2Flow\Ezport\Instructions\Traits\Uploads;
+namespace Go2Flow\Ezport\Helpers\Traits\Uploads;
 
 use Go2Flow\Ezport\Instructions\Setters\Set;
 use Go2Flow\Ezport\Instructions\Setters\Types\UploadField;

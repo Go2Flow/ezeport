@@ -1,12 +1,12 @@
 <?php
 
-namespace Go2Flow\Ezport\GetHelpers\Processors;
+namespace Go2Flow\Ezport\Helpers\Getters\Processors;
 
 use Go2Flow\Ezport\Finders\Abstracts\BaseInstructions;
 use Go2Flow\Ezport\Finders\Api;
 use Go2Flow\Ezport\Finders\Interfaces\InstructionInterface;
+use Go2Flow\Ezport\Helpers\Traits\Processors\XmlHelpers;
 use Go2Flow\Ezport\Instructions\Getters\Get;
-use Go2Flow\Ezport\Instructions\Traits\Processors\XmlHelpers;
 use Go2Flow\Ezport\Instructions\Setters\Set;
 use Illuminate\Support\Collection;
 

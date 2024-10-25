@@ -1,17 +1,17 @@
 <?php
 
-namespace Go2Flow\Ezport\GetHelpers\Uploads;
+namespace Go2Flow\Ezport\Helpers\Getters\Uploads;
 
 use Go2Flow\Ezport\ContentTypes\Generic;
 use Go2Flow\Ezport\ContentTypes\Helpers\Content;
 use Go2Flow\Ezport\Finders\Abstracts\BaseInstructions;
 use Go2Flow\Ezport\Finders\Api;
 use Go2Flow\Ezport\Finders\Interfaces\InstructionInterface;
+use Go2Flow\Ezport\Helpers\Traits\Processors\GeneralHelpers;
+use Go2Flow\Ezport\Helpers\Traits\Processors\StandardShopSixArticle;
+use Go2Flow\Ezport\Helpers\Traits\Uploads\ArticleFields;
+use Go2Flow\Ezport\Helpers\Traits\Uploads\GeneralFields;
 use Go2Flow\Ezport\Instructions\Getters\Get;
-use Go2Flow\Ezport\Instructions\Traits\Processors\GeneralHelpers;
-use Go2Flow\Ezport\Instructions\Traits\Processors\StandardShopSixArticle;
-use Go2Flow\Ezport\Instructions\Traits\Uploads\ArticleFields;
-use Go2Flow\Ezport\Instructions\Traits\Uploads\GeneralFields;
 use Go2Flow\Ezport\Instructions\Setters\Set;
 use Go2Flow\Ezport\Models\GenericModel;
 use Illuminate\Support\Collection;

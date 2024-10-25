@@ -1,6 +1,6 @@
 <?php
 
-namespace Go2Flow\Ezport\Instructions\Traits\Uploads;
+namespace Go2Flow\Ezport\Helpers\Traits\Uploads;
 
 use Closure;
 use Go2Flow\Ezport\ContentTypes\Generic;

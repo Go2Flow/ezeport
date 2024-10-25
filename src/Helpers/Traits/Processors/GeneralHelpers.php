@@ -1,6 +1,6 @@
 <?php
 
-namespace Go2Flow\Ezport\Instructions\Traits\Processors;
+namespace Go2Flow\Ezport\Helpers\Traits\Processors;
 
 use Go2Flow\Ezport\Connectors\ApiInterface;
 use Go2Flow\Ezport\Connectors\ShopwareSix\ShopSix;

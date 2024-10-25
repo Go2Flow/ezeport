@@ -1,6 +1,6 @@
 <?php
 
-namespace Go2Flow\Ezport\GetHelpers\Uploads;
+namespace Go2Flow\Ezport\Helpers\Getters\Uploads;
 
 use Go2Flow\Ezport\ContentTypes\Helpers\Content;
 use Go2Flow\Ezport\Finders\Abstracts\BaseInstructions;

@@ -37,14 +37,15 @@ class EzportServiceProvider extends ServiceProvider
             JobFailed::class,
             JobFailedListener::class,
         );
+        $loader = \Illuminate\Foundation\AliasLoader::getInstance();
 
-        $this->app->alias(
+        $loader->alias(
             'Content',
             'Go2Flow\Ezport\ContentTypes\Helpers\Content'
         );
-        $this->app->alias(
+        $loader->alias(
             'Find',
-            'Go2Flow\Ezport\ContentTypes\Finders\Find'
+            'Go2Flow\Ezport\Finders\Find'
         );
 
         $this->publishesMigrations([

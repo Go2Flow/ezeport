@@ -13,40 +13,40 @@ class PublishGetHelpers extends Command
      *
      * @var string
      */
-    protected $signature = 'ezpublish:get-helpers' ;
+    protected $signature = 'ezpublish:helpers';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Publishes the getters to App/Ezport/GetHelpers';
+    protected $description = 'Publishes getters and helper traits to App/Ezport/Helpers';
 
     /**
      * Execute the console command.
      */
-    public function handle() {
-
-        $path = Str::of(File::dirname(__FILE__))->before('Commands') . 'GetHelpers';
-
+    public function handle()
+    {
         File::copyDirectory(
-            $path,
-            base_path('app/Ezport/GetHelpers')
+            Str::of(File::dirname(__FILE__))->before('Commands') . 'Helpers',
+            base_path('app/Ezport/Helpers')
         );
 
-        foreach (File::directories('app/Ezport/GetHelpers') as $dir){
-
-            foreach (File::files($dir) as $file) {
-
-                File::put(
-                    $file,
-                    Str::replace(
-                        'namespace Go2Flow\Ezport',
-                        'namespace App',
-                        File::get($file)
-                    )
-                );
-            }
-        }
+        collect(File::directories('app/Ezport/Helpers'))
+            ->each(fn($top) => collect(File::directories($top))
+                ->each(fn($folder) => collect(File::files($folder))
+                    ->each(function ($file) {
+                        File::put(
+                            $file,
+                            Str::replace(
+                                'namespace Go2Flow\Ezport',
+                                'namespace App\Ezport',
+                                File::get($file)
+                            )
+                        );
+                    }
+                )
+            )
+        );
     }
 }
