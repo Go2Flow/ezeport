@@ -85,73 +85,6 @@ trait GeneralHelpers
         }
     }
 
-    protected function removeCrossSellingFromShop($item, Api $api): void
-    {
-
-        $ids = $this->prepareCrossSellingIdsForDeletion(
-            $api->productCrossSelling()
-                ->association(
-                    ShopSix::association(['assignedProducts'])
-                )->filter(
-                    ShopSix::filter([
-                        'field' => 'productId',
-                        'value' => $item->shopware("id")
-                    ])
-                )->search()
-                ->body()
-                ->data
-        );
-
-        if ($ids->count() == 0) return;
-
-        $api->productCrossSellingAssignedProducts()
-            ->bulkDelete(
-                $ids->map(fn ($item) => ['id' => $item])->toArray()
-            );
-    }
-
-    protected function addCrossSellingToShop(Generic $item, Api $api): ?Collection
-    {
-        return $this->prepareCrossSelling($item)
-            ->filter(fn ($item) => $item['productId'] !== null)
-            ->map(
-                function ($crossSelling, $key) use ($api) {
-
-                    if (isset($crossSelling['id'])) {
-                        $id = $crossSelling['id'];
-                        unset($crossSelling['id']);
-                    } else {
-                        $id = null;
-                    }
-
-                    $body = $api->productCrossSelling()
-                        ->{isset($crossSelling['id']) ? 'patch' : 'create'}(
-                            $crossSelling,
-                            $id
-                        )->body();
-
-                    if ($body) return [
-                        'id' => $body->data->id,
-                        'key' => $key,
-                    ];
-                }
-            )->filter()
-            ->mapWithKeys(
-                fn ($item) => [$item['key'] => $item['id']]
-            );
-    }
-
-    private function prepareCrossSelling(Generic $item): Collection
-    {
-
-        $shopArray = $item->toShopArray();
-
-        return collect(
-            isset($shopArray['productId'])
-                ? [$shopArray]
-                : $shopArray
-        );
-    }
 
     protected function getUniqueImages(Collection $images, Api $api) : Collection
     {
@@ -203,15 +136,7 @@ trait GeneralHelpers
             ->body()->data);
     }
 
-    private function prepareCrossSellingIdsForDeletion(array|Collection $responses) : Collection
-    {
-        return collect($responses)->map(
-            fn ($response) => collect($response->assignedProducts)
-                ->map(
-                    fn ($item) => $item->id
-                )
-        )->flatten();
-    }
+
 
     private function checkIfShopHasImages(Api $api) : bool
     {

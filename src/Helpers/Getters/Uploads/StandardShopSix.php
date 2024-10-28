@@ -94,8 +94,6 @@ class StandardShopSix extends BaseInstructions implements InstructionInterface
                                                     ?->shopware('id')
                                             )->filter();
 
-
-
                                         if (!$sellings || $sellings->count() === 0) return [];
 
                                         return array_merge([
@@ -109,9 +107,10 @@ class StandardShopSix extends BaseInstructions implements InstructionInterface
                                                     'productId' => (string) $selling,
                                                     'position' => $num + 1,
                                                 ])->toArray()
-                                        ], $item->shopware('cross_sellings')?->has($key) ? [
-                                            'id' => $item->shopware('cross_sellings')[$key]
-                                        ] : []);
+                                        ], $item->shopware('cross_sellings')?->has($key)
+                                            ? ['id' => $item->shopware('cross_sellings')[$key]]
+                                            : []
+                                        );
                                     }
                                 )->filter()
                                 ->toArray()
