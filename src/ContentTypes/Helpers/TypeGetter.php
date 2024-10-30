@@ -114,7 +114,18 @@ class TypeGetter implements BuilderContract
         throw new EzportContentTypeException(
             "The project of {$this->project->name} already has a model of type {$this->type} with the unique_id of {$attributes['unique_id']}. This combination must be unique."
         );
+    }
 
+    public function updateOrCreate(array $attributes, array $values) {
+
+
+        return GenericModel::updateOrCreate([
+            'type' => $this->type,
+            'project_id' => $this->project->id,
+            'unique_id' => $attributes['unique_id']
+        ],
+            $values
+        )->toContentType();
     }
 
     public function __call($method, array|null $parameters)

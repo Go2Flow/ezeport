@@ -28,16 +28,26 @@ class PrepareProject extends Command
      */
     public function handle()
     {
-        if (! $project = Project::firstWhere('Identifier', $this->argument('project'))) {
 
-            $project = (new CreateProject($this->argument('project')))->run();
-
-            $this->info('project created');
+        if ($project = Project::firstWhere('Identifier', $this->argument('project'))) {
+            if ($this->confirm('The project ' . $project->name . ' already exists. Do you want to overwrite it?')) {
+                $project = (new CreateProject($project))->project();
+                $this->info('project created from Project Instructions');
+            }
         }
 
+        $overwrite = true;
+        if ($project->connectors()->count() > 0) {
+            $overwrite = $this->confirm('This project ' . $project->name . ' already has connectors. Do you want to overwrite them?');
+        }
+
+        if ($overwrite) {
+            (new CreateProject($project))->connectors();
+            $this->info('connectors created from Project Instructions');
+        }
 
         $this->info('preparing cache');
         (new CreateProjectCache($project))->prepareCache();
-        $this->info('Project prepared');
+        $this->info('Process complete');
     }
 }

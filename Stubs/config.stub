@@ -3,4 +3,7 @@
 return [
     'uploadType' => 'Instruction',
     'api' => 'ShopSix',
+    'transformers' => [],
+    'uploads' => [],
+    'processors' => []
 ];

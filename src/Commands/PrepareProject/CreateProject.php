@@ -26,15 +26,19 @@ class CreateProject
         $this->instructions =  Find::instruction($this->project, 'Project')->collect();
     }
 
-    public function run(): Project
+    public function project(): Project
     {
-        $this->project = $this->createShop();
-        $this->connectors();
+        $this->project = $this->createProject();
 
         return $this->project;
     }
 
-    private function connectors(): void
+    public function connectors(): void
+    {
+        $this->createConnectors();
+    }
+
+    private function createConnectors(): void
     {
         foreach ($this->instructions->filter(fn ($item) => $item instanceof Connector) as $instruction) {
 
@@ -45,14 +49,12 @@ class CreateProject
                         ->mapWithKeys(
                             fn ($key) => [$key => $instruction->get($key)]
                         )->toArray()
-
                 );
         }
     }
 
-    private function createShop(): Project
+    private function createProject(): Project
     {
-
         $setProject = $this->instructions->filter(
             fn ($item) => $item instanceof SetProject
         )->first();

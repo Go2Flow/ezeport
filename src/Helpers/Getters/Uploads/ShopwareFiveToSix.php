@@ -20,58 +20,6 @@ class ShopwareFiveToSix extends BaseInstructions implements InstructionInterface
     public function get() : array{
 
         return [
-            Set::Upload('categories')
-            ->items(
-                function () {
-                    $assigned = collect();
-                    $models = GenericModel::whereType('Category')
-                        ->whereProjectId($this->project->id)
-                        ->whereUpdated(true)
-                        ->doesntHave('children')
-                        ->get();
-
-                    while ($models->count()) {
-                        $assigned->push(...$models->pluck('id'));
-
-                        $models = $models->flatMap(
-                            fn ($item) => $item->parents()
-                                ->whereProjectId($this->project->id)
-                                ->whereUpdated(true)
-                                ->whereType('Category')
-                                ->get()
-                        )->filter();
-                    }
-
-                    return $assigned;
-                }
-            )->fields([
-                ['type' => 'page'],
-                ['productAssignmentType' => 'product'],
-                ['displayNestedProducts' => true],
-                $this->setBasicUploadField('name'),
-                $this->setCategoryCmsPageIdField(),
-                $this->setShopwareUploadField(),
-                Set::UploadField('parentId')
-                    ->field(
-                        function ($item) {
-
-                            if (!($categories = $item->relations('categories'))) {
-                                return $this->project->cache('category_ids')['parent'];
-                            }
-
-                            if ($categories->first()->shopware('id')) {
-                                return $categories->first()->shopware('id');
-                            }
-                            if ($id = $categories->first()->refresh()->shopware('id')) {
-                                return $id;
-                            }
-                        }
-
-                    ),
-                $this->setBasicUploadField('metaDescription'),
-                $this->setBasicUploadField('metaTitle', 'dreiscSeoTitle'),
-                $this->setBasicUploadField('categoryDescription', 'longDescription'),
-            ]),
             Set::Upload('articles')
                 ->fields([
                     $this->setShopwareUploadField(),

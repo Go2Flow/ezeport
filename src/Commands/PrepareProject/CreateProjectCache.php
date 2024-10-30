@@ -5,10 +5,11 @@ namespace Go2Flow\Ezport\Commands\PrepareProject;
 use Go2Flow\Ezport\Finders\Api;
 use Go2Flow\Ezport\Models\Project;
 use Illuminate\Support\Str;
+use Go2Flow\Ezport\Process\Errors\EzportException;
 
 class CreateProjectCache
 {
-    private $api;
+    private Api $api;
 
     public function __construct(private Project $project)
     {
@@ -74,13 +75,24 @@ class CreateProjectCache
                 $key => $this->project->settings($setting)
                     ?->mapWithKeys(
                         fn ($value, $name) => [
-                            $name => $this->apiSearch(
-                                $method,
-                                $this->filter($field, $value)
-                            )[0]->id
+                            $name => $this->getSetting($name, $method, $field, $value)
                         ]
                     )
             ] : null;
+    }
+
+    private function getSetting($name, $method, $field, $value) :string {
+
+        $response = $this->apiSearch(
+            $method,
+            $this->filter($field, $value)
+        );
+
+        if (count($response) > 0) return $response[0]->id;
+
+
+        throw new EzportException('No ' . $name . ' found on shopSix with ' . $field . ' ' . $value. '. Please check your settings.');
+
     }
 
     private function apiSearch(string $method, array $filter, $association = []): array

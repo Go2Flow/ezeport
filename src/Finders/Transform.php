@@ -12,7 +12,7 @@ class Transform extends Base{
     protected function getObject(Project $project, string $string) : SetTransform
     {
 
-        foreach ($this->mergeConfigWithStandard($project, 'transform', Standard::class) as $transform) {
+        foreach ($this->mergeConfigWithStandard($project, 'transformers', Standard::class) as $transform) {
 
             if ($instruction = (new $transform($project))->find($string)) return $instruction;
         }

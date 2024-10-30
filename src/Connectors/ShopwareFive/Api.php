@@ -66,6 +66,7 @@ class Api implements ApiInterface
     private function getRequest() : self
     {
         $client = new GuzzleClient();
+
         $auth = base64_encode($this->connector['username'] . ':' . $this->connector['password']);
 
             try {
@@ -80,7 +81,7 @@ class Api implements ApiInterface
 
                 );
             } catch (ClientException $e) {
-                $this->response = false;
+                $this->response = $e->getResponse();
             }
 
         return $this;

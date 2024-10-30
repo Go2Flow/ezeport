@@ -55,6 +55,7 @@ class StandardShopSix extends BaseInstructions implements InstructionInterface
                         $assigned = collect();
                         $models = GenericModel::whereType('Category')
                             ->whereProjectId($this->project->id)
+                            ->whereUpdated(true)
                             ->doesntHave('children')
                             ->get();
 
@@ -75,6 +76,15 @@ class StandardShopSix extends BaseInstructions implements InstructionInterface
                     $this->setBasicUploadField('name'),
                     $this->setCategoryCmsPageIdField(),
                     $this->setShopwareIdField(),
+                    Set::uploadField('parentId')
+                        ->field(
+                            function ($item) {
+                                if ($parent = $item->relations('category')) {
+                                    return $parent->shopware('id');
+                                }
+                                return $this->project->cache('category');
+                            }
+                        )
                 ]),
             Set::Upload('CrossSellings')
                 ->items(fn () => Content::type('Article', $this->project))

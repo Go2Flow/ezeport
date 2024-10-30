@@ -2,6 +2,7 @@
 
 namespace Go2Flow\Ezport\Commands\PrepareProject;
 
+use Go2Flow\Ezport\Constants\Paths;
 use Go2Flow\Ezport\Models\Project;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
@@ -63,8 +64,9 @@ class CustomerFilesCreator
             $string = $string->prepend($class . "\n");
         }
 
-        return $string->prepend("namespace App\Ezport\Customers\\" . $this->project->identifier . "\\" . $folder .  ";\n\n")
-            ->prepend("<?php \n\n");
+        return $string->prepend(
+            "namespace " . Str::of(Paths::appCustomers())->replace('/', '\\', )->ucfirst() . $this->project->identifier . "\\" . $folder .  ";\n\n"
+        )->prepend("<?php \n\n");
     }
 
     private function createFolders() : void
@@ -83,7 +85,7 @@ class CustomerFilesCreator
 
     private function makeDirectory(string $path) : void
     {
-        $this->disk::makeDirectory($this->setPath($path));
+        $this->disk::makeDirectory($this->setPath($path), 0755, true);
     }
 
     private function makeFile(string $path, $content) : void
@@ -98,7 +100,7 @@ class CustomerFilesCreator
 
     private function setPath(string $path) : string
     {
-        return 'app/Ezport/Customers/'  . $path;
+        return Paths::appCustomers() . $path;
     }
 
     private function instructions() : array
@@ -118,9 +120,11 @@ class CustomerFilesCreator
 
     private function classes() : array
     {
+        $path = Str::replace('/', '\\', Paths::projectInstructions());
+
         return [
-            'use Go2Flow\Ezport\Instructions\Setters\Set;',
-            'use Go2Flow\Ezport\Instructions\Getters\Get;'
+            'use '. $path . 'Setters\Set;',
+            'use '. $path . 'Getters\Get;',
         ];
     }
 }
