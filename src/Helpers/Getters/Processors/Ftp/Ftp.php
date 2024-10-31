@@ -1,6 +1,6 @@
 <?php
 
-namespace Go2Flow\Ezport\Helpers\Getters\Processors;
+namespace Go2Flow\Ezport\Helpers\Getters\Processors\Ftp;
 
 use Go2Flow\Ezport\Finders\Abstracts\BaseInstructions;
 use Go2Flow\Ezport\Finders\Api;
@@ -35,7 +35,6 @@ class Ftp extends BaseInstructions implements InstructionInterface
                                 $config['xml'],
                                 isset ($config['tagName']) ? [$config['tagName'] => $data] : $data
                             );
-
 
                             $dom = dom_import_simplexml($xml)->ownerDocument;
                             $dom->formatOutput = true;

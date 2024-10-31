@@ -1,6 +1,6 @@
 <?php
 
-namespace Go2Flow\Ezport\Helpers\Getters\Uploads;
+namespace Go2Flow\Ezport\Helpers\Getters\Uploads\ShopwareImageGroups;
 
 use Go2Flow\Ezport\ContentTypes\Helpers\Content;
 use Go2Flow\Ezport\Finders\Abstracts\BaseInstructions;

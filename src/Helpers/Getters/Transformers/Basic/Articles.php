@@ -1,13 +1,13 @@
 <?php
 
-namespace Go2Flow\Ezport\Helpers\Getters\Transformers;
+namespace Go2Flow\Ezport\Helpers\Getters\Transformers\Basic;
 
 use Go2Flow\Ezport\ContentTypes\Helpers\Content;
 use Go2Flow\Ezport\Finders\Abstracts\BaseInstructions;
 use Go2Flow\Ezport\Finders\Interfaces\InstructionInterface;
 use Go2Flow\Ezport\Instructions\Setters\Set;
 
-class Standard extends BaseInstructions implements InstructionInterface {
+class Articles extends BaseInstructions implements InstructionInterface {
 
 
     public function get() : array

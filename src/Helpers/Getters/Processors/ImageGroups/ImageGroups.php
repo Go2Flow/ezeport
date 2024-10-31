@@ -1,6 +1,6 @@
 <?php
 
-namespace Go2Flow\Ezport\Helpers\Getters\Processors;
+namespace Go2Flow\Ezport\Helpers\Getters\Processors\ImageGroups;
 
 use Go2Flow\Ezport\ContentTypes\Generic;
 use Go2Flow\Ezport\Finders\Abstracts\BaseInstructions;

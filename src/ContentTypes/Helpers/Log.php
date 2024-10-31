@@ -32,8 +32,9 @@ class Log
         if (! $this->action || count($difference = $this->getDifference($original)) === 0) return;
 
         $this->getActivityLogObject()
+            ->type('standard')
+            ->genericType($this->current->getType())
             ->uniqueId($this->current->unique_id)
-            ->type($this->current->getType())
             ->model($this->current)
             ->properties($difference)
             ->log($exists ? 'updated' : 'created');

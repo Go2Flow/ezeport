@@ -1,6 +1,6 @@
 <?php
 
-namespace Go2Flow\Ezport\Helpers\Getters\Uploads;
+namespace Go2Flow\Ezport\Helpers\Getters\Uploads\ShopwareFiveToSix;
 
 use Go2Flow\Ezport\ContentTypes\Helpers\Content;
 use Go2Flow\Ezport\Finders\Abstracts\BaseInstructions;
@@ -9,9 +9,8 @@ use Go2Flow\Ezport\Helpers\Traits\Processors\GeneralHelpers;
 use Go2Flow\Ezport\Helpers\Traits\Uploads\ArticleFields;
 use Go2Flow\Ezport\Helpers\Traits\Uploads\GeneralFields;
 use Go2Flow\Ezport\Instructions\Setters\Set;
-use Go2Flow\Ezport\Models\GenericModel;
 
-class ShopwareFiveToSix extends BaseInstructions implements InstructionInterface {
+class Articles extends BaseInstructions implements InstructionInterface {
 
     use GeneralHelpers,
         ArticleFields,
@@ -72,58 +71,6 @@ class ShopwareFiveToSix extends BaseInstructions implements InstructionInterface
                             }
                         ),
 
-                ]),
-            Set::Upload('Manufacturers')
-                ->items(fn () => Content::type('Manufacturer', $this->project))
-                ->field(['name' => fn ($item) => $item->properties('text')])
-                ->field($this->setShopwareIdField()),
-
-            Set::Upload('media')
-                ->items(fn () => Content::type('Image', $this->project))
-                ->fields([
-                    ['title' => fn ($item) => $item->properties('name')],
-                    ['name' => fn ($item) => $item->properties('name')],
-                    Set::UploadField('mediaFolder')
-                        ->field(fn ($item) => [
-                            'id' => $this->project->cache('media_folder_ids')['standard']
-                        ]),
-                    $this->setShopwareIdField()
-                ]),
-            Set::Upload('CrossSellings')
-                ->items(fn () => Content::type('Article', $this->project))
-                ->field(
-                    Set::UploadField()
-                        ->field(
-                            function ($item) {
-
-                                $ids = $item->properties('related')
-                                    ?->map(fn ($item) => Content::type('Article', $this->project)->find($item)?->shopware('id'))
-                                    ->filter()
-                                    ->values();
-
-                                if (! $ids ||  $ids->count() == 0) return [];
-
-                                return [
-                                    'productId' => $item->shopware('id'),
-                                    'name' => 'Modellfamilie',
-                                    'position' => 1,
-                                    'type' => 'productList',
-                                    'active' => true,
-                                    'assignedProducts' => $ids->map(fn ($selling, $key) => [
-                                        'productId' => (string) $selling,
-                                        'position' => $key + 1,
-                                    ])->toArray()
-                                ];
-                            }
-                        )
-                ),
-            Set::Upload('Units')
-                ->fields([
-                    $this->setBasicUploadField(
-                        'name'
-                    ),
-                    $this->setShopwareUploadField(),
-                    ['shortCode' => fn ($item) => $item->properties('shortCode')]
                 ]),
         ];
     }

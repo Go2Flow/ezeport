@@ -1,6 +1,6 @@
 <?php
 
-namespace Go2Flow\Ezport\Helpers\Getters\Imports;
+namespace Go2Flow\Ezport\Helpers\Getters\Imports\Ftp;
 
 use Go2Flow\Ezport\ContentTypes\Generic;
 use Go2Flow\Ezport\Finders\Abstracts\BaseInstructions;
@@ -73,6 +73,6 @@ class Ftp extends BaseInstructions implements InstructionInterface {
 
     private function checkConfig(array $config, string $key, \closure $closure)
     {
-        return isset($config[$key]) ? $config[$key] : $closure;
+        return $config[$key] ?? $closure;
     }
 }

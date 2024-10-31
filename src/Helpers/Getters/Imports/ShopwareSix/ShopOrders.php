@@ -1,6 +1,6 @@
 <?php
 
-namespace Go2Flow\Ezport\Helpers\Getters\Imports;
+namespace Go2Flow\Ezport\Helpers\Getters\Imports\ShopwareSix;
 
 use Carbon\Carbon;
 use Go2Flow\Ezport\Finders\Abstracts\BaseInstructions;
@@ -10,7 +10,7 @@ use Go2Flow\Ezport\Instructions\Getters\Get;
 use Go2Flow\Ezport\Instructions\Setters\Set;
 use Illuminate\Support\Collection;
 
-class ShopSix  extends BaseInstructions implements InstructionInterface {
+class ShopOrders  extends BaseInstructions implements InstructionInterface {
 
 
     public function get() : array

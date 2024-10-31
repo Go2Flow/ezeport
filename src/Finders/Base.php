@@ -4,10 +4,10 @@ namespace Go2Flow\Ezport\Finders;
 
 use Go2Flow\Ezport\Constants\Paths;
 use Go2Flow\Ezport\Models\Project;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
 
 abstract class Base {
-//    CONST CUSTOMER_PATH = 'App\\Ezport\\Customers\\';
 
     protected $object;
 
@@ -23,9 +23,9 @@ abstract class Base {
         return $this->object->$method(...$args);
     }
 
-    protected function mergeConfigWithStandard(Project $project, string $config, string $standard) : array
+    protected function getFilesFromConfig(Project $project, string $config, array $standard) : array
     {
-        return array_merge(Find::config($project)[$config] ?? [], [$standard]);
+        return Find::config($project)[$config] ?? [];
     }
 
     protected function filePath(string $identifier, ?string $string) : string
