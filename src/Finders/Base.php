@@ -23,11 +23,6 @@ abstract class Base {
         return $this->object->$method(...$args);
     }
 
-    protected function getFilesFromConfig(Project $project, string $config, array $standard) : array
-    {
-        return Find::config($project)[$config] ?? [];
-    }
-
     protected function filePath(string $identifier, ?string $string) : string
     {
         return Paths::appCustomers() . ucfirst($identifier) . '/' . $string;

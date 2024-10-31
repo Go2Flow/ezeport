@@ -12,7 +12,7 @@ class Import extends Base{
     protected function getObject(Project $project, string $string) : ImportInstructionInterface
     {
 
-        foreach ($this->mergeConfigWithStandard($project, 'imports', StandardImports::class) as $import) {
+        foreach (Find::config($project)['imports'] as $import) {
 
             if ($instruction = (new $import($project))->find($string)) return $instruction;
         }
