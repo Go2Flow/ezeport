@@ -33,7 +33,7 @@ class Log
 
         $this->getActivityLogObject()
             ->type('standard')
-            ->genericType($this->current->getType())
+            ->contentType($this->current->getType())
             ->uniqueId($this->current->unique_id)
             ->model($this->current)
             ->properties($difference)

@@ -17,7 +17,7 @@ class Import extends Base{
             if ($instruction = (new $import($project))->find($string)) return $instruction;
         }
 
-        throw new EzportFinderException("Import {$string} not found. Check your config file whether the correct import is set.");
+        throw new EzportFinderException("Import {$string} not found. Check your config file whether the right files have been included under 'imports'.");
     }
 
 }

@@ -25,11 +25,6 @@ class ActivityLog {
         return $this;
     }
 
-    public function genericType(string $string) : self
-    {
-        return $this->setField($string, 'type');
-    }
-
     public function uniqueId(string $unique_id) : self
     {
         return $this->setField($unique_id, 'unique_id');
