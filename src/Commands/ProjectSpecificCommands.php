@@ -51,6 +51,34 @@ class ProjectSpecificCommands
 
         return 'Content added to upload';
     }
+    public function removeFromUpload(?string $type = null): string
+    {
+        if ($this->warning($this->project->connectorType('shopSix'))) return 'Operation cancelled';
+
+        $type = $type
+            ? Str::singular($type)
+            : select(
+                'What content type would you like to remove?',
+                GenericModel::whereProjectId($this->project->id)
+                    ->whereUpdated(true)
+                    ->pluck('type')
+                    ->unique()
+                    ->sort()
+                    ->merge('All')
+            );
+
+        GenericModel::whereProjectId($this->project->id)
+            ->when(
+                $type !== 'All',
+                fn ($builder) => $builder->whereType($type)
+            )
+            ->chunk(
+                100,
+                fn ($models) => $models->each->update(['updated' => false])
+            );
+
+        return 'Content removed from upload';
+    }
 
     public function createConnector()
     {

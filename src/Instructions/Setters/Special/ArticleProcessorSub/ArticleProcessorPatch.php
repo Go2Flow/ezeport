@@ -38,7 +38,7 @@ class ArticleProcessorPatch
         $this->data = $this->data->map(
             fn ($data) => collect($data)->filter(
                 fn ($item, $key) => !in_array($key, $this->unsetters)
-            )->toArray()
+            )
         );
 
         return $this;

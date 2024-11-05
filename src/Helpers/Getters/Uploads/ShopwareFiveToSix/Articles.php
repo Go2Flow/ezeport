@@ -9,6 +9,8 @@ use Go2Flow\Ezport\Helpers\Traits\Processors\GeneralHelpers;
 use Go2Flow\Ezport\Helpers\Traits\Uploads\ArticleFields;
 use Go2Flow\Ezport\Helpers\Traits\Uploads\GeneralFields;
 use Go2Flow\Ezport\Instructions\Setters\Set;
+use Go2Flow\Ezport\Models\GenericModel;
+use Illuminate\Support\Str;
 
 class Articles extends BaseInstructions implements InstructionInterface {
 
@@ -20,6 +22,12 @@ class Articles extends BaseInstructions implements InstructionInterface {
 
         return [
             Set::Upload('articles')
+                ->items(fn () => GenericModel::whereType('Article')
+                    ->whereProjectId($this->project->id)
+                    ->whereUpdated(1)
+                    ->wheretouched(1)
+                    ->pluck('id')
+                )->chunk(20)
                 ->fields([
                     $this->setShopwareUploadField(),
                     Set::PriceField('price')
@@ -35,7 +43,8 @@ class Articles extends BaseInstructions implements InstructionInterface {
                     $this->setBasicUploadField('description', 'descriptionLong'),
                     $this->setBasicUploadField('ean'),
                     $this->setBasicUploadField('metaTitle', 'dreiscSeoTitle'),
-                    ['metaDescription' => fn ($item) => substr($item->properties('description'), 0, 200)],
+                    ['metaDescription' => fn ($item) => Str::limit($item->properties('description'), 250)],
+
                     Set::UploadField()
                         ->field(
                             function ($item) {

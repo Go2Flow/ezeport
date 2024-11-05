@@ -3,6 +3,7 @@
 use Go2Flow\Ezport\Commands\ProjectSpecificCommands;
 use Go2Flow\Ezport\Models\Project;
 use Illuminate\Support\Facades\Schema;
+use \Illuminate\Support\Facades\Artisan;
 
 if (Schema::hasTable('projects')) {
     foreach (Project::get() as $shop) {
@@ -14,7 +15,14 @@ if (Schema::hasTable('projects')) {
             function (?string $type = null) use ($command) {
                 $this->info($command->addToUpload($type));
             }
-        )->purpose('Add content type to next upload for ' . $shop->identifier);;
+        )->purpose('Add content type to next upload for ' . $shop->identifier);
+
+        Artisan::command(
+            $shop->identifier . ':' . 'remove-from-upload {type?}',
+            function (?string $type = null) use ($command) {
+                $this->info($command->removeFromUpload($type));
+            }
+        )->purpose('Remove content type from next upload for ' . $shop->identifier);
 
         foreach (['import' => 'runImport', 'upload' => 'runUpload', 'clean' => 'runClean', 'transform' => 'runTransform'] as $job => $method) {
 

@@ -6,7 +6,6 @@ use Go2Flow\Ezport\Connectors\ApiInterface;
 use GuzzleHttp\Client as Guzzle;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
-use stdClass;
 use GuzzleHttp\Psr7\Response;
 
 class Api implements ApiInterface
@@ -129,7 +128,7 @@ class Api implements ApiInterface
     }
 
     /** search for an entry of the specific set path. You'll need to use the 'filter' function to specify what it should search for
-     * you can also add assoications using the 'associations' method. You can use the ShopSix::association helper
+     * you can also add associations using the 'associations' method. You can use the ShopSix::association helper
      */
 
     public function search(array $array = []) : self
@@ -221,7 +220,7 @@ class Api implements ApiInterface
      * }
      */
 
-    public function body(array $remove = []): ?stdClass
+    public function body(array $remove = []): ?object
     {
         if (! $this->response ) return $this->response;
 
