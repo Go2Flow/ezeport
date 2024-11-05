@@ -11,6 +11,7 @@ use Go2Flow\Ezport\Helpers\Traits\Processors\StandardShopSixArticle;
 use Go2Flow\Ezport\Helpers\Traits\Uploads\ArticleFields;
 use Go2Flow\Ezport\Helpers\Traits\Uploads\GeneralFields;
 use Go2Flow\Ezport\Instructions\Setters\Set;
+use Illuminate\Support\Str;
 
 class Customers extends BaseInstructions implements InstructionInterface
 {
@@ -29,12 +30,12 @@ class Customers extends BaseInstructions implements InstructionInterface
                     ['firstName' => fn ($item) => $item->properties('name')['first'] ?? 'empty'],
                     ['lastName' => fn ($item) => $item->properties('name')['last']],
                     ['salutationId' => fn ($item) => $this->project->cache('salutation_ids')[$item->properties('salutation')]],
-                    ['accountType' => 'bussiness'],
+                    ['accountType' => 'business'],
                     Set::UploadField()
                         ->field( function ($item) {
                             $address = [
 
-                                'countryId' => $this->project->cache('country_ids')['ch'],
+                                'countryId' => $this->project->cache('country_ids')[Str::lower($item->properties('country')) ?? 'ch'],
                                 'firstName' => $item->properties('name')['first'] ?? 'empty',
                                 'lastName' => $item->properties('name')['last'] ?? 'last',
                                 'street' => $item->properties('address')['street'],
@@ -54,7 +55,6 @@ class Customers extends BaseInstructions implements InstructionInterface
                     ['boundSalesChannelId' => fn () => $this->project->cache('sales_channel_ids')['standard']],
                     ['languageId' => fn () => $this->project->cache('language_ids')['de']],
                     ['defaultPaymentMethodId' => fn () => $this->project->cache('payment_method_ids')['standard']],
-                    ['groupId' => fn () => '018d8e3654ff78d38abc4254a37a5b8d'],
                     ['company' => fn ($item) => $item->properties('company')]
                 ]),
         ];

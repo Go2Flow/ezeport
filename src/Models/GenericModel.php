@@ -105,7 +105,7 @@ class GenericModel extends BaseModel
 
         $this->save();
 
-        if (!$this->unique_id) {
+        if ($this->unique_id === null) {
             $this->update(['unique_id' => $this->id . '-' . $this->type]);
         }
 

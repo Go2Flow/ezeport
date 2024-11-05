@@ -35,7 +35,7 @@ class Categories extends BaseInstructions implements InstructionInterface
                             $assigned->push(...$models->pluck('id'));
 
                             $models = $models->flatMap(
-                                fn ($item) => $item->parents()->whereProjectId($this->project->id)->get()
+                                fn ($item) => $item->parents()->whereType('Category')->whereProjectId($this->project->id)->get()
                             )->filter();
                         }
 
@@ -61,3 +61,4 @@ class Categories extends BaseInstructions implements InstructionInterface
         ];
     }
 }
+

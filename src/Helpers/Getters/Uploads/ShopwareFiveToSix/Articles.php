@@ -29,6 +29,7 @@ class Articles extends BaseInstructions implements InstructionInterface {
                     ->pluck('id')
                 )->chunk(20)
                 ->fields([
+                    ['active' => fn ($item) => $item->properties('active')],
                     $this->setShopwareUploadField(),
                     Set::PriceField('price')
                         ->price(fn ($item) => $item->properties('prices')[0]['price'] ?? 0),
