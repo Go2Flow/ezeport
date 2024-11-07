@@ -61,6 +61,11 @@ class Schedule extends Base
         return $this->set('event', 'import');
     }
 
+    public function transform(): self
+    {
+        return $this->set('event', 'transform');
+    }
+
     /**
      * set the event to 'upload'. This will run the jobs called 'upload' in the project's job instructions.
      * you will still need to set the type of upload (full or partial)
