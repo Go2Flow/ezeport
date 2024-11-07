@@ -17,7 +17,7 @@ class AssignFtpFileImport implements ShouldQueue, ShouldBeUnique
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, Batchable;
 
     public $tries = 1;
-    public $timeout = 700;
+    public $timeout = 600;
 
     /**
      * Create a new job instance.

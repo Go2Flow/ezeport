@@ -93,8 +93,8 @@ class ImageGroups extends BaseInstructions implements InstructionInterface {
 
                             foreach ($item->properties('images') as $image) {
 
-                                if (isset($ids[$image['file']])) {
-                                    $shopwareIds[$image['file']] = $ids[$image['file']];
+                                if (isset($ids[$image['name']])) {
+                                    $shopwareIds[$image['name']] = $ids[$image['name']];
                                 }
                             }
 

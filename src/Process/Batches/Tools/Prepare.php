@@ -20,10 +20,8 @@ class Prepare {
     {
         $instructions = Find::instruction($this->project, 'clean');
 
-        return $collection->map(
-            fn ($top) => collect($top)->map(
-                fn ($item) => $instructions->byKey($item)->getJob(['type' => $item])
-            )
+        return  $this->cleanCollection(
+            $collection->mapWithKeys(fn ($step, $index) => [$step->getKey() == '' ? $index : $step->getKey() => $this->clean($step->getContent())])
         );
     }
 
@@ -95,12 +93,21 @@ class Prepare {
     {
         $importInstructions = Find::instruction($this->project, 'import');
 
-
-
         return collect($jobInstructions)->map(
             fn ($job) => $importInstructions
                 ->byKey($job)
                 ->GetJob()
+        );
+    }
+
+    private function clean(array|Collection $jobInstructions): Collection
+    {
+        $importInstructions = Find::instruction($this->project, 'clean');
+
+        return collect($jobInstructions)->map(
+            fn ($job) => $importInstructions
+                ->byKey($job)
+                ->GetJob(['type' => $job])
         );
     }
 
