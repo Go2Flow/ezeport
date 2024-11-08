@@ -24,6 +24,9 @@ use Go2Flow\Ezport\Instructions\Setters\Types\Upload;
 use Go2Flow\Ezport\Instructions\Setters\Types\UploadField;
 use Go2Flow\Ezport\Instructions\Setters\Types\UploadProcessor;
 use Go2Flow\Ezport\Instructions\Setters\Types\XmlImport;
+use Go2Flow\Ezport\Instructions\Setters\Types\RunTransformProcess;
+use Go2Flow\Ezport\Instructions\Setters\Types\RunImportProcess;
+use Go2Flow\Ezport\Instructions\Setters\Types\RunUploadProcess;
 use Go2Flow\Ezport\Process\Errors\EzportSetterException;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Stringable;
@@ -50,6 +53,9 @@ use Illuminate\Support\Stringable;
  * @method static FtpFileImport FtpFileImport(string $key, array $config = [])
  * @method static Basic Basic(string $key, array $config = [])
  * @method static Step Step(string $key, array $config = [])
+ * @method static RunUploadProcess RunUploadProcess(string $key, array $config = [])
+ * @method static RunImportProcess RunImportProcess(string $key, array $config = [])
+ * @method static RunTransformProcess RunTransformProcess(string $key, array $config = [])
  **/
 
 class Set {
