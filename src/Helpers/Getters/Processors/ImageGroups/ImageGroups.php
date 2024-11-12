@@ -24,13 +24,39 @@ class ImageGroups extends BaseInstructions implements InstructionInterface {
                 ->process(
                     function (Collection $items, Api $api) {
 
-                        if (count($send = $this->getUniqueImages($this->imageGroupToImages($items), $api)) > 0) {
+                        $keys = $items->map(
+                            fn($item) =>
+                            $item->parents("image_groups")
+                                ->first()
+                                ->shop("id")
+                        );
 
-                            $response = $api->productMedia()
-                                ->bulk(
-                                    $send->filter()->values()->toArray()
-                                )->body();
+                        $response = collect($api->product()->association(['media' => []])->filter([
+                            'type' => 'equalsAny',
+                            'field' => 'id',
+                            'value' => $keys->toArray()
+                        ])->search()
+                            ->body()->data);
+
+                        $ids = collect();
+
+                        foreach ($response as $product) {
+                            $ids->push(... collect($product->media)->pluck('id'));
                         }
+
+                        if ($ids->count() > 0) {
+
+                            $api->productMedia()->bulkDelete($ids->map(fn ($id) => ['id' => $id ])->toArray())->toArray();
+                        }
+
+                        $api->productMedia()
+                            ->bulk(
+                                $items->flatMap(
+                                    fn ($item) => $item->toShopArray(
+                                        ['id' => $item->parents('image_groups')->first()->shop('id')]
+                                    )
+                                )->values()->toArray()
+                            );
                     }
                 ),
             Set::UploadProcessor('imageGroup')

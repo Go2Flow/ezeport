@@ -79,11 +79,15 @@ class Generic
      * get the parent relations
      */
 
-    public function parents(): Collection
+    public function parents(?string $groupType = null): Collection
     {
-        return $this->contentData->parents()
-            ->get()
-            ->toContentType();
+        $query = $this->contentData->parents();
+
+        if ($groupType) {
+            $query->where('group_type', $groupType);
+        }
+
+        return $query->get()->toContentType();
     }
 
     /**

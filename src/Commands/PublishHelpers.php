@@ -2,8 +2,9 @@
 
 namespace Go2Flow\Ezport\Commands;
 
-use Go2flow\Ezport\Constants\Paths;
+use Go2Flow\Ezport\Constants\Paths;
 use Illuminate\Console\Command;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
 
@@ -28,14 +29,21 @@ class PublishHelpers extends Command
      */
     public function handle()
     {
+
         File::copyDirectory(
             Str::of(File::dirname(__FILE__))->before('Commands') . 'Helpers',
             base_path(Paths::appHelpers())
         );
 
-        collect(File::directories(Paths::appHelpers()))
-            ->each(fn($top) => collect(File::directories($top))
-                ->each(fn($folder) => collect(File::files($folder))
+        $this->replaceRecursively(File::Directories(Paths::appHelpers()));
+    }
+
+    private function replaceRecursively(array $folders) : void {
+
+       collect($folders)->each(
+            function ($folder) {
+
+                collect(File::files($folder))
                     ->each(function ($file) {
                         File::put(
                             $file,
@@ -46,8 +54,10 @@ class PublishHelpers extends Command
                             )
                         );
                     }
-                )
-            )
+                );
+
+                $this->replaceRecursively(File::directories($folder));
+            }
         );
     }
 }
