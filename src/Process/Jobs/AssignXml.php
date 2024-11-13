@@ -40,7 +40,14 @@ class AssignXml implements ShouldQueue, ShouldBeUnique
                     ->add(
                         (new Split($path, $project))
                             ->batch($this->config['action'])
-                            ->getJobs()
+                            ->getCollection()
+                            ->flatMap(
+                                function ($item, $key) {
+                                    return $item->map(
+                                        fn ($xml) => new ($this->config['xmlJob'] ?? XmlProcess::class)($this->project, $xml, $key)
+                                    );
+                                }
+                            )
                     )
             );
     }

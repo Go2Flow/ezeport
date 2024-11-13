@@ -208,7 +208,8 @@ class DataProcessor
             return XMLParser::extract($text)->getContent();
         } catch (Exception $e) {
 
-            Log::info([$e, $text]);
+            Log::info([$e->getMessage(), $text]);
+
         }
     }
 }
