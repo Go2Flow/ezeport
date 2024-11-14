@@ -34,6 +34,6 @@ class XmlProcess implements ShouldQueue
                 Project::find($this->project),
                 'Import'
             )->byKey($this->key)
-                ->getProcess()($reader->values());
+                ->get('process')(collect($reader->values())->first());;
     }
 }
