@@ -42,6 +42,10 @@ class Jobs extends Base{
         return $this->setKey('transform');
     }
 
+    /**
+     * @deprecated
+     */
+
     public function partial() : self {
 
         $this->type = 'partial';
@@ -49,9 +53,19 @@ class Jobs extends Base{
         return $this;
     }
 
+    /**
+     * @deprecated
+     */
     public function full() : self {
 
         $this->type = 'full';
+
+        return $this;
+    }
+
+    public function type(string $string) : self {
+
+        $this->type = $string;
 
         return $this;
     }

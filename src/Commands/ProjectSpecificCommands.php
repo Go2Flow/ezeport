@@ -6,6 +6,7 @@ use Go2Flow\Ezport\Commands\Prepare\Deleter;
 use Go2Flow\Ezport\Commands\PrepareProject\CreateProject;
 use Go2Flow\Ezport\Commands\PrepareProject\CreateProjectCache;
 use Go2Flow\Ezport\Finders\Api;
+use Go2Flow\Ezport\Finders\Find;
 use Go2Flow\Ezport\Models\Connector;
 use Go2Flow\Ezport\Models\GenericModel;
 use Go2Flow\Ezport\Models\Project;
@@ -43,8 +44,7 @@ class ProjectSpecificCommands
             ->when(
                 $type !== 'All',
                 fn ($builder) => $builder->whereType($type)
-            )
-            ->chunk(
+            )->chunk(
                 100,
                 fn ($models) => $models->each->update(['updated' => true])
             );
@@ -139,7 +139,7 @@ class ProjectSpecificCommands
         return 'Connector ' . $newOrUpdate . 'd';
     }
 
-    public function runJobs(string $method, $type = null): void
+    public function runJobs(string $method, ?string $type, string $job): void
     {
         $type = $type && collect(['full', 'partial'])->contains(Str::lower($type))
             ? Str::lower($type)
@@ -159,7 +159,7 @@ class ProjectSpecificCommands
 
         $type = $type ?? select(
             label: 'What type of '. $method . ' do you want to run?',
-            options: ['full', 'partial']
+            options: $this->getOptions($job)
         );
 
         (new JobBatcher($this->project, new UploadManager($this->project)))
@@ -215,5 +215,14 @@ class ProjectSpecificCommands
             yes: 'Yes, continue',
             no: 'What? No! Stop!!',
         ) ? false : true;
+    }
+
+    private function getOptions($job) : array {
+
+        return Find::instruction(Project::first(), "Jobs")
+            ->collect()
+            ->filter(fn($item) => $item->get("key") == Str::lower($job))
+            ->map(fn($item) => $item->get("type"))
+            ->toArray();
     }
 }

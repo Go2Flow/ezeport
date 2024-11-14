@@ -29,10 +29,10 @@ if (Schema::hasTable('projects')) {
             Artisan::command(
                 $shop->identifier . ":" . $job . ' {type?}',
                 function (?string $type = null) use ($command, $job, $method) {
-                    $command->runJobs($method, $type);
+                    $command->runJobs($method, $type, $job);
                     $this->info(Str::ucfirst($type) . ' console.php' . $job . ' jobs added to horizon');
                 }
-            )->purpose('Run full ' . $job . ' for ' . $shop->identifier);
+            )->purpose('Run ' . $job . ' for ' . $shop->identifier);
         }
 
         Artisan::command(
