@@ -229,11 +229,18 @@ class Generic
 
     public function relationsForget(string $input = null) : self
     {
+        $query = $this->contentData->children();
+
+        if ($input) {
+            $query->wherePivot('group_type', $input);
+        }
+
+        $query->detach();
+
         $this->forget('modelRelations', $input);
 
         return $this;
     }
-
     /**
      * remove a key from the shopware attribute
      */

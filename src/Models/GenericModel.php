@@ -55,8 +55,6 @@ class GenericModel extends BaseModel
             $this->getOrSetData([(string) $string->before('_id')->plural() => $type], 'modelRelations');
 
             $this->content->forget($key);
-
-            continue;
         }
     }
 

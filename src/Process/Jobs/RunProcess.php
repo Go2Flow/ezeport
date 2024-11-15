@@ -33,6 +33,6 @@ class RunProcess implements ShouldQueue
             $this->config['type']
         )->find($this->config['key']);
 
-        $instruction->getProcess()();
+        $instruction->get('process')();
     }
 }

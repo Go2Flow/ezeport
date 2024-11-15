@@ -30,8 +30,6 @@ class Api implements ApiInterface
 
         $this->baseFolder = ucfirst($project->identifier) . '/';
 
-        // $this->structure = Find::instruction($project, 'Api')->find('ftp');
-
         $this->storage = Storage::drive($drive);
 
         config([
