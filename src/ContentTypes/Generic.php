@@ -72,6 +72,9 @@ class Generic
     {
         (new Log($this))->delete();
 
+        $this->contentData->parents()->detach();
+        $this->contentData->children()->detach();
+
         $this->contentData->delete();
     }
 
