@@ -20,22 +20,23 @@ class AssignProcess implements ShouldQueue, ShouldBeUnique
     public int $timeout = 890;
 
     /**
-    * Create a new job instance.
-    */
-    public function __construct(public int $project, private string $key) {}
+     * Create a new job instance.
+     */
+    public function __construct(public int $project, private array $config) {}
 
     public function handle() : void
     {
+
         $instruction = Find::instruction(
             Project::find($this->project),
             'Import'
-        )->find($this->key);
+        )->find($this->config['key']);
 
-        $this->batch()->add($instruction->getJobs());
+        $this->batch()->add($instruction->getJobs($this->project));
     }
 
     public function tags()
     {
-        return ['Import job for ' . $this->key];
+        return ['Import job for ' . $this->config['key']];
     }
 }

@@ -69,7 +69,7 @@ class CsvImport extends Basic
         ->map(
             fn ($chunk) => new RunProcessJob(
                 $projectId,
-                ['items' => $chunk, 'type' => 'Import']
+                ['items' => $chunk, 'type' => 'Import', 'key' => $this->key]
             )
         );
     }
