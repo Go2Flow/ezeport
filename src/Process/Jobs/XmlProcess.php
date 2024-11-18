@@ -29,11 +29,10 @@ class XmlProcess implements ShouldQueue
 
         $reader = XmlReader::fromString($this->item[0]);
 
-
             Find::instruction(
                 Project::find($this->project),
                 'Import'
             )->byKey($this->key)
-                ->get('process')(collect($reader->values())->first());;
+                ->get('process')(collect($reader->values())->first());
     }
 }

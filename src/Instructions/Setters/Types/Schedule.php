@@ -117,6 +117,11 @@ class Schedule extends Base
         return $this->set('type', 'partial');
     }
 
+    public function type($string) : self
+    {
+        return $this->set('type', $string);
+    }
+
     /**
      * set the task to be performed at a specific time of day
      */

@@ -58,7 +58,7 @@ class Importer {
 
     private function getData($instruction) : Collection
     {
-        $importer = (new Import($instruction->get('structure')));
+        $importer = new Import($instruction->get('config'));
 
         return $importer->collection(
             $importer->toCollection(

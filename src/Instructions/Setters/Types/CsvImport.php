@@ -2,104 +2,75 @@
 
 namespace Go2Flow\Ezport\Instructions\Setters\Types;
 
-use Closure;
-use Go2Flow\Ezport\Instructions\Setters\Interfaces\JobInterface;
-use Go2Flow\Ezport\Process\Jobs\AssignCsv;
+use Go2Flow\Ezport\Instructions\Setters\Set;
+use Go2Flow\Ezport\Process\Import\Csv\Imports\Import;
+use Go2Flow\Ezport\Process\Jobs\AssignProcess;
+use Go2Flow\Ezport\Process\Jobs\RunProcess as RunProcessJob;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Storage;
+use Go2Flow\Ezport\Models\Project;
 
-class CsvImport extends Basic implements JobInterface
+class CsvImport extends Basic
 {
-    protected Collection $imports;
-    protected ?Closure $prepare = null;
-    protected ?Closure $process = null;
-    protected string $class;
-    protected $stages = 0;
+    private string $file;
 
-    public function __construct(string $key)
+    private array $config = [];
+
+    protected \Closure|null $process;
+
+    private int $chunk = 25;
+
+    public function __construct(string $key, array $config = [])
     {
         parent::__construct($key);
-        $this->class = Str::of($key)->ucfirst()->singular()->toString();
 
-        $this->imports = collect();
-
-        $this->jobClass = AssignCsv::class;
+        $this->job = Set::Job()
+            ->class(AssignProcess::class);
     }
 
-    /**
-     * set the number of stages needed to import
-     * each 'stage' will arrive as a seperate collection at the 'prepare' closure
-     * stages start at 0 and count up.
-     * stages should be set on the CsvImportStep object using the 'stage' method
-     */
-
-    public function stages(int $stages): self
+    public function config(array $config) : self
     {
-        $this->stages = $stages;
-        $this->imports = collect();
-
-        for ($stages; $stages > 0; $stages--) $this->imports->push(collect());
+        $this->config = $config;
 
         return $this;
     }
 
-    /**
-     * import a single csv file. See the CsvImportStep class to see how this is done.
-     * If you are using 'stages' the 'stage' variable needs to be set to indicate the stage this import belongs to
-     */
-
-    public function import(CsvImportStep $object): self
+    public function process(\Closure $closure) : self
     {
-        if (! $this->stages) {
-            $this->imports->push($object);
-
-        } else {
-
-            $this->imports[$object->getStage()]->push($object);
-        }
-
-        return $this;
-    }
-
-    /**
-     * Here the data that is prepared in the 'imports' is received. If you've got multiple stages
-     * then the the data will be received as an collection of collections. If you've only got one stage
-     * the data will be received as a single collection.
-     */
-
-    public function prepare(Closure $closure) : self {
-
-        $this->prepare = $closure;
-
-        return $this;
-    }
-
-    /**
-     * The data is passed one item from the prepare closure to the process closure.
-     */
-
-    public function process(Closure $closure) : self {
-
         $this->process = $closure;
 
         return $this;
     }
 
-    /**
-     * This specifies the type that the Generic Object will have.
-     */
-
-    public function type(string $type) : self {
-
-        $this->class = $type;
+    public function file(string $file) : self
+    {
+        $this->file = $file;
 
         return $this;
     }
 
-    protected function setSpecificFields() : array
+    public function chunk(int $chunk) : self
     {
-        return [
-            'type' => $this->key->toString(),
-        ];
+        $this->chunk = $chunk;
+
+        return $this;
+    }
+
+    public function getJobs($projectId) : Collection
+    {
+        $importer = new Import($this->config);
+
+        return $importer->collection(
+            $importer->toCollection(
+                Storage::drive('public')
+                    ->path(Project::find($projectId)->identifier . '/' . $this->file)
+            )
+        )->chunk($this->chunk)
+        ->map(
+            fn ($chunk) => new RunProcessJob(
+                $projectId,
+                ['items' => $chunk, 'type' => 'Import']
+            )
+        );
     }
 }

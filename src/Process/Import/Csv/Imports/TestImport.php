@@ -8,27 +8,28 @@ use Maatwebsite\Excel\Concerns\Importable;
 use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 
-class Import implements ToCollection, WithHeadingRow
+class TestImport implements ToCollection, WithHeadingRow
 {
     use Importable;
 
-
-
-    public function __construct(private array $config = [])
-    {
-    }
+//    private Closure $structure;
+//
+//    public function __construct(Closure $structure, array $config = [])
+//    {
+//        $this->structure = $structure;
+//    }
 
     public function headingRow(): int
     {
-        return $this->array['headingRowNum'] ?? 1;
+        return 2;
     }
 
     /**
      * @param Collection $collection
-     * @return Collection
      */
-    public function collection(Collection $collection): Collection
+    public function collection(Collection $collection)
     {
         return $collection[0];
+
     }
 }

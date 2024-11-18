@@ -290,7 +290,6 @@ class Api implements ApiInterface
                 'headers' => [
                     'Content-Type' => 'application/json',
                     'Accept' => 'application/vnd.api+json',
-                    // 'indexing-behavior' => 'disable-indexing'
                 ]
             ])->addToPayload([
                 'delete-' . $this->path => [

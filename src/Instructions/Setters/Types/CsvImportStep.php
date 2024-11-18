@@ -10,6 +10,7 @@ class CsvImportStep extends Base {
     protected bool $create = false;
     protected Closure $structure;
     protected int $stage = 0;
+    protected array $config = [];
 
     /**
      * set the file to import
@@ -18,6 +19,13 @@ class CsvImportStep extends Base {
     public function file(string $string)  : self
     {
         $this->file = $string;
+
+        return $this;
+    }
+
+    public function config(array $config) : self{
+
+        $this->config = $config;
 
         return $this;
     }

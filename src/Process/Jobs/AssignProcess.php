@@ -6,33 +6,36 @@ use Go2Flow\Ezport\Finders\Find;
 use Go2Flow\Ezport\Models\Project;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 
-class RunProcess implements ShouldQueue
+class AssignProcess implements ShouldQueue, ShouldBeUnique
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, Batchable;
 
-    /**
-     * Create a new job instance.
-     */
-    public function __construct(public int $project, private array $config)
-    {
-        //
-    }
+    public int $tries = 1;
+    public int $timeout = 890;
 
     /**
-     * Execute the job.
-     */
-    public function handle(): void
+    * Create a new job instance.
+    */
+    public function __construct(public int $project, private string $key) {}
+
+    public function handle() : void
     {
         $instruction = Find::instruction(
             Project::find($this->project),
-            $this->config['type']
-        )->find($this->config['key']);
+            'Import'
+        )->find($this->key);
 
-        $instruction->get('process')($this->config['items']?? collect([]));
+        $this->batch()->add($instruction->getJobs());
+    }
+
+    public function tags()
+    {
+        return ['Import job for ' . $this->key];
     }
 }

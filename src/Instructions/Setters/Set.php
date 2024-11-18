@@ -35,6 +35,7 @@ use Illuminate\Support\Stringable;
  * @method static Api Api(string $key, array|Collection $config = [])
  * @method static Connector Connector(string $key, array $config = [])
  * @method static CsvImport CsvImport(string $key)
+ * @method static CsvImportOld CsvImportOld(string $key)
  * @method static CsvImportStep CsvImportStep()
  * @method static FtpCleaner FtpCleaner(string $key)
  * @method static Jobs Jobs(string $key = '')

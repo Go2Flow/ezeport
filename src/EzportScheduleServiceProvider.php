@@ -76,6 +76,7 @@ class EzportScheduleServiceProvider extends ServiceProvider
                 $schedule->job(
                     new CleanActivityLog()
                 )->daily();
+
             });
     }
 }

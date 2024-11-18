@@ -108,7 +108,6 @@ class JobBatcher
 
     private function correctPrepare(string $method, Jobs $instruction, string $type): Collection
     {
-
         $jobs = $instruction->getJobs();
 
         return
