@@ -6,7 +6,7 @@ use Go2Flow\Ezport\Finders\Api;
 use Go2Flow\Ezport\Instructions\Setters\Special\ArticleProcessorSub\ArticleProcessorApiCalls;
 use Go2Flow\Ezport\Instructions\Setters\Special\ArticleProcessorSub\ArticleProcessorPatch;
 use Go2Flow\Ezport\Instructions\Setters\Types\UploadProcessor;
-use Go2Flow\Ezport\Logger\LogOutput;
+use Go2Flow\Ezport\Logger\LogError;
 use Illuminate\Support\Collection;
 
 class ArticleProcessor extends UploadProcessor {
@@ -101,9 +101,9 @@ class ArticleProcessor extends UploadProcessor {
 
     private function logProblem(string $problem, $level = 'high'): void
     {
-        (new LogOutput($this->project->id))->api()->log(
-            $problem,
-            $level
-        );
+        (new LogError($this->project->id))
+            ->type('api')
+            ->level('high')
+            ->log(json_encode($problem));
     }
 }

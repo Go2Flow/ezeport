@@ -57,16 +57,12 @@ class PriceField extends UploadField implements UploadFieldInterface {
 
     public function gross() : self
     {
-        $this->addOrRemove = 'remove';
-
-        return $this;
+        return $this->remove();
     }
 
     public function net() : self
     {
-        $this->addOrRemove = 'add';
-
-        return $this;
+        return $this->add();
     }
 
     public function process(Generic $item, array $config) : array {

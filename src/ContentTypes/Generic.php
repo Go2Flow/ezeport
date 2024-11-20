@@ -34,6 +34,7 @@ class Generic
         $this->contentData = $data instanceof GenericModel
             ? $data
             : (new GenericModel)->findorCreateModel($data);
+
     }
 
     /**

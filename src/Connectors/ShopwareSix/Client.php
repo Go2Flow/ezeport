@@ -2,7 +2,7 @@
 
 namespace Go2Flow\Ezport\Connectors\ShopwareSix;
 
-use Go2Flow\Ezport\Logger\LogOutput;
+use Go2Flow\Ezport\Logger\LogError;
 use GuzzleHttp\Client as Guzzle;
 use GuzzleHttp\Exception\ServerException;
 use GuzzleHttp\Exception\ClientException;
@@ -18,12 +18,12 @@ class Client
     private ?array $header;
     private ?Guzzle $testGuzzle;
     private ?object $response;
-    private LogOutput $logger;
+    private LogError $logger;
 
     public function __construct(private array $connector, ?Guzzle $testGuzzle = null)
     {
         $this->testGuzzle = $testGuzzle;
-        $this->logger = (new LogOutput($connector['project_id']))->api();
+        $this->logger = (new LogError($connector['project_id']))->type('api');
 
         $this->clearPayload();
     }
@@ -172,11 +172,10 @@ class Client
         return $this;
     }
 
-    private function logProblem($problem) : void
+    private function logProblem(string $problem) : void
     {
-        $this->logger->log(
+        $this->logger->level('high')->log(
             $problem,
-            'error'
         );
     }
 
@@ -202,11 +201,21 @@ class Client
 
     private function recursiveErrorLogger($response, $report) : void
     {
+        if (isset($response->errors)) {
+            collect($response)
+                ->each(
+                    function ($item) use ($report) {
+                        if (is_array($item)) {
 
-        !isset($response->errors)
-            ? collect($response)->each(fn ($item) => is_array($item) ?  $this->logProblem($response . "\n" . $report) : '')
-            : $this->logProblem(
-                array_merge(get_object_vars($response), ['report' => $report])
+                            $this->logProblem(json_encode($item, ['report' => $report]));
+                        }
+                    }
+                );
+        }
+        else {
+            $this->logProblem(
+                json_encode(array_merge(get_object_vars($response), ['report' => $report]))
             );
+        }
     }
 }

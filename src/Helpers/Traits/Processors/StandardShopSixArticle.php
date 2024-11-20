@@ -7,7 +7,7 @@ use Go2Flow\Ezport\ContentTypes\Generic;
 use Go2Flow\Ezport\Finders\Api;
 use Go2Flow\Ezport\Instructions\Setters\Set;
 use Go2Flow\Ezport\Instructions\Setters\Types\UploadProcessor;
-use Go2Flow\Ezport\Logger\LogOutput;
+use Go2Flow\Ezport\Logger\LogError;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 
@@ -23,10 +23,10 @@ trait StandardShopSixArticle
     private function patchArticle(Generic $item, array $array, Api $api) : void
     {
         if (!$product = $this->getShopwareProduct($array, $api)) {
-            (new LogOutput($this->project->id))->log(
-                'could not find Product ' . $item->unique_id . ' in Shopware',
-                'high'
-            );
+
+            (New LogError($this->project->id))
+                ->level('high')
+                ->log('could not find Product ' . $item->unique_id . ' in Shopware');
         }
 
         foreach (['optionId' => 'property', 'categoryId'  => 'category'] as $key => $type) {
@@ -173,9 +173,9 @@ trait StandardShopSixArticle
 
     private function logProblem(string $problem): void
     {
-        (new LogOutput($this->project->id))->log(
-            $problem,
-            'high'
-        );
+        $log = new LogError($this->project->id);
+
+        $log->type('api')->level('high')->log(json_encode($problem));
+
     }
 }

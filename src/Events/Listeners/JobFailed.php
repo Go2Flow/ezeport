@@ -3,7 +3,7 @@
 
 namespace Go2Flow\Ezport\Events\Listeners;
 
-use Go2Flow\Ezport\Logger\LogOutput;
+use Go2Flow\Ezport\Logger\LogError;
 use Go2Flow\Ezport\Models\Action;
 use Illuminate\Queue\Events\JobFailed as JobFailedEvent;
 
@@ -32,11 +32,12 @@ class JobFailed {
 
         if ($action) {
 
-            (new LogOutput($job->project, 'isJob'))
+            (new LogError($job->project))
+                ->type('isJob')
                 ->properties([$event->exception->getMessage()])
+                ->level('high')
                 ->log(
-                    ['job' => $event->job->payload()],
-                    'high'
+                    json_encode(['job' => $event->job->payload()])
                 );
 
             $action->update([
