@@ -222,7 +222,7 @@ class ProjectSpecificCommands
         return Find::instruction(Project::first(), "Jobs")
             ->collect()
             ->filter(fn($item) => $item->get("key") == Str::lower($job))
-            ->map(fn($item) => $item->get("type"))
+            ->mapWithKeys(fn($item) => [$item->get("type") => $item->get("type")])
             ->toArray();
     }
 }

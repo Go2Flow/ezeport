@@ -97,7 +97,7 @@ class GenericModel extends BaseModel
         $original = $this->getOriginal();
         $exists = $this->exists;
 
-        if ($name = $this->content->filter(fn ($item, $key) => Str::lower($key) === 'name')?->first()){
+        if ($name = $this->content?->filter(fn ($item, $key) => Str::lower($key) === 'name')?->first()){
             $this->name = $name;
         }
 

@@ -20,7 +20,7 @@ class Import implements ToCollection, WithHeadingRow
 
     public function headingRow(): int
     {
-        return $this->array['headingRowNum'] ?? 1;
+        return $this->config['headingRowNum'] ?? 1;
     }
 
     /**
