@@ -8,6 +8,7 @@ use Go2Flow\Ezport\Instructions\Setters\Types\ShopImport as SetShopImport;
 use Go2Flow\Ezport\Models\Project;
 use Go2Flow\Ezport\Process\Errors\EzportImportException;
 use Go2Flow\Ezport\Process\Import\Helpers\HasStructure;
+use Go2Flow\Ezport\Process\Jobs\RunProcess as RunProcessJob;
 use Go2Flow\Ezport\Process\Jobs\ShopImport;
 use Illuminate\Support\Collection;
 
@@ -31,58 +32,17 @@ class Controller
     {
         $items = $this->structure->get('items')($this->api);
 
-        return $items == null
-            ? collect([new ShopImport($this->project->id, $this->config, collect())])
-            : $items->chunk(25)
+        return $items->chunk(25)
             ->map(
-                fn ($chunk) => new ShopImport($this->project->id, $this->config, $chunk)
+                fn ($chunk) => new RunProcessJob(
+                    $this->project->id,
+                    ['items' => $chunk, 'type' => 'Import', 'key' => $this->config['key']]
+                )
             );
     }
 
     public function process($chunk) : void
     {
-        collect($this->structure->get('process')($chunk, $this->api))
-            ->each(function ($item) {
-
-                $response = $this->prepareContent($item, $this->structure->get('uniqueId'));
-
-                $this->createGenericModel($response);
-            });
-    }
-
-    private function createGenericModel($array) : void
-    {
-        $class = new Generic(array_merge([
-            'project_id' => $this->project->id,
-            'type' => $this->structure->get('type'),
-        ], $array['uniqueId'] ? ['unique_id' => $array['uniqueId']] : []));
-
-        $class->properties($array['content']['properties']);
-        $class->shop($array['content']['shop']);
-
-        $class->updateOrCreate(true);
-    }
-
-    private function prepareContent($item, string $identifier) : array
-    {
-        $array = [];
-        $uniqueId = $item->{$identifier} ?? null;
-
-        foreach (['properties', 'shop'] as $attribute) {
-
-            $array[$attribute] = [];
-
-            foreach ($this->structure->get($attribute) as $closure) {
-
-                $array[$attribute] = array_merge($array[$attribute], $closure($item));
-            }
-
-            if (!$uniqueId && isset($array[$attribute][$identifier]))
-            {
-                $uniqueId = $array[$attribute][$identifier];
-            }
-        }
-
-        return ['content' => $array, 'uniqueId' => $uniqueId];
+        $this->structure->get('process')($chunk);
     }
 }

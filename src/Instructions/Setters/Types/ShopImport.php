@@ -6,7 +6,10 @@ use Closure;
 use Go2Flow\Ezport\Instructions\Getters\Get;
 use Go2Flow\Ezport\Instructions\Getters\GetProxy;
 use Go2Flow\Ezport\Instructions\Interfaces\ImportInstructionInterface;
-use Go2Flow\Ezport\Process\Jobs\AssignShopImport;
+use Go2Flow\Ezport\Instructions\Setters\Set;
+use Go2Flow\Ezport\Models\Project;
+use Go2Flow\Ezport\Process\Import\Shopware\Controller;
+use Go2Flow\Ezport\Process\Jobs\AssignProcess;
 use Illuminate\Support\Collection;
 
 class ShopImport extends Basic implements ImportInstructionInterface {
@@ -30,7 +33,9 @@ class ShopImport extends Basic implements ImportInstructionInterface {
         $this->items = fn () => null;
         $this->process = fn () => null;
 
-        $this->jobClass = AssignShopImport::class;
+        $this->job = Set::Job()
+            ->class(AssignProcess::class);
+
     }
 
     /**
@@ -110,5 +115,11 @@ class ShopImport extends Basic implements ImportInstructionInterface {
         $this->$type = $string;
 
         return $this;
+    }
+
+    public function getJobs($projectId) : Collection
+    {
+        return (new Controller(Project::find($projectId), $this->config))->assign();
+
     }
 }
