@@ -24,7 +24,7 @@ class LogError {
 
     public function type(string $string) : self {
 
-        $this->error_type = $string;
+        $this->error->error_type = $string;
 
         return $this;
     }
