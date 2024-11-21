@@ -14,8 +14,6 @@ class LogError {
     {
         $this->error = New Error();
 
-        $this->error->project_id = $projectId;
-
         if ($action = Project::find($projectId)->actions()?->whereActive(1)->first()) {
 
             $this->error->action_id = $action->id;

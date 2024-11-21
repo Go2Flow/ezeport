@@ -21,6 +21,7 @@ return new class extends Migration
                 $table->string('password');
                 $table->string('host');
                 $table->string('environment')->default('production');
+                $table->mediumText('options')->nullable();
                 $table->timestamps();
             });
         }

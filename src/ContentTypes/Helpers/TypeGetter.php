@@ -118,6 +118,10 @@ class TypeGetter implements BuilderContract
 
     public function updateOrCreate(array $attributes, array $values) {
 
+        if (isset($values['properties'])) {
+            $values['content'] = $values['properties'];
+            unset($values['properties']);
+        }
 
         return GenericModel::updateOrCreate([
             'type' => $this->type,

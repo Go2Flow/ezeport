@@ -31,17 +31,22 @@ class Api extends Base implements ApiInterface
     {
         $this->type = Str::of($type);
 
+        $instruction = Find::instruction($project, 'Api')->find($type);
         return new ($this->getClass())(
             $project->connectors()
                 ->where(
                     'type',
-                    $this->matchConnector('type', 'Type of ' . $this->type->toString() . ' not found')
+                    $this->matchConnector(
+                        'type',
+                        'Type of ' . $this->type->toString() . ' not found',
+                        $instruction->get('apis')
+                    )
                 )->when(
                     $name,
                     fn ($query) => $query->where('name', $name)
                 )->first()
                 ->getValues(),
-            Find::instruction($project, 'Api')->find($type)?->getConfig() ?? collect()
+                $instruction->getConfig() ?? collect()
         );
     }
 
@@ -61,9 +66,9 @@ class Api extends Base implements ApiInterface
         return $this->matchConnector('path', 'Path for ' . $this->type->camel()->toString() . ' not found');
     }
 
-    private function matchConnector(string $field, string $message)
+    private function matchConnector(string $field, string $message, Collection $apis)
     {
-        $response = $this->getConnectors()
+        $response = $this->getConnectors($apis)
             ->filter(
                 fn ($item) => $this->type->ucfirst()->contains($item['name']) || $this->type->contains($item['path'])
                     ? $item[$field]
@@ -75,7 +80,7 @@ class Api extends Base implements ApiInterface
         throw new EzportFinderException($message);
     }
 
-    private function getConnectors(): Collection
+    private function getConnectors(Collection $apis): Collection
     {
         return collect([
             [
@@ -98,6 +103,6 @@ class Api extends Base implements ApiInterface
                 'type' => 'shopSix',
                 'path' => StoreLocatorSixApi::class,
             ]
-        ]);
+        ])->merge([$apis]);
     }
 }

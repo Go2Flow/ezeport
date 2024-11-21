@@ -7,11 +7,13 @@ use Illuminate\Support\Collection;
 class Api extends Base {
 
     protected Collection $config;
+    protected Collection $extraApis;
 
     public function __construct(string $key, array|Collection $config = [])
     {
         $this->key = $this->processKey($key);
         $this->config = collect($config);
+        $this->extraApis = collect();
     }
     /**
      * set the names to folders to standardize the ftp calls
@@ -20,6 +22,13 @@ class Api extends Base {
     public function paths(array|Collection $paths) : self
     {
         $this->config = collect($paths);
+
+        return $this;
+    }
+
+    public function apis(array|Collection $apis) : self {
+
+        $this->extraApis = collect($apis);
 
         return $this;
     }
@@ -35,5 +44,6 @@ class Api extends Base {
     {
         return $this->config;
     }
+
 }
 
