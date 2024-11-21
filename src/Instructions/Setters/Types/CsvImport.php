@@ -56,19 +56,19 @@ class CsvImport extends Basic
         return $this;
     }
 
-    public function getJobs($projectId) : Collection
+    public function getJobs() : Collection
     {
         $importer = new Import($this->config);
 
         return $importer->collection(
             $importer->toCollection(
                 Storage::drive('public')
-                    ->path(Project::find($projectId)->identifier . '/' . $this->file)
+                    ->path($this->project->identifier . '/' . $this->file)
             )
         )->chunk($this->chunk)
         ->map(
             fn ($chunk) => new RunProcessJob(
-                $projectId,
+                $this->project->id,
                 ['items' => $chunk, 'type' => 'Import', 'key' => $this->key]
             )
         );

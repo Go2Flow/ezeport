@@ -32,7 +32,7 @@ class AssignProcess implements ShouldQueue, ShouldBeUnique
             'Import'
         )->find($this->config['key']);
 
-        $this->batch()->add($instruction->getJobs($this->project));
+        $this->batch()->add($instruction->getJobs());
     }
 
     public function tags()

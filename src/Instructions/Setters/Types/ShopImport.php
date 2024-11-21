@@ -7,9 +7,8 @@ use Go2Flow\Ezport\Instructions\Getters\Get;
 use Go2Flow\Ezport\Instructions\Getters\GetProxy;
 use Go2Flow\Ezport\Instructions\Interfaces\ImportInstructionInterface;
 use Go2Flow\Ezport\Instructions\Setters\Set;
-use Go2Flow\Ezport\Models\Project;
-use Go2Flow\Ezport\Process\Import\Shopware\Controller;
 use Go2Flow\Ezport\Process\Jobs\AssignProcess;
+use Go2Flow\Ezport\Process\Jobs\RunProcess as RunProcessJob;
 use Illuminate\Support\Collection;
 
 class ShopImport extends Basic implements ImportInstructionInterface {
@@ -21,6 +20,7 @@ class ShopImport extends Basic implements ImportInstructionInterface {
     protected Collection $properties;
     protected Collection $shop;
     protected GetProxy $api;
+    protected int $chunk;
 
     public function __construct(string $key, private array $config = [])
     {
@@ -32,6 +32,7 @@ class ShopImport extends Basic implements ImportInstructionInterface {
 
         $this->items = fn () => null;
         $this->process = fn () => null;
+        $this->chunk = 25;
 
         $this->job = Set::Job()
             ->class(AssignProcess::class);
@@ -42,7 +43,7 @@ class ShopImport extends Basic implements ImportInstructionInterface {
      * Set the Api. Use the Find static method or Api class.
      */
 
-     public function api(GetProxy|Api|string $api) : self {
+    public function api(GetProxy|Api|string $api) : self {
 
         $this->api = (is_string($api))
             ? Get::api($api)
@@ -59,67 +60,26 @@ class ShopImport extends Basic implements ImportInstructionInterface {
 
     public function items(Closure $items) : self
     {
-        return $this->setClosure('items', $items);
+        return $this->setProperty('items', $items);
     }
 
-    /**
-     * The process closure expects a collection of ids from the items closure.
-     * These will already be chunked before they're passed to the closure so you don't need to do that.
-     */
+    /** set the number of items that will be passed from the 'items' closure to the 'process' closure  */
 
-    public function process(Closure $process) : self
+    public function chunk(int $chunk) : self
     {
-        return $this->setClosure('process', $process);
+        return $this->setProperty('chunk', $chunk);
     }
 
-    public function properties(Closure $properties) : self
+    public function getJobs() : Collection
     {
-        return $this->pushToCollection('properties', $properties);
-    }
+        $items = ($this->items)(($this->api)($this->project));
 
-    public function shopware(Closure $shop) : self
-    {
-        return $this->pushToCollection('shop', $shop);
-
-    }public function shop(Closure $shop) : self
-    {
-        return $this->pushToCollection('shop', $shop);
-    }
-
-    public function type(string $type) : self
-    {
-        return $this->setString('type', $type);
-    }
-
-    public function uniqueId(string $uniqueId) : self
-    {
-        return $this->setString('uniqueId', $uniqueId);
-    }
-
-    private function setClosure(string $type, Closure $closure) : self
-    {
-        $this->$type = $closure;
-
-        return $this;
-    }
-
-    private function pushToCollection(string $type, Closure $closure) : self
-    {
-        $this->$type->push($closure);
-
-        return $this;
-    }
-
-    private function setString(string $type, string $string) : self
-    {
-        $this->$type = $string;
-
-        return $this;
-    }
-
-    public function getJobs($projectId) : Collection
-    {
-        return (new Controller(Project::find($projectId), $this->config))->assign();
-
+        return $items->chunk($this->chunk)
+            ->map(
+                fn ($chunk) => new RunProcessJob(
+                    $this->project->id,
+                    ['items' => $chunk, 'type' => 'Import', 'key' => $this->key]
+                )
+            );
     }
 }

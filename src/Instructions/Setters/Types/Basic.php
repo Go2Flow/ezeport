@@ -59,4 +59,11 @@ class Basic extends Base implements JobInterface {
 
         return $this;
     }
+
+    protected function setProperty(string $type, $value) : self
+    {
+        $this->$type = $value;
+
+        return $this;
+    }
 }
