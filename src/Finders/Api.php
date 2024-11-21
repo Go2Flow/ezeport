@@ -6,6 +6,7 @@ use Go2Flow\Ezport\Connectors\ApiInterface;
 use Go2Flow\Ezport\Models\Project;
 use Go2Flow\Ezport\Process\Errors\EzportFinderException;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Go2Flow\Ezport\Connectors\Ftp\Api as FtpApi;
 use Go2Flow\Ezport\Connectors\ShopwareSix\Api as ShopSixApi;
@@ -17,6 +18,7 @@ class Api extends Base implements ApiInterface
 {
     private Stringable $type;
     private ?string $name;
+    private $instruction;
 
     public function get()
     {
@@ -31,7 +33,8 @@ class Api extends Base implements ApiInterface
     {
         $this->type = Str::of($type);
 
-        $instruction = Find::instruction($project, 'Api')->find($type);
+        $this->instruction = Find::instruction($project, 'Api')->find($type);
+
         return new ($this->getClass())(
             $project->connectors()
                 ->where(
@@ -39,14 +42,13 @@ class Api extends Base implements ApiInterface
                     $this->matchConnector(
                         'type',
                         'Type of ' . $this->type->toString() . ' not found',
-                        $instruction->get('apis')
                     )
                 )->when(
                     $name,
                     fn ($query) => $query->where('name', $name)
                 )->first()
                 ->getValues(),
-                $instruction->getConfig() ?? collect()
+            $this->instruction->getConfig() ?? collect()
         );
     }
 
@@ -66,9 +68,9 @@ class Api extends Base implements ApiInterface
         return $this->matchConnector('path', 'Path for ' . $this->type->camel()->toString() . ' not found');
     }
 
-    private function matchConnector(string $field, string $message, Collection $apis)
+    private function matchConnector(string $field, string $message)
     {
-        $response = $this->getConnectors($apis)
+        $response = $this->getConnectors()
             ->filter(
                 fn ($item) => $this->type->ucfirst()->contains($item['name']) || $this->type->contains($item['path'])
                     ? $item[$field]
@@ -80,8 +82,9 @@ class Api extends Base implements ApiInterface
         throw new EzportFinderException($message);
     }
 
-    private function getConnectors(Collection $apis): Collection
+    private function getConnectors(): Collection
     {
+
         return collect([
             [
                 'name' => 'Ftp',
@@ -103,6 +106,6 @@ class Api extends Base implements ApiInterface
                 'type' => 'shopSix',
                 'path' => StoreLocatorSixApi::class,
             ]
-        ])->merge([$apis]);
+        ])->merge([$this->instruction->getConnector()]);
     }
 }
