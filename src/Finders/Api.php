@@ -48,7 +48,7 @@ class Api extends Base implements ApiInterface
                     fn ($query) => $query->where('name', $name)
                 )->first()
                 ->getValues(),
-            $this->instruction->getConfig() ?? collect()
+            $this->instruction?->getConfig() ?? collect()
         );
     }
 
