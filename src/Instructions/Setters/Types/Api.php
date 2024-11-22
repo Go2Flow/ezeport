@@ -44,5 +44,11 @@ class Api extends Base {
     {
         return $this->config;
     }
+
+    public function getConnector() : Collection
+    {
+
+        return $this->connector;
+    }
 }
 
