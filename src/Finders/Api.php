@@ -106,6 +106,6 @@ class Api extends Base implements ApiInterface
                 'type' => 'shopSix',
                 'path' => StoreLocatorSixApi::class,
             ]
-        ])->merge([$this->instruction->getConnector()]);
+        ])->merge([$this->instruction?->getConnector() ?? []])->filter();
     }
 }
