@@ -11,7 +11,7 @@ class Create implements FromCollection,  WithHeadings
 {
     use Exportable;
 
-    public function __construct(private Collection $collection, array $config = [])
+    public function __construct(readonly private Collection $collection, readonly private array $config = [])
     {
     }
 
