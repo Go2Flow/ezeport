@@ -3,70 +3,25 @@
 namespace Go2Flow\Ezport\Instructions\Setters\Types;
 
 use Go2Flow\Ezport\Instructions\Setters\Set;
-use Go2Flow\Ezport\Process\Import\Csv\Creates\Create;
-use Go2Flow\Ezport\Process\Import\Csv\Imports\Import;
-use Go2Flow\Ezport\Process\Jobs\AssignProcess;
-use Go2Flow\Ezport\Process\Jobs\RunProcess as RunProcessJob;
+use Go2Flow\Ezport\Process\Jobs\AssignCreateCsv;
+use Go2Flow\Ezport\Process\Upload\Csv\Creates\Create;
+use Illuminate\Contracts\Database\Query\Builder;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Storage;
 
-class CsvCreate extends Basic {
+class CsvCreate extends Upload {
 
     private string $file;
 
-    private array $config = [];
-
     protected \Closure|null $process;
 
-    private int $chunk = 25;
-
-    public function __construct(string $key, array $config = [])
+    public function pluck(): Collection
     {
-        parent::__construct($key);
+        $response = $this->builder();
 
-        $this->job = Set::Job()
-            ->class(AssignProcess::class);
-    }
+        if (!$response instanceof Builder) return $response;
 
-    public function config(array $config) : self
-    {
-        $this->config = $config;
-
-        return $this;
-    }
-
-    public function process(\Closure $closure) : self
-    {
-        $this->process = $closure;
-
-        return $this;
-    }
-
-    public function chunk(int $chunk) : self
-    {
-        $this->chunk = $chunk;
-
-        return $this;
-    }
-
-    public function getJobs() : Collection
-    {
-        $items = ($this->process)();
-
-            $create = new Create($items);
-
-            return $create->collection();
-//        return $upload->collection(
-//            $upload->toCollection(
-//                Storage::drive('public')
-//                    ->path($this->project->identifier . '/' . $this->file)
-//            )
-//        )->chunk($this->chunk)
-//            ->map(
-//                fn ($chunk) => new RunProcessJob(
-//                    $this->project->id,
-//                    ['items' => $chunk, 'type' => 'Import', 'key' => $this->key]
-//                )
-//            );
+        return $response->whereUpdated(true)
+            ->whereTouched(true)
+            ->pluck('id');
     }
 }
