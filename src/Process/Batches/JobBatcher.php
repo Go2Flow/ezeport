@@ -8,6 +8,7 @@ use Go2Flow\Ezport\Models\Project;
 use Go2Flow\Ezport\Process\Batches\Tools\Batch as BatchTool;
 use Go2Flow\Ezport\Process\Batches\Tools\ManageActions;
 use Go2Flow\Ezport\Process\Batches\Tools\Prepare;
+use Go2Flow\Ezport\Process\Batches\Tools\SmallestQueue;
 use Go2Flow\Ezport\Process\Batches\Tools\UploadManager;
 use Go2Flow\Ezport\Process\Errors\EzportProcessException;
 use Illuminate\Bus\Batch;
@@ -101,7 +102,7 @@ class JobBatcher
 
     public function startAction(string $key, string $type): self
     {
-        $this->action->start($key, $type, $this->findSmallestQueue());
+        $this->action->start($key, $type, SmallestQueue::get());
 
         return $this;
     }

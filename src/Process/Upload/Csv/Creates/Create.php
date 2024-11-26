@@ -9,10 +9,9 @@ use Maatwebsite\Excel\Concerns\Exportable;
 
 class Create implements FromCollection,  WithHeadings
 {
-
     use Exportable;
 
-    public function __construct(private Collection $collection)
+    public function __construct(private Collection $collection, array $config = [])
     {
     }
 
@@ -27,6 +26,6 @@ class Create implements FromCollection,  WithHeadings
 
     public function headings(): array
     {
-        return collect($this->collection[0])->keys()->toArray();
+        return $this->config['headings'] ?? collect($this->collection[0])->keys()->toArray();
     }
 }

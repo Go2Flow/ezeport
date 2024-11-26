@@ -10,6 +10,7 @@ use Go2Flow\Ezport\Instructions\Setters\Types\Basic;
 use Go2Flow\Ezport\Instructions\Setters\Types\Connector;
 use Go2Flow\Ezport\Instructions\Setters\Types\CsvImport;
 use Go2Flow\Ezport\Instructions\Setters\Types\CsvImportStep;
+use Go2Flow\Ezport\Instructions\Setters\Types\CsvProcessor;
 use Go2Flow\Ezport\Instructions\Setters\Types\FtpCleaner;
 use Go2Flow\Ezport\Instructions\Setters\Types\FtpFileImport;
 use Go2Flow\Ezport\Instructions\Setters\Types\Job;
@@ -49,6 +50,7 @@ use Illuminate\Support\Stringable;
  * @method static UploadField UploadField(string|null $key = null)
  * @method static PriceField PriceField(string $key)
  * @method static UploadProcessor UploadProcessor(string|null $key = null)
+ * @method static CsvProcessor CsvProcessor(string|null $key = null)
  * @method static ArticleProcessor ArticleProcessor(string $key)
  * @method static XmlImport XmlImport(string $key, array $config = [])
  * @method static FtpFileImport FtpFileImport(string $key, array $config = [])
