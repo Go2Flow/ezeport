@@ -38,6 +38,11 @@ abstract class Base {
         return $this->key ? $this->key->__toString() : null;
     }
 
+    public function has(string $key) : bool
+    {
+        return property_exists($this, $key);
+    }
+
     public function get(string $key)
     {
         if (! property_exists($this, $key)) throw new EzportSetterException("Attribute {$key} does not exist in " . __CLASS__);

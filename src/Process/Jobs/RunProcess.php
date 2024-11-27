@@ -28,11 +28,18 @@ class RunProcess implements ShouldQueue
      */
     public function handle(): void
     {
+        $project = Project::find($this->project);
+
         $instruction = Find::instruction(
-            Project::find($this->project),
+            $project,
             $this->config['type']
         )->find($this->config['key']);
 
-        $instruction->get('process')($this->config['items']?? collect([]));
+        $instruction->get('process')(
+            $this->config['items']?? collect([]),
+            $instruction->has('api')
+                ? $instruction->get('api')($project)
+                : null,
+        );
     }
 }
