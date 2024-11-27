@@ -10,6 +10,7 @@ class UploadField extends Base {
 
     private ?closure $value;
     private ?Upload $component = null;
+    private bool $show = true;
 
     public function __construct(string $key = null)
     {
@@ -33,13 +34,21 @@ class UploadField extends Base {
         return $this;
     }
 
+    public function showNull(bool $show) : self {
+
+        $this->show = $show;
+
+        return $this;
+    }
+
+
     /** will process the field for the actual upload. */
 
     public function process(Generic $item, array $config) : array|null {
 
         $value = ($this->value)($item, $config, $this->component);
 
-        if ((is_array($value) && count($value) === 0) || ($value === null)) return null;
+        if (! $this->show && ((is_array($value) && count($value) === 0) || ($value === null))) return null;
 
         return [
             'key' => $this->key ? $this->key->toString() : null,

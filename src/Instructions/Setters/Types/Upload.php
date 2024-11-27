@@ -24,6 +24,7 @@ class Upload extends Basic implements JobInterface
     protected array $config = [];
     protected array $components = [];
     protected int $chunk = 25;
+    protected bool $showNull = false;
 
     public function __construct(string $key)
     {
@@ -65,7 +66,9 @@ class Upload extends Basic implements JobInterface
         }
 
         $this->checkAndRemoveDuplicateKeyFromGetters($field->getKey());
-        $this->getters->push($field);
+        $this->getters->push(
+            $field->showNull($this->showNull)
+        );
 
         return $this;
     }
@@ -172,8 +175,10 @@ class Upload extends Basic implements JobInterface
                     $getter->setProject($this->project)
                         ->process($model, $this->config, $this->components)
                 )
-            )->filter(fn ($field) => $field !== null)
-            ->toArray();
+            )->when(
+                !$this->showNull,
+                fn ($collection) => $collection->filter(fn ($field) => $field !== null)
+            )->toArray();
 
         $this->config = $tempConfig;
 
@@ -245,7 +250,7 @@ class Upload extends Basic implements JobInterface
             : Content::type($this->key, $this->project);
     }
 
-    private function prepareField(?array $response): array
+    protected function prepareField(?array $response): array
     {
 
         if ($response === null) return [];
