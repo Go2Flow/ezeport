@@ -238,7 +238,7 @@ class Upload extends Basic implements JobInterface
         return $processor->setComponents($this->components);
     }
 
-    private function builder(): TypeGetter|Collection|Builder
+    protected function builder(): TypeGetter|Collection|Builder
     {
         return $this->items
             ? ($this->items)()

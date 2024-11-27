@@ -8,6 +8,7 @@ use Go2Flow\Ezport\Instructions\Setters\Types\Api;
 use Go2Flow\Ezport\Instructions\Setters\Types\Base;
 use Go2Flow\Ezport\Instructions\Setters\Types\Basic;
 use Go2Flow\Ezport\Instructions\Setters\Types\Connector;
+use Go2Flow\Ezport\Instructions\Setters\Types\CsvCreate;
 use Go2Flow\Ezport\Instructions\Setters\Types\CsvImport;
 use Go2Flow\Ezport\Instructions\Setters\Types\CsvImportStep;
 use Go2Flow\Ezport\Instructions\Setters\Types\CsvProcessor;
@@ -36,6 +37,7 @@ use Illuminate\Support\Stringable;
  * @method static Api Api(string $key, array|Collection $config = [])
  * @method static Connector Connector(string $key, array $config = [])
  * @method static CsvImport CsvImport(string $key)
+ * @method static CsvCreate CsvCreate(string $key)
  * @method static CsvImportOld CsvImportOld(string $key)
  * @method static CsvImportStep CsvImportStep()
  * @method static FtpCleaner FtpCleaner(string $key)
