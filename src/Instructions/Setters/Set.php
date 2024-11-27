@@ -10,6 +10,7 @@ use Go2Flow\Ezport\Instructions\Setters\Types\Basic;
 use Go2Flow\Ezport\Instructions\Setters\Types\Connector;
 use Go2Flow\Ezport\Instructions\Setters\Types\CsvCreate;
 use Go2Flow\Ezport\Instructions\Setters\Types\CsvImport;
+use Go2Flow\Ezport\Instructions\Setters\Types\Old\CsvImportOld;
 use Go2Flow\Ezport\Instructions\Setters\Types\CsvImportStep;
 use Go2Flow\Ezport\Instructions\Setters\Types\CsvProcessor;
 use Go2Flow\Ezport\Instructions\Setters\Types\FtpCleaner;
