@@ -6,7 +6,7 @@ use Illuminate\Support\Collection;
 
 trait ShopwareItemGetter {
 
-    private function getItemsFromPages($api, \Closure $closure) : Collection
+    public function getItemsFromPages($api, \Closure $closure) : Collection
     {
         $total = 101;
         $page = 1;
