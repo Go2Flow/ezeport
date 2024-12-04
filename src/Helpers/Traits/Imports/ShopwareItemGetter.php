@@ -27,4 +27,3 @@ trait ShopwareItemGetter {
         return $items;
     }
 }
-

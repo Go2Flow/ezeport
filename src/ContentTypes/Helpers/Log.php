@@ -51,10 +51,10 @@ class Log
     {
         $diff = [];
 
-        foreach (['content' => 'properties', 'shopware' => 'shopware'] as $key => $type) {
+        foreach (['content' => 'properties', 'shop' => 'shop'] as $key => $type) {
 
             $response = $this->compareRecursively(
-                collect(isset($original[$key]) ? $original[$key] : []),
+                collect( $original[$key] ?? []),
                 collect($this->current->$type())
             );
 
