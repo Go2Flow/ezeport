@@ -11,7 +11,7 @@ class CreateProjectCache
 {
     private Api $api;
 
-    public function __construct(private Project $project)
+    public function __construct(private readonly Project $project)
     {
         $this->api = new Api([$project, 'shopSix']);
     }

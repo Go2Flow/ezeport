@@ -56,6 +56,11 @@ class Schedule extends Base
      * you will still need to set the type of import (full or partial)
      */
 
+    public function __construct(?string $key = null){
+
+        if ($key) $this->key = $this->processKey($key);
+    }
+
     public function import(): self
     {
         return $this->set('event', 'import');
@@ -101,6 +106,7 @@ class Schedule extends Base
      * you will still need to set the event (import, upload, shopClean, ftpClean)
      */
 
+    /* @deprecated */
     public function full(): self
     {
         return $this->set('type', 'full');
@@ -111,6 +117,7 @@ class Schedule extends Base
      * you will still need to set the event (import, upload, shopClean, ftpClean)
      */
 
+    /* @deprecated */
 
     public function partial(): self
     {

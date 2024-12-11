@@ -194,7 +194,7 @@ class Upload extends Basic implements JobInterface
     {
         $response = $this->builder();
 
-        if (!$response instanceof Builder) return $response->chunk(25);
+        if (!$response instanceof Builder) return $response->chunk($this->chunk);
 
         return $response->whereUpdated(true)
             ->whereTouched(true)

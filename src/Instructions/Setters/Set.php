@@ -44,7 +44,7 @@ use Illuminate\Support\Stringable;
  * @method static FtpCleaner FtpCleaner(string $key)
  * @method static Jobs Jobs(string $key = '')
  * @method static Job Job(array|null $config = [])
- * @method static Schedule Schedule()
+ * @method static Schedule Schedule(?string $key = null)
  * @method static Project Project(string $key, array $config = [])
  * @method static ShopCleaner ShopCleaner(string $key, ?\Closure $ids = null , array $config = [])
  * @method static ShopImport ShopImport(string $key, array $config = [])

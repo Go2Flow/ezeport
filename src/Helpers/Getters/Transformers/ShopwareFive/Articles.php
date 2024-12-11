@@ -43,6 +43,14 @@ class Articles extends BaseInstructions implements InstructionInterface {
                             $relations[$config['properties'][$content['optionId']]['type']]->push($property);
                         }
 
+                        foreach ($item->relations('images') ?? [] as $key => $image) {
+
+                            $image->properties(['is_cover' => $key === 0]);
+                            $image->updateOrCreate();
+                        }
+
+
+
                         if ($relations->isNotEmpty() && $relations->count() > 0) {
                             $item->relations($relations);
                             $item->relationsAndSave(true);

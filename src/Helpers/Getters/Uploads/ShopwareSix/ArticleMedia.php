@@ -23,20 +23,25 @@ class ArticleMedia extends BaseInstructions implements InstructionInterface
     {
         return [
             Set::Upload('articleMedia')
-                ->items(fn () => Content::type('Article', $this->project))
+                ->items(fn () => Content::type('Image', $this->project))
                 ->field(
                     Set::uploadField()
                         ->field(
-                            fn ($item) => $item->relations('images')
-                                ?->map(
-                                    fn ($image, $key) => array_merge([
-                                        'mediaId' => $image->shopware('id'),
-                                        'productId' => $item->shopware('id'),
-                                    ], $key == 0 ? ['coverProducts' => [['id' => $item->shopware('id')]]] : [])
-                                )
-                        )
+                            function ($image) {
+                                $article = $image->parents('images')?->first();
 
-                ),
+                                if (! $article) return [];
+
+                                return array_merge([
+                                    'mediaId' => $image->shopware('id'),
+                                    'productId' => $article->shopware('id'),
+                                ], $image->properties('is_cover')
+                                    ? ['coverProducts' => [['id' => $article->shopware('id')]]]
+                                    : []
+                                );
+                            }
+                        )
+                )
         ];
     }
 }

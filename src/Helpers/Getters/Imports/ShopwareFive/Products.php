@@ -32,7 +32,6 @@ class Products extends BaseInstructions implements InstructionInterface {
                 )->properties(
                     fn ($product) => [
                         'articleNumber' => $product->mainDetail->number ?? null,
-                        'supplier' => $product->supplier->name ?? null,
 
                         'name' => $product->name ?? null,
                         'description' => $product->description ?? null,
@@ -53,7 +52,7 @@ class Products extends BaseInstructions implements InstructionInterface {
                             'weight' => $product->mainDetail->weight ?? null,
                         ],
 
-                        'suplier' => [
+                        'supplier' => [
                             'name' => $product->supplier->name ?? null,
                             'description' => $product->supplier->description ?? null,
                             'id' => $product->supplier->id ?? null,

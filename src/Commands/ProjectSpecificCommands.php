@@ -141,9 +141,10 @@ class ProjectSpecificCommands
 
     public function runJobs(string $method, ?string $type, string $job): void
     {
-        $type = $type && collect(['full', 'partial'])->contains(Str::lower($type))
-            ? Str::lower($type)
-            : null;
+        $type = $type && collect($this->getOptions($job))
+            ->contains(Str::lower($type))
+                ? Str::lower($type)
+                : null;
 
 
         if ($method == 'runClean') {
