@@ -11,7 +11,7 @@ use Go2Flow\Ezport\Process\Jobs\AssignProcess;
 use Go2Flow\Ezport\Process\Jobs\RunProcess as RunProcessJob;
 use Illuminate\Support\Collection;
 
-class ShopImport extends Basic implements ImportInstructionInterface {
+class ApiImport extends Basic implements ImportInstructionInterface {
 
     protected string $type;
     protected string $uniqueId;

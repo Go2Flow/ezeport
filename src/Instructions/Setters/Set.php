@@ -20,7 +20,7 @@ use Go2Flow\Ezport\Instructions\Setters\Types\Jobs;
 use Go2Flow\Ezport\Instructions\Setters\Types\Project;
 use Go2Flow\Ezport\Instructions\Setters\Types\Schedule;
 use Go2Flow\Ezport\Instructions\Setters\Types\ShopCleaner;
-use Go2Flow\Ezport\Instructions\Setters\Types\ShopImport;
+use Go2Flow\Ezport\Instructions\Setters\Types\ApiImport;
 use Go2Flow\Ezport\Instructions\Setters\Types\Step;
 use Go2Flow\Ezport\Instructions\Setters\Types\Transform;
 use Go2Flow\Ezport\Instructions\Setters\Types\Upload;
@@ -47,7 +47,8 @@ use Illuminate\Support\Stringable;
  * @method static Schedule Schedule(?string $key = null)
  * @method static Project Project(string $key, array $config = [])
  * @method static ShopCleaner ShopCleaner(string $key, ?\Closure $ids = null , array $config = [])
- * @method static ShopImport ShopImport(string $key, array $config = [])
+ * @method static ApiImport ShopImport(string $key, array $config = [])
+ * @method static ApiImport ApiImport(string $key, array $config = [])
  * @method static Transform Transform(string $key, array $config = [])
  * @method static Upload Upload(string $key)
  * @method static UploadField UploadField(string|null $key = null)
