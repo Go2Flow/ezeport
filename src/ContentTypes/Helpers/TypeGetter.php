@@ -96,6 +96,11 @@ class TypeGetter implements BuilderContract
         return $this->querySetter()->find($id)?->toContentType();
     }
 
+    public function findByName(string $name) : ?Generic
+    {
+        return $this->querySetter()->firstWhere('name', $name)?->toContentType();
+    }
+
     /** like a standard model create, but you don't need to set 'type' and 'project_id' */
 
     public function create(array|Collection $attributes = []): Generic
