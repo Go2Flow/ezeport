@@ -2,6 +2,7 @@
 
 namespace Go2Flow\Ezport\Helpers\Getters\Imports\ShopwareFive;
 
+use Go2Flow\Ezport\ContentTypes\Helpers\Content;
 use Go2Flow\Ezport\Finders\Abstracts\BaseInstructions;
 use Go2Flow\Ezport\Finders\Api;
 use Go2Flow\Ezport\Finders\Interfaces\InstructionInterface;
@@ -15,30 +16,30 @@ class Images extends BaseInstructions implements InstructionInterface {
     {
         return [
             Set::ShopImport('Images')
-                ->type('Image')
                 ->api(Get::api('shopFive'))
-                ->uniqueId('id')
-                ->job(
-                    Set::Job()
-                        ->config([
-                            'type' => 'images'
-                        ])
-                )->items(
-                    fn (Api $api): Collection => collect($api->media()->limit(7000)->get()->body()->data)->pluck('id')
+                ->items(
+                    fn ($api) => collect($api->media()->get()->body()->data)->pluck('id')
                 )->process(
-                    fn (Collection $chunk, Api $api): Collection => $chunk->map(
-                        fn ($id) => $api->media()->find($id)->body()->data
-                    )
-                )->properties(
-                    fn ($image) => [
-                        'id' => $image->id,
-                        'name' => $image->name,
-                        'description' => $image->description,
-                        'path' => $image->path,
-                        'extension' => $image->extension,
-                        'album_id' => $image->albumId,
-                    ]
-                ),
+                    function ($chunk, $api) {
+
+                        foreach ($chunk as $id) {
+                            $image = $api->media()->find($id)->body()->data;
+
+                            Content::Type('Image', $this->project)
+                                ->updateOrCreate([
+                                    'unique_id' => $image->id,
+
+                                ], [
+                                    'name' => $image->name ?? null,
+                                    'properties' => [
+                                        'description' => $image->description,
+                                        'path' => $image->path,
+                                        'extension' => $image->extension,
+                                        'album_id' => $image->albumId,
+                                    ]
+                                ]);
+                        }
+                    }),
         ];
     }
 }

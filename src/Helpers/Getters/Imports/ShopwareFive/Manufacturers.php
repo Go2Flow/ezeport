@@ -2,6 +2,7 @@
 
 namespace Go2Flow\Ezport\Helpers\Getters\Imports\ShopwareFive;
 
+use Go2Flow\Ezport\ContentTypes\Helpers\Content;
 use Go2Flow\Ezport\Finders\Abstracts\BaseInstructions;
 use Go2Flow\Ezport\Finders\Api;
 use Go2Flow\Ezport\Finders\Interfaces\InstructionInterface;
@@ -15,26 +16,27 @@ class Manufacturers extends BaseInstructions implements InstructionInterface {
     {
         return [
             Set::ShopImport('Manufacturers')
-                ->type('Manufacturer')
-                ->uniqueId('id')
                 ->api(Get::api('shopFive'))
-                ->job(
-                    Set::Job()
-                        ->config([
-                            'type' => 'manufacturers'
-                        ])
-                )->items(
-                    fn (Api $api): Collection => collect($api->manufacturer()->get()->body()->data)->pluck('id')
+                ->items(
+                    fn ($api) => collect($api->manufacturers()->get()->body()->data)->pluck('id')
                 )->process(
-                    fn (Collection $chunk, Api $api): Collection => $chunk->map(
-                        fn ($id) => $api->manufacturer()->find($id)->body()->data
-                    )
-                )->properties(
-                    fn ($manufacturer) => [
-                        'id' => $manufacturer->id,
-                        'text' => $manufacturer->name,
-                    ]
-                ),
+                    function ($chunk, $api) {
+
+                        foreach ($chunk as $id) {
+                            $manufacturer = $api->manufacturers()->find($id)->body()->data;
+
+                            Content::type('Manufacturer', $this->project)
+                                ->updateOrCreate([
+                                    'unique_id' => $manufacturer->id,
+                                ], [
+                                    'name' => $manufacturer->name,
+                                    'properties' => [
+                                        'id' => $manufacturer->id,
+                                        'text' => $manufacturer->name,
+                                    ]
+                                ]);
+                        }
+                    }),
         ];
     }
 }

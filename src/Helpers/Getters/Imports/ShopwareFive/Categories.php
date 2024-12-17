@@ -2,6 +2,7 @@
 
 namespace Go2Flow\Ezport\Helpers\Getters\Imports\ShopwareFive;
 
+use Go2Flow\Ezport\ContentTypes\Helpers\Content;
 use Go2Flow\Ezport\Finders\Abstracts\BaseInstructions;
 use Go2Flow\Ezport\Finders\Api;
 use Go2Flow\Ezport\Finders\Interfaces\InstructionInterface;
@@ -15,36 +16,39 @@ class Categories extends BaseInstructions implements InstructionInterface {
     {
         return [
             Set::ShopImport('Categories')
-                ->type('Category')
-                ->uniqueId('id')
-                ->job(
-                    Set::Job()
-                        ->config([
-                            'type' => 'categories'
-                        ])
-                )->api(Get::api('shopFive'))
+                ->api(Get::api('shopFive'))
                 ->items(
-                    fn (Api $api): Collection => collect(
-                        $api->category()
-                            ->get()
-                            ->body()
-                            ->data
-                    )->pluck('id')
+                    function ($api) {
+                        return collect(
+                            $api->category()
+                                ->get()
+                                ->body()
+                                ->data
+                        )->pluck('id');
+                    }
                 )->process(
-                    fn (Collection $chunk, Api $api): Collection => $chunk->map(
-                        fn ($id) => $api->category()->find($id)->body()->data
-                    )
-                )->properties(
-                    fn ($category) => [
-                        'longDescription' => $category->cmsText ?? null,
-                        'name' => $category->name,
-                        'category_id' => $category->parentId,
-                        'metaDescription' => $category->metaDescription,
-                        'dreiscSeoUrl' => $category->attribute->dreiscSeoUrl ?? null,
-                        'dreiscSeoTitle' => $category->attribute->dreiscSeoTitle ?? null,
-                        'subheadlineTeaser' => $category->attribute->subheadlineTeaser ?? null,
-                        'moreSeoText' => $category->attribute->sidebarCategoryDescription ?? null,
-                    ]
+                    function ($chunk, $api) {
+
+                        foreach ($chunk as $id) {
+                            $category = $api->category()->find($id)->body()->data;
+
+                            Content::Type('Category', $this->project)
+                                ->updateOrCreate([
+                                    'unique_id' => $category->id
+                                ], [
+                                    'name' => $category->name,
+                                    'properties' => [
+                                        'longDescription' => $category->cmsText ?? null,
+                                        'category_id' => $category->parentId,
+                                        'metaDescription' => $category->metaDescription,
+                                        'dreiscSeoUrl' => $category->attribute->dreiscSeoUrl ?? null,
+                                        'dreiscSeoTitle' => $category->attribute->dreiscSeoTitle ?? null,
+                                        'subheadlineTeaser' => $category->attribute->subheadlineTeaser ?? null,
+                                        'test' => 'test'
+                                    ]
+                                ]);
+                        }
+                    }
                 ),
         ];
     }
