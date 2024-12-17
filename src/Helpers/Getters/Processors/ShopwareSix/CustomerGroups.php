@@ -13,7 +13,7 @@ class CustomerGroups extends BaseInstructions implements InstructionInterface
     public function get() : array
     {
         return [
-            Set::UploadProcessor()
+            Set::UploadProcessor('CustomerGroups')
                 ->process(
                     fn(Collection $items, Api $api) => $items->each(
                         function ($item) use ($api) {
@@ -32,7 +32,54 @@ class CustomerGroups extends BaseInstructions implements InstructionInterface
                             $item->updateOrCreate(false);
                         }
                     )
+                ),
+            Set::UploadProcessor('rules')
+                ->process(
+                    fn (Collection $items, Api $api) => $items->each(
+                        function ($item) use ($api) {
+                            $array = [
+                                "priority" => 999,
+                                "name" => $item->toShopArray()['name'],
+                                "position" => 0,
+                                "conditions" => [
+                                    [
+                                        "type" => "andContainer",
+                                        "value" => [],
+                                        "position" => 0,
+                                        "children" => [
+                                            [
+                                                "type" => "orContainer",
+                                                "position" => 0,
+                                                "children" => [
+                                                    [
+                                                        "type" => "customerCustomerGroup",
+                                                        "position" => 0,
+                                                        "value" => [
+                                                            "operator" => "=",
+                                                            "customerGroupIds" => [$item->shopware('id')]
+                                                        ]
+                                                    ]
+                                                ]
+                                            ]
+                                        ]
+                                    ]
+                                ]
+                            ];
+
+                            if (! $item->shopware('rule_id')) {
+                                $response = $api->rule()->create($array);
+
+
+                            } else {
+                                $response = $api->rule()->patch($array, $item->shopware('rule_id'));
+                            }
+
+                            $item->shopware(['rule_id' => $response->body()->data->id]);
+                            $item->updateOrCreate(false);
+                        }
+                    )
                 )
         ];
     }
 }
+
