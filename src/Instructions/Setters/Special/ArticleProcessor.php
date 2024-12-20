@@ -52,20 +52,32 @@ class ArticleProcessor extends UploadProcessor {
             return;
         }
 
-        $i = 0;
+        $index = 0;
 
         foreach ($items as $item) {
 
-            $item->shopware(['id' => $products[$i]]);
+            $item->shopware(['id' => $products[$index]]);
+
+            if (isset($item->toShopArray()['children'])) {
+
+                $ids = collect();
+                $children = $item->toShopArray()['children'];
+
+                for ($childIndex = $index; $childIndex <= count($children); $childIndex++ ) {
+                    $ids->push($products[$childIndex]);
+                }
+
+                $index = $childIndex;
+
+                $item->shopware(['children' => $ids]);
+            }
+
             $item->updateOrCreate(false);
-
-            $i += 1;
-
-            if (isset($item->toShopArray()['children'])) $i += count($item->toShopArray()['children']);
+            $index ++;
         }
     }
 
-    private function patchArticles(Collection $items) {
+    private function patchArticles(Collection $items) : void {
 
         $products = $this->apiCalls->getProducts($items);
 
@@ -88,7 +100,7 @@ class ArticleProcessor extends UploadProcessor {
         }
 
         $this->patch
-            ->setData($items->toShopArray())
+            ->setItems($items)
             ->setProducts($products)
             ->options()
             ->categories()

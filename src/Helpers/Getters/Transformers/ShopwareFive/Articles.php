@@ -50,7 +50,6 @@ class Articles extends BaseInstructions implements InstructionInterface {
                         }
 
 
-
                         if ($relations->isNotEmpty() && $relations->count() > 0) {
                             $item->relations($relations);
                             $item->relationsAndSave(true);

@@ -8,6 +8,7 @@ class ArticleProcessorPatch
 {
     private Collection $data;
     private Collection $products;
+    private Collection $items;
     private array $unsetters = [
         'children',
         'visibilities',
@@ -19,9 +20,10 @@ class ArticleProcessorPatch
 
     public function __construct(private readonly ArticleProcessorApiCalls $apiCalls) {}
 
-    public function setData(array $data) : self
+    public function setItems(Collection $items) : self
     {
-        $this->data = collect($data);
+        $this->items = $items;
+        $this->data = collect($items->toShopArray());
 
         return $this;
     }
@@ -65,7 +67,6 @@ class ArticleProcessorPatch
                 $leftovers->toArray()
             );
         }
-
 
         return $this;
     }
@@ -121,12 +122,13 @@ class ArticleProcessorPatch
 
                         $child['parentId'] = $data['id'];
 
+                        if (!isset($child['id'])) {
+                            $id = collect($product['children'])->filter(
+                                fn ($variant) => $variant->productNumber == $child['productNumber']
+                            )->first()?->id;
 
-                        $id = collect($product['children'])->filter(
-                            fn ($variant) => $variant->productNumber == $child['productNumber']
-                        )->first()?->id;
-
-                        if ($id) $child['id'] = $id;
+                            if ($id) $child['id'] = $id;
+                        }
 
                         return $child;
                     }
@@ -146,7 +148,27 @@ class ArticleProcessorPatch
         }
         if ($children->count() > 0) {
 
-            $this->apiCalls->bulkProducts($children->values()->toArray());
+            $response = $this->apiCalls->bulkProducts($children->values()->toArray())?->body();
+
+
+
+            if ($response) {
+                $i = 0;
+                foreach ($this->items as $item) {
+                    $ids = collect();
+                    if ($children = $item->properties('children')) {
+
+                        foreach ($children as $child){
+                            $ids->push($response->data->product[$i]);
+
+                            $i ++;
+                        }
+
+                        $item->shop(['children' => $ids]);
+                        $item->updateOrCreate();
+                    }
+                }
+            }
         }
 
         return $this;
@@ -209,10 +231,10 @@ class ArticleProcessorPatch
         return $this->products->map(
             fn ($product) => [ 'productId' => $product->id,
                 'ids' => collect($product->$type)
-                ->pluck('id')
-                ->diff(
-                    collect($this->getCorrectData($product->id)[$type] ?? [])->pluck('id')
-                )
+                    ->pluck('id')
+                    ->diff(
+                        collect($this->getCorrectData($product->id)[$type] ?? [])->pluck('id')
+                    )
             ]);
     }
 

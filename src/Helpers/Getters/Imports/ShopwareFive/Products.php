@@ -13,7 +13,7 @@ class Products extends BaseInstructions implements InstructionInterface {
     public function get() : array
     {
         return [
-            Set::ShopImport('Articles')
+            Set::ShopImport('Products')
                 ->api(Get::api('shopFive'))
                 ->items(
                     fn ($api) => collect(
