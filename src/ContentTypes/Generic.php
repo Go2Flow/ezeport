@@ -283,6 +283,12 @@ class Generic
 
         return $this;
     }
+    public function setTouched(bool $value = true): self
+    {
+        $this->contentData->update(['touched' => $value ]);
+
+        return $this;
+    }
 
     public function exists() : bool
     {
