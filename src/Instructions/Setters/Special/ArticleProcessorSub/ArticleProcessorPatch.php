@@ -150,21 +150,19 @@ class ArticleProcessorPatch
 
             $response = $this->apiCalls->bulkProducts($children->values()->toArray())?->body();
 
-
-
             if ($response) {
-                $i = 0;
+                $parents = $this->items->mapWithKeys(fn ($item) => [$item->shop('id') => collect()]);
+
+                foreach ($response->data->product as $key => $product) {
+
+                    $parents[$children[$key]['parentId']]->push($product);
+                }
+
                 foreach ($this->items as $item) {
-                    $ids = collect();
-                    if ($children = $item->properties('children')) {
 
-                        foreach ($children as $child){
-                            $ids->push($response->data->product[$i]);
+                    if ($parents[$item->shop('id')]->count() > 0 ) {
 
-                            $i ++;
-                        }
-
-                        $item->shop(['children' => $ids]);
+                        $item->shop(['children' => $parents[$item->shop('id')]]);
                         $item->updateOrCreate();
                     }
                 }
