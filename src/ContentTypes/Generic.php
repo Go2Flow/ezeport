@@ -5,7 +5,9 @@ namespace Go2Flow\Ezport\ContentTypes;
 use Go2Flow\Ezport\ContentTypes\Helpers\Content;
 use Go2Flow\Ezport\ContentTypes\Helpers\Log;
 use Go2Flow\Ezport\Finders\Find;
+use Go2Flow\Ezport\Instructions\Getters\Get;
 use Go2Flow\Ezport\Instructions\Setters\Types\Upload;
+use Go2Flow\Ezport\Instructions\Setters\Types\UploadProcessor;
 use Go2Flow\Ezport\Models\GenericModel;
 use Go2Flow\Ezport\Models\Project;
 use Go2Flow\Ezport\Process\Errors\EzportContentTypeException;
@@ -34,6 +36,8 @@ class Generic
         $this->contentData = $data instanceof GenericModel
             ? $data
             : (new GenericModel)->findorCreateModel($data);
+
+
 
     }
 
@@ -149,6 +153,24 @@ class Generic
     {
 
         return collect($this->toShopArray($config));
+    }
+
+    public function process(string|UploadProcessor|null $processor = null, array $array = []) : self {
+
+        if (count($array) == null) $array = $this->toShopArray();
+
+        $this->getProcessor($processor)
+            ->run(collect([$array]));
+
+        return $this;
+    }
+
+    public function getProcessor(string|UploadProcessor|null $processor) : UploadProcessor {
+
+        if ($processor instanceof UploadProcessor) return $processor;
+
+        return Get::processor($processor ?? $this->type)($this->project());
+
     }
 
     public function setStructure(Upload $upload): self

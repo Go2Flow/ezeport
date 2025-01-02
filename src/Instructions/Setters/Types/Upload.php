@@ -222,7 +222,7 @@ class Upload extends Basic implements JobInterface
      * if the processor field is null it will look for a processor with the same name as the key
      */
 
-    public function getProcessor()
+    public function getProcessor() : UploadProcessor
     {
 
         if ($this->processor) {
