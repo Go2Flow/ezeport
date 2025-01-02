@@ -5,6 +5,7 @@ namespace Go2Flow\Ezport\ContentTypes;
 use Go2Flow\Ezport\ContentTypes\Helpers\Content;
 use Go2Flow\Ezport\ContentTypes\Helpers\Log;
 use Go2Flow\Ezport\Finders\Find;
+use Go2Flow\Ezport\Finders\Processor;
 use Go2Flow\Ezport\Instructions\Getters\Get;
 use Go2Flow\Ezport\Instructions\Setters\Types\Upload;
 use Go2Flow\Ezport\Instructions\Setters\Types\UploadProcessor;
@@ -165,7 +166,7 @@ class Generic
         return $this;
     }
 
-    public function getProcessor(string|UploadProcessor|null $processor) : UploadProcessor {
+    public function getProcessor(string|UploadProcessor|null $processor) : UploadProcessor|Processor {
 
         if ($processor instanceof UploadProcessor) return $processor;
 
