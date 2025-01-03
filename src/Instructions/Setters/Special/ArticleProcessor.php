@@ -58,22 +58,18 @@ class ArticleProcessor extends UploadProcessor {
 
             $item->shopware(['id' => $products[$index]]);
 
-            if (isset($item->toShopArray()['children'])) {
+            $ids = collect();
+            foreach ($item->toShopArray()['children'] ?? [] as $child) {
 
-                $ids = collect();
-                $children = $item->toShopArray()['children'];
-
-                for ($childIndex = $index; $childIndex <= count($children); $childIndex++ ) {
-                    $ids->push($products[$childIndex]);
-                }
-
-                $index = $childIndex;
-
-                $item->shopware(['children' => $ids]);
+                $index++;
+                $ids->push($products[$index]);
             }
 
+            if ($ids->isNotEmpty()) $item->shopware(['children' => $ids]);
+
             $item->updateOrCreate(false);
-            $index ++;
+
+            $index++;
         }
     }
 
@@ -108,7 +104,6 @@ class ArticleProcessor extends UploadProcessor {
             ->children()
             ->unSet()
             ->articles();
-
     }
 
     private function logProblem(string $problem, $level = 'high'): void
