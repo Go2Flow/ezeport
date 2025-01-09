@@ -128,13 +128,14 @@ class TypeGetter implements BuilderContract
             unset($values['properties']);
         }
 
-        return GenericModel::updateOrCreate([
-            'type' => $this->type,
-            'project_id' => $this->project->id,
-            'unique_id' => $attributes['unique_id']
-        ],
-            $values
-        )->toContentType();
+        if (! $original = Content::type($this->type, $this->project)->find($attributes['unique_id'])) {
+            return $this->create(array_merge($values, ['unique_id' => $attributes['unique_id']]));
+        }
+
+        $original->properties($values['content']);
+        $original->shop($values['shop']);
+
+        return $original->updateOrCreate();
     }
 
     public function __call($method, array|null $parameters)
