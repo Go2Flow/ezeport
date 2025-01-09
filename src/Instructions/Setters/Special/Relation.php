@@ -4,6 +4,7 @@ namespace Go2Flow\Ezport\Instructions\Setters\Special;
 
 use Go2Flow\Ezport\ContentTypes\Helpers\Content;
 use Go2Flow\Ezport\Instructions\Setters\Types\Base;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 
 class Relation extends Base
@@ -57,7 +58,7 @@ class Relation extends Base
     /** will process the relation for you. Will be called automatically if used in a Set::transform()->relation() context
      * It will first look for the collection closure. If it does not find that it will try to create the relationship by itself.
      * In this case it will use the id closure to find the correct content type and then attach it using the object key and typeName*/
-    public function process($item, ?array $config = null) : array {
+    public function process($item, array|Collection $config = []) : array {
 
         $key = $this->key->plural()->toString();
 

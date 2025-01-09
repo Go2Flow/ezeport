@@ -136,7 +136,7 @@ class Transform extends Basic
         return $this;
     }
 
-    public function run(?Collection $chunk, array|Collection $config): void
+    public function run(?Collection $chunk, array|Collection $config = []): void
     {
         $chunk
             ? GenericModel::whereProjectId($this->project->id)
@@ -149,7 +149,7 @@ class Transform extends Basic
             : $this->runThrough('processes', null, $config);
     }
 
-    private function runThroughFunctionality(?Generic $item, array $config) : void
+    private function runThroughFunctionality(?Generic $item, array|Collection $config) : void
     {
         $relations = $this->runThrough('relations', $item, $config);
         $this->runThrough('processes', $item, $config);
@@ -167,7 +167,7 @@ class Transform extends Basic
 
     }
 
-    private function runThrough(string $name, ?Generic $item, array $config) : Collection
+    private function runThrough(string $name, ?Generic $item, array|Collection $config) : Collection
     {
         return $this->$name->flatMap(
             fn ($closure) => $closure instanceof Relation
