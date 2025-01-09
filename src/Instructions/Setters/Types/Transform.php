@@ -14,8 +14,10 @@ class Transform extends Basic
 {
     protected ?\closure $prepare = null;
     protected Collection $processes;
+    protected Collection $relations;
     protected ?\closure $config = null;
     protected ?Collection $items;
+    protected bool $shouldSave = true;
 
     public function __construct(string $key, array $config = [])
     {
@@ -32,6 +34,7 @@ class Transform extends Basic
         $this->job = (new Job)->class(AssignTransform::class);
 
         $this->processes = collect();
+        $this->relations = collect();
     }
     /**
      * the prepare closure must return an instance of Builder or Collection
@@ -62,6 +65,26 @@ class Transform extends Basic
     {
         $this->processes = $processes;
 
+        return $this;
+    }
+
+    public function relation(\closure $relation) : self
+    {
+        $this->processes->push($relation);
+
+        return $this;
+    }
+
+    public function relations(Collection $relations) : self
+    {
+        $this->relations = $relations;
+
+        return $this;
+    }
+
+    public function dontSave() : self
+    {
+        $this->shouldSave = false;
         return $this;
     }
 
@@ -120,15 +143,22 @@ class Transform extends Basic
             ->get()
             ->toContentType()
             ->each(
-                fn ($item) => $this->runThroughProcesses($item, $config)
+                fn ($item) => $this->runThroughTransformers($item, $config)
             )
-            : $this->runThroughProcesses(null, $config);
+            : $this->runThrough('processes', null, $config);
     }
 
-    private function runThroughProcesses(?Generic $item, $config): void
+    private function runThroughTransformers(?Generic $item, array $config) : void
     {
-        $this->processes->each(
-            fn ($process) => $process($item, $config)
+        $this->runThrough('relations', $item, $config);
+        $this->runThrough('processes', $item, $config);
+        if($this->shouldSave) $item->relationsAndSave();
+    }
+
+    private function runThrough(string $name, ?Generic $item, array $config) : void
+    {
+        $this->$name->each(
+            fn ($closure) => $closure($item, $config)
         );
     }
 }

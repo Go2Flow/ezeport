@@ -4,6 +4,7 @@ namespace Go2Flow\Ezport\Instructions\Setters;
 
 use Go2Flow\Ezport\Instructions\Setters\Special\ArticleProcessor;
 use Go2Flow\Ezport\Instructions\Setters\Special\PriceField;
+use Go2Flow\Ezport\Instructions\Setters\Special\Relation;
 use Go2Flow\Ezport\Instructions\Setters\Types\Api;
 use Go2Flow\Ezport\Instructions\Setters\Types\Base;
 use Go2Flow\Ezport\Instructions\Setters\Types\Basic;
@@ -63,6 +64,7 @@ use Illuminate\Support\Stringable;
  * @method static RunUploadProcess RunUploadProcess(string $key, array $config = [])
  * @method static RunImportProcess RunImportProcess(string $key, array $config = [])
  * @method static RunTransformProcess RunTransformProcess(string $key, array $config = [])
+ * @method static Relation Relation(string $key)
  **/
 
 class Set {
