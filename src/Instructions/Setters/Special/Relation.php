@@ -61,7 +61,7 @@ class Relation extends Base
 
         $key = $this->key->plural()->toString();
 
-        if ($this->collection) return [$key => ($this->collection)($item, $config)];
+        if ($this->collection) return [$key => collect(($this->collection)($item, $config))];
 
         return [
             $key => collect([

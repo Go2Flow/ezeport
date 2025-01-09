@@ -144,31 +144,34 @@ class Transform extends Basic
             ->get()
             ->toContentType()
             ->each(
-                fn ($item) => $this->runThroughTransformers($item, $config)
+                fn ($item) => $this->runThroughFunctionality($item, $config)
             )
             : $this->runThrough('processes', null, $config);
     }
 
-    private function runThroughTransformers(?Generic $item, array $config) : void
+    private function runThroughFunctionality(?Generic $item, array $config) : void
     {
-        $this->runThrough('relations', $item, $config);
+        $relations = $this->runThrough('relations', $item, $config);
         $this->runThrough('processes', $item, $config);
-        if($this->shouldSave) {
 
-            $item->relations(
-                $item->relations()
-                    ?->filter(fn ($relation) => $relation->count() > 0)
-            );
+        $item->relations(
+            $relations?->filter(
+                fn ($relation) => $relation->filter(fn ($item) => $item)->count() > 0
+            )
+        );
 
-            $item->relationsAndSave();
-        }
+        if(! $this->shouldSave) return;
+
+        $item->updateOrCreate()
+            ->setRelations();
+
     }
 
-    private function runThrough(string $name, ?Generic $item, array $config) : void
+    private function runThrough(string $name, ?Generic $item, array $config) : Collection
     {
-        $this->$name->each(
+        return $this->$name->flatMap(
             fn ($closure) => $closure instanceof Relation
-                ? $closure->process($item, $config)
+                ? $closure->setProject($this->project)->process($item, $config)
                 : $closure($item, $config)
         );
     }
