@@ -9,6 +9,7 @@ use Go2Flow\Ezport\Process\Jobs\Transform as TransformJob;
 use Go2Flow\Ezport\Models\GenericModel;
 use Illuminate\Contracts\Database\Query\Builder;
 use Illuminate\Support\Collection;
+use Go2Flow\Ezport\Instructions\Setters\Special\Relation;
 
 class Transform extends Basic
 {
@@ -158,7 +159,9 @@ class Transform extends Basic
     private function runThrough(string $name, ?Generic $item, array $config) : void
     {
         $this->$name->each(
-            fn ($closure) => $closure($item, $config)
+            fn ($closure) => $closure instanceof Relation
+                ? $closure->process($item, $config)
+                : $closure($item, $config)
         );
     }
 }
