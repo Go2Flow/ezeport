@@ -62,9 +62,9 @@ class Transform extends Basic
         return $this;
     }
 
-    public function processes(Collection $processes) : self
+    public function processes(array $processes) : self
     {
-        $this->processes = $processes;
+        $this->processes = collect($processes);
 
         return $this;
     }
@@ -76,9 +76,9 @@ class Transform extends Basic
         return $this;
     }
 
-    public function relations(Collection $relations) : self
+    public function relations(array $relations) : self
     {
-        $this->relations = $relations;
+        $this->relations = collect($relations);
 
         return $this;
     }
@@ -153,7 +153,15 @@ class Transform extends Basic
     {
         $this->runThrough('relations', $item, $config);
         $this->runThrough('processes', $item, $config);
-        if($this->shouldSave) $item->relationsAndSave();
+        if($this->shouldSave) {
+
+            $item->relations(
+                $item->relations()
+                    ?->filter(fn ($relation) => $relation->count() > 0)
+            );
+
+            $item->relationsAndSave();
+        }
     }
 
     private function runThrough(string $name, ?Generic $item, array $config) : void
