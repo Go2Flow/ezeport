@@ -132,8 +132,8 @@ class TypeGetter implements BuilderContract
             return $this->create(array_merge($values, ['unique_id' => $attributes['unique_id']]));
         }
 
-        $original->properties($values['content']);
-        $original->shop($values['shop']);
+        $original->properties($values['content'] ?? []);
+        $original->shop($values['shop'] ?? []);
 
         return $original->updateOrCreate();
     }
