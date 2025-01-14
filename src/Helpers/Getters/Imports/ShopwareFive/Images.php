@@ -18,7 +18,31 @@ class Images extends BaseInstructions implements InstructionInterface {
             Set::ShopImport('Images')
                 ->api(Get::api('shopFive'))
                 ->items(
-                    fn ($api) => collect($api->media()->get()->body()->data)->pluck('id')
+                    function ($api) {
+
+                        $firstResponse = $api
+                            ->media()
+                            ->limit(50)
+                            ->get()
+                            ->body();
+
+                        $ids = collect($firstResponse->data)->pluck("id");
+                        for ($i = 1; $i < $firstResponse->total / 50; $i++) {
+                            $response = $api
+                                ->media()
+                                ->limit(50)
+                                ->start($i * 50)
+                                ->get()
+                                ->body();
+
+                            if ($response) {
+                                $ids = $ids->merge(collect($response->data)->pluck("id"));
+                            }
+                        }
+
+                        return $ids;
+
+                    }
                 )->process(
                     function ($chunk, $api) {
 
