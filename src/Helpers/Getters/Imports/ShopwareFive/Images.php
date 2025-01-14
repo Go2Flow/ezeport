@@ -17,51 +17,41 @@ class Images extends BaseInstructions implements InstructionInterface {
         return [
             Set::ShopImport('Images')
                 ->api(Get::api('shopFive'))
+                ->chunk(10)
                 ->items(
-                    function ($api) {
-
-                        $firstResponse = $api
-                            ->media()
-                            ->limit(50)
-                            ->get()
-                            ->body();
-
-                        $ids = collect($firstResponse->data)->pluck("id");
-                        for ($i = 1; $i < $firstResponse->total / 50; $i++) {
-                            $response = $api
-                                ->media()
-                                ->limit(50)
-                                ->start($i * 50)
-                                ->get()
-                                ->body();
-
-                            if ($response) {
-                                $ids = $ids->merge(collect($response->data)->pluck("id"));
-                            }
-                        }
-
-                        return $ids;
-
-                    }
+                    fn ($api) => collect(range(0, ($api->media()->limit(1)->get()->body()->total / 50) + 1))
                 )->process(
                     function ($chunk, $api) {
 
-                        foreach ($chunk as $id) {
-                            $image = $api->media()->find($id)->body()->data;
+                        foreach ($chunk as $page) {
 
-                            Content::Type('Image', $this->project)
-                                ->updateOrCreate([
-                                    'unique_id' => $image->id,
+                            $items = collect($api
+                                ->media()
+                                ->limit(50)
+                                ->start($page * 50)
+                                ->get()
+                                ->body()->data)->pluck('id');
 
-                                ], [
-                                    'name' => $image->name ?? null,
-                                    'properties' => [
-                                        'description' => $image->description,
-                                        'path' => $image->path,
-                                        'extension' => $image->extension,
-                                        'album_id' => $image->albumId,
-                                    ]
-                                ]);
+                            $items->each(
+                                function ($id) use ($api) {
+
+                                    $image = $api->media()->find($id)->body()->data;
+
+                                    Content::Type('Image', $this->project)
+                                        ->updateOrCreate([
+                                            'unique_id' => $image->id,
+
+                                        ], [
+                                            'name' => $image->name ?? null,
+                                            'properties' => [
+                                                'description' => $image->description,
+                                                'path' => $image->path,
+                                                'extension' => $image->extension,
+                                                'album_id' => $image->albumId,
+                                            ]
+                                        ]);
+                                }
+                            );
                         }
                     }),
         ];
