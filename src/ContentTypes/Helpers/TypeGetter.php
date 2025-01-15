@@ -101,12 +101,12 @@ class TypeGetter implements BuilderContract
         return $this->querySetter()->firstWhere('name', $name)?->toContentType();
     }
 
-    /** like a standard model create, but you don't need to set 'type' and 'project_id' */
+    /** like a standard model create, but you don't need to set 'type' and 'project_id' as that was already set in the constructor */
 
     public function create(array|Collection $attributes = []): Generic
     {
 
-        if (! isset($attributes['unique_id']) || Content::type($this->type, $this->project)->find($attributes['unique_id']) ===  null)
+        if (Content::type($this->type, $this->project)->find($attributes['unique_id'] ?? null) ===  null)
         {
             return GenericModel::create(
                 collect($attributes)->merge([
@@ -121,7 +121,7 @@ class TypeGetter implements BuilderContract
         );
     }
 
-    public function updateOrCreate(array $attributes, array $values) {
+    public function updateOrCreate(array $attributes, array $values) : Generic {
 
         if (isset($values['properties'])) {
             $values['content'] = $values['properties'];
@@ -129,7 +129,12 @@ class TypeGetter implements BuilderContract
         }
 
         if (! $original = Content::type($this->type, $this->project)->find($attributes['unique_id'])) {
-            return $this->create(array_merge($values, ['unique_id' => $attributes['unique_id']]));
+            return $this->create(
+                array_merge(
+                    $values,
+                    $attributes
+                )
+            );
         }
 
         $original->properties($values['content'] ?? []);

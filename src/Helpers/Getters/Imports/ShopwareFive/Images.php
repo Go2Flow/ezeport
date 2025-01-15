@@ -8,7 +8,7 @@ use Go2Flow\Ezport\Finders\Api;
 use Go2Flow\Ezport\Finders\Interfaces\InstructionInterface;
 use Go2Flow\Ezport\Instructions\Getters\Get;
 use Go2Flow\Ezport\Instructions\Setters\Set;
-use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Cache;
 
 class Images extends BaseInstructions implements InstructionInterface {
 
@@ -17,9 +17,13 @@ class Images extends BaseInstructions implements InstructionInterface {
         return [
             Set::ShopImport('Images')
                 ->api(Get::api('shopFive'))
-                ->chunk(10)
                 ->items(
-                    fn ($api) => collect(range(0, ($api->media()->limit(1)->get()->body()->total / 50) + 1))
+                    fn ($api) => collect(
+                        range(
+                            0,
+                            ceil($api->media()->limit(1)->get()->body()->total / 50) - 1
+                        )
+                    )
                 )->process(
                     function ($chunk, $api) {
 
