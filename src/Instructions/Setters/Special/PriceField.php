@@ -16,6 +16,7 @@ class PriceField extends UploadField implements UploadFieldInterface {
     private ?Closure $price;
     private ?Closure $discount = null;
     private string $addOrRemove = 'add';
+    private ?float $tax = null;
 
     public function __construct(string $key = null)
     {
@@ -23,7 +24,7 @@ class PriceField extends UploadField implements UploadFieldInterface {
             $key = 'Price';
         }
 
-        $this->key = Str::of($key);
+        parent::__construct($key);
     }
 
     public function price(Closure $price) : self
@@ -39,6 +40,14 @@ class PriceField extends UploadField implements UploadFieldInterface {
         $this->discount = $discount;
 
         return $this;
+    }
+
+    public function tax (float $tax) : self {
+
+        $this->tax = $tax;
+
+        return $this;
+
     }
 
     public function add()  : self
@@ -73,6 +82,7 @@ class PriceField extends UploadField implements UploadFieldInterface {
                 ($this->price)($item),
                 $this->discount ? ($this->discount)($item) : null,
                 $this->addOrRemove,
+                $this->tax
             )
         ];
     }

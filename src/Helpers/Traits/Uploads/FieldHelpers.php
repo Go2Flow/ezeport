@@ -80,7 +80,7 @@ trait FieldHelpers
         }
     }
 
-    protected function formatPrice(string|float $price, $addOrRemove = 'add') : array
+    protected function formatPrice(string|float $price, $addOrRemove = 'add', ?float $tax = null) : array
     {
         $amount = (float) Str::replace(',', '.', $price);
 
@@ -89,11 +89,25 @@ trait FieldHelpers
             'linked' => false,
         ];
 
+        $tax = $tax !== null
+            ? $tax
+            : $this->project->settings('taxes')['standard'];
+
         if ($addOrRemove == 'add') {
             $priceObject['net'] = $this->twoDecimalPlaces($amount);
-            $priceObject['gross'] = $this->twoDecimalPlaces($this->addTax($amount, $this->project->settings('taxes')['standard']));
+            $priceObject['gross'] = $this->twoDecimalPlaces(
+                $this->addTax(
+                    $amount,
+                    $tax
+                )
+            );
         } else {
-            $priceObject['net'] = $this->twoDecimalPlaces($this->removeTax($amount, $this->project->settings('taxes')['standard']));
+            $priceObject['net'] = $this->twoDecimalPlaces(
+                $this->removeTax(
+                    $amount,
+                    $tax
+                )
+            );
             $priceObject['gross'] = $this->twoDecimalPlaces($amount);
         }
 
