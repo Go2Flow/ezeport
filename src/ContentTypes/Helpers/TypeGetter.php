@@ -70,7 +70,6 @@ class TypeGetter implements BuilderContract
     /**
      * Where the content type is on shopware
      */
-
     public function whereOnShop() : self
     {
         $this->query = $this->querySetter()->whereNot('shop', '[]');
@@ -81,7 +80,6 @@ class TypeGetter implements BuilderContract
     /**
      * find by unique_id
      */
-
     public function find(int|string $id, $columns = ['*']): ?Generic
     {
         return $this->querySetter()->firstWhere('unique_id', $id)?->toContentType();
@@ -90,7 +88,6 @@ class TypeGetter implements BuilderContract
     /**
      * find by id
      */
-
     public function findById(?int $id): ?Generic
     {
         return $this->querySetter()->find($id)?->toContentType();
@@ -101,7 +98,7 @@ class TypeGetter implements BuilderContract
         return $this->querySetter()->firstWhere('name', $name)?->toContentType();
     }
 
-    /** like a standard model create, but you don't need to set 'type' and 'project_id' as that was already set in the constructor */
+    /** like a standard model create, but you don't ne`ed to set 'type' and 'project_id' as that was already set in the constructor */
 
     public function create(array|Collection $attributes = []): Generic
     {
@@ -121,12 +118,20 @@ class TypeGetter implements BuilderContract
         );
     }
 
+    public function firstOrNew(string $unique_id) : Generic {
+
+        if ($original = Content::type($this->type, $this->project)->find($unique_id)) return $original;
+
+        return new Generic([
+            'unique_id' => $unique_id,
+            'project_id' => $this->project->id,
+            'type' => $this->type
+        ]);
+    }
+
     public function updateOrCreate(array $attributes, array $values) : Generic {
 
-        if (isset($values['properties'])) {
-            $values['content'] = $values['properties'];
-            unset($values['properties']);
-        }
+        $values = $this->setPropertiesToContent($values);
 
         if (! $original = Content::type($this->type, $this->project)->find($attributes['unique_id'])) {
             return $this->create(
@@ -192,5 +197,16 @@ class TypeGetter implements BuilderContract
             }
 
         return $this->query;
+    }
+
+    private function setPropertiesToContent(array $values) : array
+    {
+        if (isset($values['properties'])) {
+            $values['content'] = $values['properties'];
+            unset($values['properties']);
+        }
+
+        return $values;
+
     }
 }

@@ -234,6 +234,15 @@ class Generic
      * use the singular naming of a property to get the first instance of that property if it is a array or collection
      */
 
+    public function shop($input = null)
+    {
+        return $this->contentData->getOrSetData($input, 'shop');
+    }
+
+    /**
+     * @deprecated
+     **/
+
     public function shopware($input = null)
     {
         return $this->contentData->getOrSetData($input, 'shop');
@@ -283,10 +292,7 @@ class Generic
      * alternative to 'shopware' method
      */
 
-    public function shop($input = null)
-    {
-        return $this->contentData->getOrSetData($input, 'shop');
-    }
+
 
     /**
      * will update or create the model
