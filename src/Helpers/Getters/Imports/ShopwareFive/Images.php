@@ -12,6 +12,8 @@ use Illuminate\Support\Facades\Cache;
 
 class Images extends BaseInstructions implements InstructionInterface {
 
+    private int $count = 20;
+
     public function get() : array
     {
         return [
@@ -21,7 +23,7 @@ class Images extends BaseInstructions implements InstructionInterface {
                     fn ($api) => collect(
                         range(
                             0,
-                            ceil($api->media()->limit(1)->get()->body()->total / 50) - 1
+                            ceil($api->media()->limit(1)->get()->body()->total / $this->count) - 1
                         )
                     )
                 )->process(
@@ -31,8 +33,8 @@ class Images extends BaseInstructions implements InstructionInterface {
 
                             $items = collect($api
                                 ->media()
-                                ->limit(50)
-                                ->start($page * 50)
+                                ->limit($this->count)
+                                ->start($page * $this->count)
                                 ->get()
                                 ->body()->data)->pluck('id');
 
