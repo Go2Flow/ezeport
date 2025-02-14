@@ -62,10 +62,13 @@ class ArticleProcessor extends UploadProcessor {
             foreach ($item->toShopArray()['children'] ?? [] as $child) {
 
                 $index++;
-                $ids->push($products[$index]);
+                $ids[$child['productNumber']] = $products[$index];
             }
 
-            if ($ids->isNotEmpty()) $item->shopware(['children' => $ids]);
+            if ($ids->isNotEmpty()) {
+
+                $item->shopware(['children' => $ids]);
+            }
 
             $item->updateOrCreate(false);
 

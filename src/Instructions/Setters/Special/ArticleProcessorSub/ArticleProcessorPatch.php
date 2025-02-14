@@ -155,7 +155,7 @@ class ArticleProcessorPatch
 
                 foreach ($response->data->product as $key => $product) {
 
-                    $parents[$children[$key]['parentId']]->push($product);
+                    $parents[$children[$key]['parentId']][$children[$key]['productNumber']] =  $product;
                 }
 
                 foreach ($this->items as $item) {
