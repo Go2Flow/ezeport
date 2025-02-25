@@ -25,8 +25,7 @@ class Customers extends BaseInstructions implements InstructionInterface
 
                             $response = $api->customer()->bulk(
                                 $chunk->map(
-                                    fn ($item) =>
-                                    $item->toShopArray()
+                                    fn ($item) => $item->toShopArray()
 
                                 )->values()
                                     ->toArray()

@@ -59,7 +59,6 @@ class ArticleProcessorPatch
         return $this;
     }
 
-
     public function categories() : self {
 
         if (($leftovers = $this->prepareLeftovers('categories', 'categoryId'))->count() > 0) {
@@ -84,7 +83,6 @@ class ArticleProcessorPatch
 
         if ($add->count() > 0) $this->apiCalls->configuratorSettings($add->toArray());
         if ($delete->count() > 0) $this->prepareConfiguratorSettingsDelete($delete);
-
 
         return $this;
     }
@@ -248,6 +246,8 @@ class ArticleProcessorPatch
 
     private function findChildrenThatShouldBeDeleted(Collection $productChildren, Collection $children) : Collection
     {
+        if ($children->count() == 0) return collect();
+
         $serverIds = $productChildren->mapWithKeys(fn ($child) => [$child->id => $child->optionIds]);
         $dbOptions = $children->pluck('options')->flatten();
 
