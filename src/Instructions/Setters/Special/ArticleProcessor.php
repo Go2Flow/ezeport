@@ -3,6 +3,7 @@
 namespace Go2Flow\Ezport\Instructions\Setters\Special;
 
 use Go2Flow\Ezport\Finders\Api;
+use Go2Flow\Ezport\Finders\Find;
 use Go2Flow\Ezport\Instructions\Setters\Special\ArticleProcessorSub\ArticleProcessorApiCalls;
 use Go2Flow\Ezport\Instructions\Setters\Special\ArticleProcessorSub\ArticleProcessorPatch;
 use Go2Flow\Ezport\Instructions\Setters\Types\UploadProcessor;
@@ -99,10 +100,12 @@ class ArticleProcessor extends UploadProcessor {
         }
 
         $this->patch
+            ->setConfig(Find::config($this->project))
             ->setItems($items)
             ->setProducts($products)
             ->options()
             ->categories()
+            ->removePrices()
             ->configurationSettings()
             ->children()
             ->unSet()

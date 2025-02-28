@@ -2,6 +2,7 @@
 
 namespace Go2Flow\Ezport\Instructions\Setters\Special\ArticleProcessorSub;
 
+use Go2Flow\Ezport\Finders\Config;
 use Illuminate\Support\Collection;
 
 class ArticleProcessorPatch
@@ -9,6 +10,8 @@ class ArticleProcessorPatch
     private Collection $data;
     private Collection $products;
     private Collection $items;
+
+    private ?Config $config;
     private array $unsetters = [
         'children',
         'visibilities',
@@ -24,6 +27,13 @@ class ArticleProcessorPatch
     {
         $this->items = $items;
         $this->data = collect($items->toShopArray());
+
+        return $this;
+    }
+
+    public function setConfig(Config $config) : self {
+
+        $this->config = $config;
 
         return $this;
     }
@@ -55,6 +65,22 @@ class ArticleProcessorPatch
 
             );
         }
+
+        return $this;
+    }
+
+    public function removePrices() : self
+    {
+        if ($this->config['articles']['prices']['delete'] ?? true) return $this;
+
+        $prices = collect($this->products)
+            ->map(
+                fn($product) => collect($product->prices)
+                    ->pluck('id')
+                    ->map(fn($item) => ["id" => $item])
+            );
+
+        if ($prices->count() > 0) $this->apiCalls->deletePrices($prices->toArray());
 
         return $this;
     }
@@ -246,7 +272,7 @@ class ArticleProcessorPatch
 
     private function findChildrenThatShouldBeDeleted(Collection $productChildren, Collection $children) : Collection
     {
-        if ($children->count() == 0) return collect();
+        if (! $this->config['articles']['children']['delete'] ?? true) return collect();
 
         $serverIds = $productChildren->mapWithKeys(fn ($child) => [$child->id => $child->optionIds]);
         $dbOptions = $children->pluck('options')->flatten();

@@ -52,6 +52,11 @@ class ArticleProcessorApiCalls {
         );
     }
 
+    public function deletePrices(array $prices) : void {
+
+        $this->api->prices()->bulkDelete($prices);
+    }
+
     public function getProducts($items) : ?object {
         return collect($this->api->product()
             ->association(
@@ -61,6 +66,7 @@ class ArticleProcessorApiCalls {
                     'properties',
                     'options',
                     'configuratorSettings',
+                    'prices'
                 ])
             )->filter(
                 ShopSix::filter([
