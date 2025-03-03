@@ -74,10 +74,10 @@ class ArticleProcessorPatch
         if (! $this->config->find('articles.prices.delete') ?? true) return $this;
 
         $prices = collect($this->products)
-            ->map(
+            ->flatMap(
                 fn($product) => collect($product->prices)
-                    ->pluck('id')
-                    ->map(fn($item) => ["id" => $item])
+                    ->map(fn($item) => ["id" => $item->id])
+
             );
 
         if ($prices->count() > 0) $this->apiCalls->deletePrices($prices->toArray());
