@@ -9,7 +9,7 @@ use Illuminate\Support\Str;
 
 class Config extends Base implements ArrayAccess {
 
-    public array $config;
+    public mixed $config;
     public ?Collection $path = null;
 
     protected function getObject(Project $project, ?string $path = null ) : self

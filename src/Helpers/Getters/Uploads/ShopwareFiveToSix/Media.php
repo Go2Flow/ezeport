@@ -22,8 +22,8 @@ class Media extends BaseInstructions implements InstructionInterface {
             Set::Upload('media')
                 ->items(fn () => Content::type('Image', $this->project))
                 ->fields([
-                    ['title' => fn ($item) => $item->properties('name')],
-                    ['name' => fn ($item) => $item->properties('name')],
+                    ['title' => fn ($item) => $item->name],
+                    ['name' => fn ($item) => $item->name],
                     Set::UploadField('mediaFolder')
                         ->field(fn ($item) => [
                             'id' => $this->project->cache('media_folder_ids')['standard']
