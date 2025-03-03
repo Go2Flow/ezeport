@@ -11,9 +11,9 @@ abstract class Base {
 
     protected $object;
 
-    public function __construct(array $identifier)
+    public function __construct(array $arguments)
     {
-        $this->object = $this->getObject(... $identifier);
+        $this->object = $this->getObject(... $arguments);
     }
 
     public function __call($method, $args)

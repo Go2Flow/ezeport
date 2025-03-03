@@ -31,19 +31,19 @@ class CrossSellings extends BaseInstructions implements InstructionInterface
                                 ->map(
                                     function ($type, $key) use ($item) {
 
-                                        if (!$item->shopware('id')) return;
+                                        if (!$item->shop('id')) return;
 
                                         $sellings = $item->properties($type)
                                             ?->map(
                                                 fn ($selling) => Content::type('Article', $item->project())
                                                     ->find($selling['article_id'])
-                                                    ?->shopware('id')
+                                                    ?->shop('id')
                                             )->filter();
 
                                         if (!$sellings || $sellings->count() === 0) return [];
 
                                         return array_merge([
-                                            'productId' => $item->shopware('id'),
+                                            'productId' => $item->shop('id'),
                                             'name' => $key,
                                             'position' => 1,
                                             'type' => 'productList',
@@ -53,8 +53,8 @@ class CrossSellings extends BaseInstructions implements InstructionInterface
                                                     'productId' => (string) $selling,
                                                     'position' => $num + 1,
                                                 ])->toArray()
-                                        ], $item->shopware('cross_sellings')?->has($key)
-                                            ? ['id' => $item->shopware('cross_sellings')[$key]]
+                                        ], $item->shop('cross_sellings')?->has($key)
+                                            ? ['id' => $item->shop('cross_sellings')[$key]]
                                             : []
                                         );
                                     }

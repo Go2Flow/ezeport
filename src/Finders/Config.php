@@ -4,18 +4,40 @@ namespace Go2Flow\Ezport\Finders;
 
 use Go2Flow\Ezport\Models\Project;
 use ArrayAccess;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Str;
 
 class Config extends Base implements ArrayAccess {
 
     public array $config;
+    public ?Collection $path;
 
-    protected function getObject(Project $project) : self
+    protected function getObject(Project $project, ?string $path = null ) : self
     {
         $this->config = file_exists($this->filePath($project->identifier, 'config.php'))
             ? include($this->filePath($project->identifier, 'config.php'))
             : [];
 
+        $this->setPath($path);
+
         return $this;
+    }
+
+    public function find(?string $path = null)
+    {
+        $this->setPath($path);
+
+        foreach ($this->path as $item) {
+            if ($this->offsetExists($item)) $this->config = $this->offsetGet($item);
+            else return null;
+        }
+
+        return $this->config;
+    }
+
+    private function setPath(?string $path = null): void
+    {
+        if ($path) $this->path = Str::of($path)->explode('.');
     }
 
     public function offsetExists($offset) : bool
