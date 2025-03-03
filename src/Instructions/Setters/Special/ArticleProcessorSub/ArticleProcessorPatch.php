@@ -71,7 +71,7 @@ class ArticleProcessorPatch
 
     public function removePrices() : self
     {
-        if ($this->config['articles']['prices']['delete'] ?? true) return $this;
+        if (! $this->config->find('articles.prices.delete') ?? true) return $this;
 
         $prices = collect($this->products)
             ->map(
@@ -272,7 +272,7 @@ class ArticleProcessorPatch
 
     private function findChildrenThatShouldBeDeleted(Collection $productChildren, Collection $children) : Collection
     {
-        if (! $this->config['articles']['children']['delete'] ?? true) return collect();
+        if (! $this->config->find('articles.children.delete') ?? true) return collect();
 
         $serverIds = $productChildren->mapWithKeys(fn ($child) => [$child->id => $child->optionIds]);
         $dbOptions = $children->pluck('options')->flatten();
