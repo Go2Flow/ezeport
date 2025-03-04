@@ -66,7 +66,7 @@ class Api implements ApiInterface
         );
     }
 
-    /** update a single instance of the set path (e.g. patch a single producxt) */
+    /** update a single instance of the set path (e.g. patch a single product) */
     public function patch(array $payload, string|int $id): self
     {
         return $this->patchRequest(

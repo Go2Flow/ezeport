@@ -22,6 +22,7 @@ return new class extends Migration
                 $table->string('host');
                 $table->string('environment')->default('production');
                 $table->mediumText('properties')->nullable();
+                $table->string('name');
                 $table->timestamps();
             });
         }
