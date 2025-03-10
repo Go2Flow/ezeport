@@ -32,16 +32,16 @@ class Prepare {
                 fn ($step, $index) => [
                     $step->getKey() == '' ? $index : $step->getKey() => $this->import($step->getcontent())
                 ]
-            )->when(
-                $type == 'full',
-                fn ($collection) => $collection->prepend(
-                    $this->createModifyModelJobs(
-                        GenericModel::where('project_id', $this->project->id)
-                            ->where('touched', true)
-                            ->pluck('id'),
-                        ['action' => ['touched' => false], 'method' => 'update']
-                    )
-                )
+//            )->when(
+//                $type == 'full',
+//                fn ($collection) => $collection->prepend(
+//                    $this->createModifyModelJobs(
+//                        GenericModel::where('project_id', $this->project->id)
+//                            ->where('touched', true)
+//                            ->pluck('id'),
+//                        ['action' => ['touched' => false], 'method' => 'update']
+//                    )
+//                )
             )
         );
     }

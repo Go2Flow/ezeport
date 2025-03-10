@@ -26,13 +26,13 @@ class Basic extends Base implements JobInterface {
         return $this;
     }
 
-    public function getJob(array $array = []) : ShouldQueue
+    public function getJob(array $content = []) : ShouldQueue
     {
         return new ($this->job->getJob())(
             $this->project->id,
             array_merge(
                 $this->job->getConfig(),
-                $array,
+                $content,
                 $this->setSpecificFields(),
                 ['key' => $this->key]
             )
