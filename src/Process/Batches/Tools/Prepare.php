@@ -59,14 +59,14 @@ class Prepare {
         return
             $this->cleanCollection(
                 $jobs->mapWithKeys(fn ($step, $index) => [$step->getKey() == '' ? $index : $step->getKey() => $this->upload($step->getContent())])
-//            )->push(
-//                $this->createModifyModelJobs(
-//                    $this->uploadManager->getAll(),
-//                    [
-//                        'action' => ['updated' => false],
-//                        'method' => 'update'
-//                    ]
-//                )
+            )->push(
+                $this->createModifyModelJobs(
+                    $this->uploadManager->getAll(),
+                    [
+                        'action' => ['updated' => false],
+                        'method' => 'update'
+                    ]
+                )
             );
     }
 
