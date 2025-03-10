@@ -11,6 +11,7 @@ use Go2Flow\Ezport\Instructions\Setters\Types\Basic;
 use Go2Flow\Ezport\Instructions\Setters\Types\Connector;
 use Go2Flow\Ezport\Instructions\Setters\Types\CsvCreate;
 use Go2Flow\Ezport\Instructions\Setters\Types\CsvImport;
+use Go2Flow\Ezport\Instructions\Setters\Types\Model;
 use Go2Flow\Ezport\Instructions\Setters\Types\Old\CsvImportOld;
 use Go2Flow\Ezport\Instructions\Setters\Types\CsvImportStep;
 use Go2Flow\Ezport\Instructions\Setters\Types\CsvProcessor;
@@ -65,6 +66,7 @@ use Illuminate\Support\Stringable;
  * @method static RunImportProcess RunImportProcess(string $key, array $config = [])
  * @method static RunTransformProcess RunTransformProcess(string $key, array $config = [])
  * @method static Relation Relation(string $key)
+ * @method static Model Model(string $key)
  **/
 
 class Set {

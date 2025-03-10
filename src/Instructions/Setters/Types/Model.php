@@ -6,6 +6,7 @@ use Closure;
 use Go2Flow\Ezport\Instructions\Getters\GetProxy;
 use Go2Flow\Ezport\Instructions\Setters\Interfaces\JobInterface;
 use Go2Flow\Ezport\Instructions\Setters\Set;
+use Go2Flow\Ezport\Process\Jobs\AssignProcess;
 use Go2Flow\Ezport\Process\Jobs\ModifyModel;
 use Illuminate\Support\Collection;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -23,7 +24,7 @@ class Model extends Basic implements JobInterface
     {
         parent::__construct($key);
         $this->job = Set::job()
-            ->class(ModifyModel::class);
+            ->class(AssignProcess::class);
     }
 
     /**
@@ -48,22 +49,16 @@ class Model extends Basic implements JobInterface
 
     }
 
-    public function getJob(array $content = []) : ShouldQueue
-    {
-        return new ($this->job->getJob())(
-            $this->project->id,
-            $this->instructions,
-            $content['chunk']
-        );
-
-    }
-
     public function getJobs() : Collection
     {
         return ($this->items)()
             ->chunk(100)
             ->map(
-                fn ($chunk) => $this->getJob(['chunk' => $chunk])
+                fn ($chunk) => new ModifyModel(
+                    $this->project->id,
+                    $this->instructions,
+                    $chunk
+                )
             );
     }
 }
