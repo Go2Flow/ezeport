@@ -20,7 +20,7 @@ class RemoveUntouched  extends BaseInstructions implements InstructionInterface 
                     ->where('updated', false)
                     ->pluck('id'))
                 ->instructions([
-                    'method' => 'delete'
+                    'method' => 'delete',
                 ]),
         ];
     }

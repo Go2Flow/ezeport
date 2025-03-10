@@ -35,6 +35,6 @@ class ModifyModel implements ShouldQueue
             ->where('project_id', $this->project)
             ->get()
             ->each
-            ->{$this->instructions['method']}($this->instructions['action']);
+            ->{$this->instructions['method']}($this->instructions['action'] ?? null);
     }
 }
