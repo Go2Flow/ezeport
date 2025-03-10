@@ -11,7 +11,7 @@ abstract class Base {
 
     protected ?Stringable $key;
     protected ?Project $project;
-    protected string $instructionType;
+    protected ?string $instructionType;
 
     public function setProject(Project $project) : self
     {
@@ -29,7 +29,7 @@ abstract class Base {
         return $this;
     }
 
-    public function instructionType(string $instructionType): self
+    public function instructionType(?string $instructionType): self
     {
         $this->instructionType = $instructionType;
 
