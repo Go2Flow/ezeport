@@ -57,7 +57,7 @@ class Model extends Basic implements JobInterface
                 fn ($chunk) => new ModifyModel(
                     $this->project->id,
                     $this->instructions,
-                    $chunk
+                    $chunk->toArray()
                 )
             );
     }
