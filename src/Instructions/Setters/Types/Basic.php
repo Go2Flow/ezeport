@@ -34,7 +34,10 @@ class Basic extends Base implements JobInterface {
                 $this->job->getConfig(),
                 $content,
                 $this->setSpecificFields(),
-                ['key' => $this->key]
+                [
+                    'key' => $this->key,
+                    'instructionType' => $this->instructionType
+                ]
             )
         );
     }

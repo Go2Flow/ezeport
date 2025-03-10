@@ -29,7 +29,7 @@ class AssignProcess implements ShouldQueue, ShouldBeUnique
 
         $instruction = Find::instruction(
             Project::find($this->project),
-            'Import'
+            $this->config['instructionType'] ?? 'Import'
         )->find($this->config['key']);
 
         $this->batch()->add($instruction->getJobs());

@@ -11,6 +11,9 @@ use Illuminate\Support\Stringable;
 
 abstract class BaseInstructions
 {
+
+    protected ?string $instructionType = null;
+
     public function __construct(protected Project $project)
     {
     }
@@ -31,6 +34,7 @@ abstract class BaseInstructions
     {
         return $this->collect()->map(
             fn ($item) => $item->setProject($this->project)
+                ->setInstructionType($this->instructionType)
         );
     }
 
@@ -42,6 +46,7 @@ abstract class BaseInstructions
                     ? $item($this->project)
                     : $item
                 )->setProject($this->project)
+                    ->setInstructionType($this->instructionType)
             );
     }
 

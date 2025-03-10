@@ -11,6 +11,7 @@ abstract class Base {
 
     protected ?Stringable $key;
     protected ?Project $project;
+    protected string $instructionType;
 
     public function setProject(Project $project) : self
     {
@@ -24,6 +25,13 @@ abstract class Base {
     public function key(string $key): self
     {
         $this->key = $this->processKey($key);
+
+        return $this;
+    }
+
+    public function instructionType(string $instructionType): self
+    {
+        $this->instructionType = $instructionType;
 
         return $this;
     }

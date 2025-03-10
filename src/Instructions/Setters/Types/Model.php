@@ -4,6 +4,7 @@ namespace Go2Flow\Ezport\Instructions\Setters\Types;
 
 use Closure;
 use Go2Flow\Ezport\Instructions\Getters\GetProxy;
+use Go2Flow\Ezport\Instructions\Interfaces\ImportInstructionInterface;
 use Go2Flow\Ezport\Instructions\Setters\Interfaces\JobInterface;
 use Go2Flow\Ezport\Instructions\Setters\Set;
 use Go2Flow\Ezport\Process\Jobs\AssignProcess;
@@ -12,7 +13,7 @@ use Illuminate\Support\Collection;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
 
-class Model extends Basic implements JobInterface
+class Model extends Basic implements ImportInstructionInterface, JobInterface
 {
 
     protected Collection $getters;
@@ -39,6 +40,14 @@ class Model extends Basic implements JobInterface
         $this->items = $items;
 
         return $this;
+    }
+
+    public function type(string $type) : self
+    {
+        $this->job = $this->job->config(['type' => $type]);
+
+        return $this;
+
     }
 
     public function instructions(array $instructions) : self

@@ -43,6 +43,7 @@ class CustomerFilesCreator
 
             $file = $this->basicPrepend($this->getStub('Instruction'), 'Instructions')
                 ->replace('$CLASSNAME$', $instruction)
+//                ->replace('$EXTENDNAME$', "Base{$instruction}Instructions" )
                 ->append($this->instructionsAdd($value))
                 ->replace('$NAME$', $this->project->name)->replace('$IDENTIFIER$', $this->project->identifier);
 

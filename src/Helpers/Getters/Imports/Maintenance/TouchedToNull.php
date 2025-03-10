@@ -8,7 +8,7 @@ use Go2Flow\Ezport\Finders\Interfaces\InstructionInterface;
 use Go2Flow\Ezport\Instructions\Setters\Set;
 use Go2Flow\Ezport\Models\GenericModel;
 
-class TouchedToNull  extends BaseInstructions implements InstructionInterface {
+class TouchedToNull extends BaseInstructions implements InstructionInterface {
 
 
     public function get() : array
