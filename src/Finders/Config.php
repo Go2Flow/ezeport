@@ -18,8 +18,6 @@ class Config extends Base implements ArrayAccess {
             ? include($this->filePath($project->identifier, 'config.php'))
             : [];
 
-        $this->setPath($path);
-
         return $this;
     }
 
