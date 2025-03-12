@@ -25,12 +25,16 @@ class Config extends Base implements ArrayAccess {
     {
         $this->setPath($path);
 
+        $config = $this->config;
+
         foreach ($this->path as $item) {
-            if ($this->offsetExists($item)) $this->config = $this->offsetGet($item);
-            else return null;
+
+            if (! isset($config[$item])) return null;
+
+            $config = $this->offsetGet($item);
         }
 
-        return $this->config;
+        return $config;
     }
 
     private function setPath(?string $path = null): void

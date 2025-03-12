@@ -33,7 +33,7 @@ class EzportScheduleServiceProvider extends ServiceProvider
                     function () {
                         foreach (Project::get() as $project) {
                             Find::instruction($project, 'Schedule')
-                                ?->getAndSet()
+                                ?->collect()
                                 ->each(
                                     function ($instruction, $loop) {
 
