@@ -56,7 +56,7 @@ class Api implements ApiInterface
     }
 
     /**
-     * Get all the files in the specified directory and store them in the storage specified in the 2nd paramater of the constructor
+     * Get all the files in the specified directory and store them in the storage specified in the 2nd parameter of the constructor
      */
 
     public function getAndStore()

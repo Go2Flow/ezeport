@@ -25,13 +25,13 @@ class ArticleProcessor extends UploadProcessor {
         };
     }
 
-    private function articleProcess(Collection $items)
+    private function articleProcess(Collection $items) : void
     {
         $create = collect();
         $patch = collect();
 
         $items->each(
-            fn ($item) => $item->shopware('id')
+            fn ($item) => $item->shopware($this->getCorrectIdField())
                 ? $patch->push($item)
                 : $create->push($item)
         );
@@ -40,7 +40,7 @@ class ArticleProcessor extends UploadProcessor {
         if ($patch->count() > 0) $this->patchArticles($patch);
     }
 
-    private function createArticles(Collection $items) {
+    private function createArticles(Collection $items) : void {
 
         $response = $this->apiCalls->bulkProducts($items->toShopArray());
 
@@ -57,7 +57,7 @@ class ArticleProcessor extends UploadProcessor {
 
         foreach ($items as $item) {
 
-            $item->shopware(['id' => $products[$index]]);
+            $item->shopware([$this->getCorrectIdField() => $products[$index]]);
 
             $ids = collect();
             foreach ($item->toShopArray()['children'] ?? [] as $child) {
@@ -91,7 +91,7 @@ class ArticleProcessor extends UploadProcessor {
 
             foreach ($missing as $item) {
                 $this->logProblem(
-                    'could not find Product ' . $item->unique_id . 'with id'. $item->shopware('id') . ' in Shopware',
+                    'could not find Product ' . $item->unique_id . 'with id'. $item->shopware($this->getCorrectIdField()) . ' in Shopware',
                     'high'
                 );
             }
@@ -118,5 +118,11 @@ class ArticleProcessor extends UploadProcessor {
             ->type('api')
             ->level('high')
             ->log(json_encode($problem));
+    }
+
+    private function getCorrectIdField() :string {
+
+        return $this->config['shop_field'] ?? 'id';
+
     }
 }
