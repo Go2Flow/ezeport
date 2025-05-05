@@ -5,10 +5,12 @@ namespace Go2Flow\Ezport\Process\Upload\Csv\Creates;
 use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithCustomCsvSettings;
+use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\Exportable;
+use Maatwebsite\Excel\Events\BeforeExport;
 
-class Create implements FromCollection,  WithHeadings, WithCustomCsvSettings
+class Create implements FromCollection,  WithHeadings, WithCustomCsvSettings, WithEvents
 {
     use Exportable;
 
@@ -36,4 +38,14 @@ class Create implements FromCollection,  WithHeadings, WithCustomCsvSettings
     {
         return $this->config['headings'] ?? collect($this->collection[0])->keys()->toArray();
     }
-}
+
+    public function registerEvents(): array
+    {
+        $array = [];
+
+        foreach ($this->config['events'] ?? [] as $event => $callback) {
+            $array[$event] = $callback;
+        }
+
+        return $array;
+    }}
