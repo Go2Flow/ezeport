@@ -2,9 +2,6 @@
 
 namespace Go2Flow\Ezport\Instructions\Setters\Types;
 
-use Go2Flow\Ezport\ContentTypes\Generic;
-use Go2Flow\Ezport\Instructions\Setters\Set;
-use Go2Flow\Ezport\Process\Upload\Csv\Creates\Create;
 use Illuminate\Contracts\Database\Query\Builder;
 use Illuminate\Support\Collection;
 
