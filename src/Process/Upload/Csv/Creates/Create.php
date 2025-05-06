@@ -41,11 +41,19 @@ class Create implements FromCollection,  WithHeadings, WithCustomCsvSettings, Wi
 
     public function registerEvents(): array
     {
-        $array = [];
 
-        foreach ($this->config['events'] ?? [] as $event => $callback) {
-            $array[$event] = $callback;
-        }
+        return match($this->config['event'] ?? 'standard') {
+            'UTF-8 BOM' => [
+                BeforeExport::class => function (BeforeExport $event) {
+                    // Write UTF-8 BOM to the output stream
+                    $event->writer->getDelegate()->setPreCalculateFormulas(false);
+                    $event->writer->getDelegate()->getProperties()->setTitle('Users Export');
 
-        return $array;
+                    // Manually prepend UTF-8 BOM
+                    $event->writer->getDelegate()->setUseBOM(true);
+                }
+            ],
+            default => [],
+        };
+
     }}
