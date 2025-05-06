@@ -14,7 +14,9 @@ class Create implements FromCollection,  WithHeadings, WithCustomCsvSettings, Wi
 {
     use Exportable;
 
-    public function __construct(readonly private Collection $collection, readonly private array $config = []){}
+    public function __construct(readonly private Collection $collection, readonly private array $config = [])
+    {
+    }
 
     /**
      * @param Collection $collection
@@ -27,33 +29,16 @@ class Create implements FromCollection,  WithHeadings, WithCustomCsvSettings, Wi
 
     public function getCsvSettings(): array
     {
-        return [
+        $default = [
             'delimiter' => ';',
             'use_bom' => false,
-            'output_encoding' => $this->config['encoding'] ?? 'ISO-8859-1',
+            'output_encoding' => 'ISO-8859-1',
         ];
-    }
 
+        return array_merge($default, $this->config['csvSettings'] ?? []);
+    }
     public function headings(): array
     {
         return $this->config['headings'] ?? collect($this->collection[0])->keys()->toArray();
     }
-
-    public function registerEvents(): array
-    {
-
-        return match($this->config['event'] ?? 'standard') {
-            'UTF-8 BOM' => [
-                BeforeExport::class => function (BeforeExport $event) {
-                    // Write UTF-8 BOM to the output stream
-                    $event->writer->getDelegate()->setPreCalculateFormulas(false);
-                    $event->writer->getDelegate()->getProperties()->setTitle('Users Export');
-
-                    // Manually prepend UTF-8 BOM
-                    $event->writer->getDelegate()->setUseBOM(true);
-                }
-            ],
-            default => [],
-        };
-
-    }}
+}
