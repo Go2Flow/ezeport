@@ -10,7 +10,7 @@ use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\Exportable;
 use Maatwebsite\Excel\Events\BeforeExport;
 
-class Create implements FromCollection,  WithHeadings, WithCustomCsvSettings, WithEvents
+class Create implements FromCollection,  WithHeadings, WithCustomCsvSettings
 {
     use Exportable;
 
