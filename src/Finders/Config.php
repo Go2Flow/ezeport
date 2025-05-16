@@ -28,10 +28,11 @@ class Config extends Base implements ArrayAccess {
         $config = $this->config;
 
         foreach ($this->path as $item) {
+            if (!is_array($config) || !array_key_exists($item, $config)) {
+                return null;
+            }
 
-            if (! isset($config[$item])) return null;
-
-            $config = $this->offsetGet($item);
+            $config = $config[$item];
         }
 
         return $config;
