@@ -23,7 +23,11 @@ class ImageUrls extends BaseInstructions implements InstructionInterface
                         function ($item) use ($api) {
                             $array = $item->toShopArray();
                             $api->media()
-                                ->url($array['path'], $array['id']);
+                                ->url(
+                                    $array['path'],
+                                    $array['id'],
+                                    $array['extension'] ?? 'jpg'
+                                );
                         }
                     )
                 ),

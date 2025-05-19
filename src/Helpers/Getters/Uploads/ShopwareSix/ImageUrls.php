@@ -24,7 +24,8 @@ class ImageUrls extends BaseInstructions implements InstructionInterface
             Set::Upload('ImageUrl')
                 ->items(fn () => Content::type('Image', $this->project))
                 ->field($this->setBasicUploadField('path'))
-                ->field($this->setShopwareIdField()),
+                ->field($this->setShopwareIdField())
+                ->field(['extension' => fn ($item) => $item->properties('extension') ?? null  ]),
         ];
     }
 }

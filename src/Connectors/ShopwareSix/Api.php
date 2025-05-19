@@ -165,6 +165,11 @@ class Api implements ApiInterface
             : $this;
     }
 
+    public function associations(array $array): self
+    {
+        return $this->association($array);
+    }
+
     /** returns a specific page in the result if there are multiple pages */
 
     public function page(int $int): self
