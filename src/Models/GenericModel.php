@@ -4,6 +4,7 @@ namespace Go2Flow\Ezport\Models;
 
 use Go2Flow\Ezport\ContentTypes\Generic;
 use Go2Flow\Ezport\ContentTypes\Helpers\Content;
+use Go2Flow\Ezport\Process\Errors\CircularRelationException;
 use Illuminate\Database\Eloquent\Casts\AsCollection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -150,6 +151,27 @@ class GenericModel extends BaseModel
             'type' => $data['type'],
             'project_id' => $data['project_id'],
         ]);
+    }
+
+    public function assertNoCircularRelation(GenericModel $child): void
+    {
+        $visited = [$child->id];
+        $stack = $child->children;
+
+        while ($stack->isNotEmpty()) {
+            $current = $stack->pop();
+
+            if ($current->id === $this->id) {
+                throw new CircularRelationException(
+                    "Circular relationship detected when attempting to attach model {$child->id} to {$this->id}."
+                );
+            }
+
+            if (!in_array($current->id, $visited)) {
+                $visited[] = $current->id;
+                $stack = $stack->merge($current->children);
+            }
+        }
     }
 
     private function arrangeChildren(array $getDescendants): Collection
