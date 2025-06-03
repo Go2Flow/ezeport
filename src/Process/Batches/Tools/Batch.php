@@ -27,7 +27,7 @@ class Batch {
         return $this;
     }
 
-    public function run(Collection $jobBatch, array $lock = []): BusBatch
+    public function run(Collection $jobBatch, array $lock = []): ?BusBatch
     {
 
         if ($jobBatch->first() instanceof Collection) return $this->executeRecursiveBatch($jobBatch, $lock);
@@ -43,8 +43,15 @@ class Batch {
         );
     }
 
-    private function executeRecursiveBatch(Collection $collection, array $lock): BusBatch
+    private function executeRecursiveBatch(Collection $collection, array $lock): ?BusBatch
     {
+        if ($collection->isEmpty()) {
+            $this->action->setStep('finished');
+            $this->releaseLock($lock);
+            $this->action->finishAction();
+            return null;
+        }
+
         $key = $collection->keys()->first();
         $items = $collection->shift();
 

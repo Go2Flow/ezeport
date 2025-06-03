@@ -221,8 +221,9 @@ class Schedule extends Base
      * get the Jobs for this task
      */
 
-    public function jobs(Lock|array $lock = []): Batch
+    public function jobs(Lock|array $lock = []): ?Batch
     {
+
         return ($batcher = new JobBatcher($this->project, new UploadManager($this->project)))
             ->startAction($this->event, $this->type)
             ->executeJobsBatch(

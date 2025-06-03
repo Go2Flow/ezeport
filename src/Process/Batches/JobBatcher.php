@@ -37,7 +37,7 @@ class JobBatcher
      * if you pass in a collection of collections of jobs, it will finish one colleciton of jobs before moving on to the next
      */
 
-    public function executeJobsBatch(Collection $jobs, array $lock = []): Batch
+    public function executeJobsBatch(Collection $jobs, array $lock = []): ?Batch
     {
 
         return $this->batch->setActions($this->action)
