@@ -10,7 +10,6 @@ class ArticleProcessorPatch
     private Collection $data;
     private Collection $products;
     private Collection $items;
-
     private ?Config $config;
     private array $unsetters = [
         'children',

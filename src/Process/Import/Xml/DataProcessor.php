@@ -57,8 +57,9 @@ class DataProcessor
 
         $class->setContentAndRelations($content);
 
-        return $class->processRelations()
+        return $class
             ->updateOrCreate(true)
+            ->processRelations()
             ->setRelations();
     }
 
