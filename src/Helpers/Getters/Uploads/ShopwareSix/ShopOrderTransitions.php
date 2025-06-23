@@ -32,7 +32,7 @@ class ShopOrderTransitions extends BaseInstructions implements InstructionInterf
 
                                 foreach ($items as $item) {
 
-                                    if ($item->shopware('ftp') == 'uploaded' || !$item->shopware('id')) continue;
+                                    if ($item->shopware('state') === $this->project->cache('order_ids')['completed'] || !$item->shopware('id')) continue;
 
                                     $api->order()->transition($item->shopware('id'), 'process');
                                     $api->order()->transition($item->shopware('id'), 'complete');
