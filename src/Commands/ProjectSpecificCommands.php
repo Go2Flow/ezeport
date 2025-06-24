@@ -141,6 +141,8 @@ class ProjectSpecificCommands
 
     public function runJobs(string $method, ?string $type, string $job): void
     {
+        $job = Str::lower($job);
+
         $type = $type && collect($this->getOptions($job))
             ->contains(Str::lower($type))
                 ? Str::lower($type)
@@ -156,6 +158,10 @@ class ProjectSpecificCommands
                     'runShopClean' => 'shop'
                 ]
             );
+
+            if ($method == 'runShopClean') {
+                $job = 'shopClean';
+            }
         }
 
         $type = $type ?? select(
@@ -222,7 +228,7 @@ class ProjectSpecificCommands
 
         return Find::instruction(Project::first(), "Jobs")
             ->collect()
-            ->filter(fn($item) => $item->get("key") == Str::lower($job))
+            ->filter(fn($item) => $item->get("key") == $job)
             ->mapWithKeys(fn($item) => [$item->get("type") => $item->get("type")])
             ->toArray();
     }

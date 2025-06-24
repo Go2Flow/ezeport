@@ -5,7 +5,6 @@ namespace Go2Flow\Ezport\Finders;
 use Go2Flow\Ezport\Finders\Interfaces\InstructionInterface;
 use Go2Flow\Ezport\Instructions\Setters\Tools\EmptyInstruction;
 use Go2Flow\Ezport\Models\Project;
-
 use Go2Flow\Ezport\Process\Errors\EzportFinderException;
 
 class Instruction extends Base {

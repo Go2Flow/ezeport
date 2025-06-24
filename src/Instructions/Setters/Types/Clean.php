@@ -8,6 +8,7 @@ use Go2Flow\Ezport\Instructions\Getters\Get;
 use Go2Flow\Ezport\Instructions\Getters\GetProxy;
 use Go2Flow\Ezport\Instructions\Setters\Interfaces\JobInterface;
 use Go2Flow\Ezport\Instructions\Setters\Set;
+use Go2Flow\Ezport\Process\Jobs\AssignClean;
 use Go2Flow\Ezport\Process\Jobs\CleanWithInstruction;
 use Illuminate\Support\Collection;
 use \Go2Flow\Ezport\Models\Project;
@@ -25,13 +26,13 @@ class Clean extends Basic implements JobInterface
     protected ?closure $process;
     protected ?GetProxy $api = null;
     protected bool $showNull = false;
+    protected string $type;
 
     public function __construct(string $key)
     {
         parent::__construct($key);
-        $this->getters = collect();
         $this->job = Set::job()
-            ->class(CleanWithInstruction::class);
+            ->class(AssignClean::class);
     }
 
     /**
@@ -97,7 +98,7 @@ class Clean extends Basic implements JobInterface
         return $this;
     }
 
-    public function prepareJobs(Project $project) : self
+    public function prepareJobs(Project $project) : Collection
     {
         return $this->items->chunk($this->chunk)
         ->map(
