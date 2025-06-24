@@ -8,6 +8,7 @@ use Go2Flow\Ezport\Instructions\Setters\Special\Relation;
 use Go2Flow\Ezport\Instructions\Setters\Types\Api;
 use Go2Flow\Ezport\Instructions\Setters\Types\Base;
 use Go2Flow\Ezport\Instructions\Setters\Types\Basic;
+use Go2Flow\Ezport\Instructions\Setters\Types\Clean;
 use Go2Flow\Ezport\Instructions\Setters\Types\Connector;
 use Go2Flow\Ezport\Instructions\Setters\Types\CsvCreate;
 use Go2Flow\Ezport\Instructions\Setters\Types\CsvImport;
@@ -67,6 +68,7 @@ use Illuminate\Support\Stringable;
  * @method static RunTransformProcess RunTransformProcess(string $key, array $config = [])
  * @method static Relation Relation(string $key)
  * @method static Model Model(string $key)
+ * @method static Clean Clean(string $key)
  **/
 
 class Set {
