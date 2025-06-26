@@ -7,7 +7,6 @@ use Go2Flow\Ezport\ContentTypes\Helpers\Log;
 use Go2Flow\Ezport\Finders\Find;
 use Go2Flow\Ezport\Finders\Processor;
 use Go2Flow\Ezport\Instructions\Getters\Get;
-use Go2Flow\Ezport\Instructions\Setters\Types\Model;
 use Go2Flow\Ezport\Instructions\Setters\Types\Upload;
 use Go2Flow\Ezport\Instructions\Setters\Types\UploadProcessor;
 use Go2Flow\Ezport\Models\GenericModel;
@@ -16,6 +15,7 @@ use Go2Flow\Ezport\Process\Errors\EzportContentTypeException;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
+use Illuminate\Database\Eloquent\Model;
 
 /**
 * @property int $id

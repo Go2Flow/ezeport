@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('generic_models', function (Blueprint $table) {
-            $table->morphs('morph');
+            $table->nullableMorphs('morph');
         });
     }
 
