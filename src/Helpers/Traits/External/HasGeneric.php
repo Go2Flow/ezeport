@@ -8,9 +8,9 @@ use Illuminate\Database\Eloquent\Relations\MorphOne;
 
 trait HasGeneric
 {
-    public function generic(): Generic
+    public function generic($layers = [true, false]): Generic
     {
-        return $this->genericModel()->toContentType();
+        return $this->genericModel->toContentType($layers);
     }
 
     public function genericModel() : MorphOne
