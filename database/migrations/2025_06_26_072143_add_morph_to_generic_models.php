@@ -12,8 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('generic_models', function (Blueprint $table) {
-            $table->integer('morph_id')->nullable();
-            $table->string('morph_type')->nullable();
+            $table->morphs('morph');
         });
     }
 
