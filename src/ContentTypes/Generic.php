@@ -7,11 +7,13 @@ use Go2Flow\Ezport\ContentTypes\Helpers\Log;
 use Go2Flow\Ezport\Finders\Find;
 use Go2Flow\Ezport\Finders\Processor;
 use Go2Flow\Ezport\Instructions\Getters\Get;
+use Go2Flow\Ezport\Instructions\Setters\Types\Model;
 use Go2Flow\Ezport\Instructions\Setters\Types\Upload;
 use Go2Flow\Ezport\Instructions\Setters\Types\UploadProcessor;
 use Go2Flow\Ezport\Models\GenericModel;
 use Go2Flow\Ezport\Models\Project;
 use Go2Flow\Ezport\Process\Errors\EzportContentTypeException;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 
@@ -166,6 +168,21 @@ class Generic
 
         $this->getProcessor($processor)
             ->run(collect([$array]));
+
+        return $this;
+    }
+
+    public function external(): ?Model
+    {
+        return $this->contentData->external; // returns the parent
+    }
+
+    public function attachExternal(Model $model): self
+    {
+        $this->contentData->update([
+            'morph_id' => $model->id,
+            'morph_type' => get_class($model), // optional: use full class
+        ]);
 
         return $this;
     }

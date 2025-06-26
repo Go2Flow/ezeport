@@ -4,11 +4,13 @@ namespace Go2Flow\Ezport\Models;
 
 use Go2Flow\Ezport\ContentTypes\Generic;
 use Go2Flow\Ezport\ContentTypes\Helpers\Content;
+use Go2Flow\Ezport\Instructions\Setters\Types\Model;
 use Go2Flow\Ezport\Process\Errors\CircularRelationException;
 use Illuminate\Database\Eloquent\Casts\AsCollection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\Relations\Pivot;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
@@ -153,6 +155,11 @@ class GenericModel extends BaseModel
             'type' => $data['type'],
             'project_id' => $data['project_id'],
         ]);
+    }
+
+    public function external() : ?MorphTo
+    {
+        return $this->morphTo(__FUNCTION__, 'morph_type', 'morph_id');
     }
 
     public function assertNoCircularRelation(GenericModel $child): void
