@@ -54,7 +54,7 @@ class ArticleProcessorApiCalls {
 
     public function deletePrices(array $prices) : void {
 
-        $this->api->prices()->bulkDelete($prices);
+        $this->api->productPrice()->bulkDelete($prices);
     }
 
     public function getProducts($items) : ?object {
