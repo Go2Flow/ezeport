@@ -35,6 +35,8 @@ class ArticleProcessorPatch
     public function setIdField(string $id_field) : self
     {
         $this->id_field = $id_field;
+
+        return $this;
     }
 
     public function setConfig(Config $config) : self {
