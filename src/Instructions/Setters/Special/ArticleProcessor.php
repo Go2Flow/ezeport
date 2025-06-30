@@ -79,7 +79,7 @@ class ArticleProcessor extends UploadProcessor {
 
     private function patchArticles(Collection $items) : void {
 
-        $products = $this->apiCalls->getProducts($items);
+        $products = $this->apiCalls->getProducts($items, $this->getCorrectIdField());
 
         if ($products->count() !== $items->count()) {
 
@@ -96,13 +96,14 @@ class ArticleProcessor extends UploadProcessor {
                 );
             }
 
-            $items = $existing->map(fn ($exist) => $items->filter(fn ($item) => $item->shopware('id') == $exist->id)->first());
+            $items = $existing->map(fn ($exist) => $items->filter(fn ($item) => $item->shopware($this->getCorrectIdField()) == $exist->id)->first());
         }
 
         $this->patch
             ->setConfig(Find::config($this->project))
+            ->setIdField($this->getCorrectIdField())
             ->setItems($items)
-            ->setProducts($products)
+            ->setShopwareProducts($products)
             ->options()
             ->categories()
             ->removePrices()

@@ -7,10 +7,12 @@ use Illuminate\Support\Collection;
 
 class ArticleProcessorPatch
 {
-    private Collection $data;
-    private Collection $products;
+    private Collection $databaseProducts;
+    private Collection $shopwareProducts;
     private Collection $items;
     private ?Config $config;
+    private string $id_field;
+
     private array $unsetters = [
         'children',
         'visibilities',
@@ -25,9 +27,14 @@ class ArticleProcessorPatch
     public function setItems(Collection $items) : self
     {
         $this->items = $items;
-        $this->data = collect($items->toShopArray());
+        $this->databaseProducts = collect($items->toShopArray());
 
         return $this;
+    }
+
+    public function setIdField(string $id_field) : self
+    {
+        $this->id_field = $id_field;
     }
 
     public function setConfig(Config $config) : self {
@@ -37,16 +44,16 @@ class ArticleProcessorPatch
         return $this;
     }
 
-    public function setProducts(Collection $products) : self
+    public function setShopwareProducts(Collection $shopwareProducts) : self
     {
-        $this->products = $products;
+        $this->shopwareProducts = $shopwareProducts;
 
         return $this;
     }
 
     public function unSet() : self
     {
-        $this->data = $this->data->map(
+        $this->databaseProducts = $this->databaseProducts->map(
             fn ($data) => collect($data)->filter(
                 fn ($item, $key) => !in_array($key, $this->unsetters)
             )
@@ -72,7 +79,7 @@ class ArticleProcessorPatch
     {
         if (! $this->config->find('articles.prices.delete') ?? true) return $this;
 
-        $prices = collect($this->products)
+        $prices = collect($this->shopwareProducts)
             ->flatMap(
                 fn($product) => collect($product->prices)
                     ->map(fn($item) => ["id" => $item->id])
@@ -117,7 +124,7 @@ class ArticleProcessorPatch
 
         $response = $delete->flatMap(
             function ($item) {
-                $product = $this->products->filter(fn ($product) => $product->id == $item['productId'])->first();
+                $product = $this->shopwareProducts->filter(fn ($product) => $product->id == $item['productId'])->first();
 
                 return collect($product->configuratorSettings)->filter(fn ($setting) => $setting->optionId == $item['optionId'])->map(
                     fn ($item) => ['id' => $item->id]
@@ -135,15 +142,15 @@ class ArticleProcessorPatch
         $deletes = collect();
         $children = collect();
 
-        foreach ($this->data as $data) {
-            $product = collect($this->getCorrectProduct($data['id']));
-            $subChildren = collect($data['children'] ?? []);
+        foreach ($this->databaseProducts as $databaseProduct) {
+            $product = collect($this->getCorrectProduct($databaseProduct['id']));
+            $subChildren = collect($databaseProduct['children'] ?? []);
 
             $children = $children->merge(
                 $subChildren->map(
-                    function ($child) use ($data, $product) {
+                    function ($child) use ($databaseProduct, $product) {
 
-                        $child['parentId'] = $data['id'];
+                        $child['parentId'] = $databaseProduct['id'];
 
                         if (!isset($child['id'])) {
                             $id = collect($product['children'])->filter(
@@ -174,7 +181,7 @@ class ArticleProcessorPatch
             $response = $this->apiCalls->bulkProducts($children->values()->toArray())?->body();
 
             if ($response) {
-                $parents = $this->items->mapWithKeys(fn ($item) => [$item->shop('id') => collect()]);
+                $parents = $this->items->mapWithKeys(fn ($item) => [$item->shop($this->id_field) => collect()]);
 
                 foreach ($response->data->product as $key => $product) {
 
@@ -183,9 +190,9 @@ class ArticleProcessorPatch
 
                 foreach ($this->items as $item) {
 
-                    if ($parents[$item->shop('id')]->count() > 0 ) {
+                    if ($parents[$item->shop($this->id_field)]->count() > 0 ) {
 
-                        $item->shop(['children' => $parents[$item->shop('id')]]);
+                        $item->shop(['children' => $parents[$item->shop($this->id_field)]]);
                         $item->updateOrCreate();
                     }
                 }
@@ -196,7 +203,7 @@ class ArticleProcessorPatch
     }
 
     public function articles() : self {
-        $response = $this->apiCalls->bulkProducts($this->data->toArray());
+        $response = $this->apiCalls->bulkProducts($this->databaseProducts->toArray());
 
         return $this;
     }
@@ -204,7 +211,7 @@ class ArticleProcessorPatch
     private function getConfigurationIds() : Collection
     {
         $response = collect();
-        foreach ($this->products as $product) {
+        foreach ($this->shopwareProducts as $product) {
             $response->push([
                 $product->id,
                 collect($this->getCorrectData($product->id)['configuratorSettings'] ?? [])->pluck('optionId'),
@@ -249,7 +256,7 @@ class ArticleProcessorPatch
 
     private function getRemovals(string $type): Collection
     {
-        return $this->products->map(
+        return $this->shopwareProducts->map(
             fn ($product) => [ 'productId' => $product->id,
                 'ids' => collect($product->$type)
                     ->pluck('id')
@@ -261,12 +268,12 @@ class ArticleProcessorPatch
 
     private function getCorrectData(string $id) {
 
-        return $this->data->filter(fn ($item) => $item['id'] == $id)->first();
+        return $this->databaseProducts->filter(fn ($item) => $item['id'] == $id)->first();
     }
 
     private function getCorrectProduct(string $id) {
 
-        return $this->products->filter(fn ($product) => $product->id == $id)->first();
+        return $this->shopwareProducts->filter(fn ($product) => $product->id == $id)->first();
     }
 
     private function findChildrenThatShouldBeDeleted(Collection $productChildren, Collection $children) : Collection
