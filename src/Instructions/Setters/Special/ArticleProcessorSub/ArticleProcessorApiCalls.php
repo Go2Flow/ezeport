@@ -57,7 +57,7 @@ class ArticleProcessorApiCalls {
         $this->api->productPrice()->bulkDelete($prices);
     }
 
-    public function getProducts($items, $field) : ?object {
+    public function getProducts(array $ids) : ?object {
         return collect($this->api->product()
             ->association(
                 ShopSix::association([
@@ -70,7 +70,7 @@ class ArticleProcessorApiCalls {
                 ])
             )->filter(
                 ShopSix::filter([
-                    'value' => $items->map->shopware($field)->toArray(),
+                    'value' => $ids,
                     'type' => 'equalsAny'
                 ])
             )->search()

@@ -391,7 +391,7 @@ class Generic
 
     private function forget($field, $input = null)
     {
-        return $this->contentData->$field->forget($input);
+        return $this->contentData->$field?->forget($input);
     }
 
     private function getSetUploadIfNoneSet() : void

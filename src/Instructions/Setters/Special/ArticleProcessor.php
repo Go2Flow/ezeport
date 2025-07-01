@@ -79,7 +79,9 @@ class ArticleProcessor extends UploadProcessor {
 
     private function patchArticles(Collection $items) : void {
 
-        $products = $this->apiCalls->getProducts($items, $this->getCorrectIdField());
+        $products = $this->apiCalls->getProducts(
+            $items->map(fn ($item) => $item->shop($this->getCorrectIdField()))->toArray()
+        );
 
         if ($products->count() !== $items->count()) {
 
