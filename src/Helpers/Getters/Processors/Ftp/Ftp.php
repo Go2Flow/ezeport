@@ -45,7 +45,10 @@ class Ftp extends BaseInstructions implements InstructionInterface
                                     $dom->saveXML()
                                 );
 
-                            $item->shopware(['ftp' => 'uploaded']);
+                            $item->shopware([
+                                'ftp' => 'uploaded',
+                                'ftp_filename' => $filename,
+                            ]);
                             $item->updateOrCreate();
                         }
                     }

@@ -80,8 +80,6 @@ class Articles extends BaseInstructions implements InstructionInterface {
                                 if ($translations) return $translations;
                             }
                         )
-
-
                 ]),
         ];
     }

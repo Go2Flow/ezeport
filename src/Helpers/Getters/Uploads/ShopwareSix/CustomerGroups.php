@@ -18,9 +18,10 @@ class CustomerGroups extends BaseInstructions implements InstructionInterface
             Set::upload('rules')
                 ->items(
                     fn () => Content::type('CustomerGroup', $this->project)
-                )->field(
+                )->fields([
                     ['name' => fn ($item) => 'Kundenpreisregel ' .  $item->properties('name') . ' | ' . $item->unique_id],
-                ),
+                    ['id' => fn ($item) => $item->shop('rule_id')]
+                ]),
 
             Set::upload('CustomerGroups')
                 ->items(
