@@ -54,7 +54,7 @@ class Categories extends BaseInstructions implements InstructionInterface
                                 if ($parent = $item->relations('category')) {
                                     return $parent->shopware('id');
                                 }
-                                return $this->project->cache('category');
+                                return $this->project->cache('category_ids')['parent'];
                             }
                         )
                 ]),
