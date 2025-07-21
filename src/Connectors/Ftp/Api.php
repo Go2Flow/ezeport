@@ -257,6 +257,13 @@ class Api implements ApiInterface
         );
     }
 
+    public function setPath($path) : self {
+
+        $this->directory = $path;
+
+        return $this;
+    }
+
     public function __call($method, $args)
     {
         if (method_exists($this, $method)) {

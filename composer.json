@@ -42,6 +42,8 @@
         "laravel/horizon": "^5.21",
         "laravel/prompts": "^0.3.0",
         "orchestra/parser": "^10.0",
-        "saloonphp/xml-wrangler" : "^1.3"
+        "saloonphp/xml-wrangler" : "^1.3",
+        "league/flysystem-ftp": "^3.0",
+        "league/flysystem-sftp-v3": "^3.15"
     }
 }
