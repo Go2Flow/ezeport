@@ -98,7 +98,10 @@ class ArticleProcessor extends UploadProcessor {
                 );
             }
 
-            $items = $existing->map(fn ($exist) => $items->filter(fn ($item) => $item->shopware($this->getCorrectIdField()) == $exist->id)->first());
+            $items = $existing->map(
+                fn ($exist) => $items->filter(
+                    fn ($item) => $item->shopware($this->getCorrectIdField()) == $exist->id)->first()
+            );
         }
 
         $this->patch

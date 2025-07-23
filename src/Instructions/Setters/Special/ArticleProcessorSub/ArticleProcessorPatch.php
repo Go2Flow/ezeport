@@ -26,8 +26,20 @@ class ArticleProcessorPatch
 
     public function setItems(Collection $items) : self
     {
-        $this->items = $items;
-        $this->databaseProducts = collect($items->toShopArray());
+        $this->items = collect();
+        $this->databaseProducts = collect();
+
+        $items->each(
+            function ($item) {
+
+                $array = $item->toShopArray();
+
+                if (count($array) == 0) return;
+
+                $this->items->push($item);
+                $this->databaseProducts->push($array);
+            }
+        );
 
         return $this;
     }
