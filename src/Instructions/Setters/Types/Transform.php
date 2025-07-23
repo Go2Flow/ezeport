@@ -19,6 +19,7 @@ class Transform extends Basic
     protected ?\closure $config = null;
     protected ?Collection $items;
     protected bool $shouldSave = true;
+    protected int $chunk = 50;
 
     public function __construct(string $key, array $config = [])
     {
@@ -96,13 +97,20 @@ class Transform extends Basic
         return $this;
     }
 
+    public function chunk(int $chunk) : self
+    {
+        $this->chunk = $chunk;
+
+        return $this;
+    }
+
     public function getJobs()
     {
         $config = $this->config ? ($this->config)() : collect();
 
         return !$this->items
             ? collect([new TransformJob($this->project->id, $this->key->toString(), null, $config) ])
-            : $this->items->chunk(50)
+            : $this->items->chunk($this->chunk)
                 ->map(
                     fn ($chunk) => new TransformJob(
                         $this->project->id,
