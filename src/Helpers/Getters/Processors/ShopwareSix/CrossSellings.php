@@ -33,7 +33,9 @@ class CrossSellings extends BaseInstructions implements InstructionInterface
                         $bulk = $api->productCrossSelling()
                             ->bulk($collection->toArray())
                             ->body()
-                            ->data;
+                            ?->data;
+
+                        if ($bulk) return;
 
                         $crossSellings = collect(
                             $api->productCrossSelling()
