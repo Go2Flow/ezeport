@@ -15,21 +15,24 @@ use Go2Flow\Ezport\Finders\Find;
 use Go2Flow\Ezport\Instructions\Setters\Interfaces\JobInterface;
 use Go2Flow\Ezport\Instructions\Setters\Set;
 use Go2Flow\Ezport\Process\Jobs\AssignClean;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 
 class ShopCleaner extends Basic implements JobInterface {
 
     protected ?string $type;
-    protected ?Closure $ids;
-    protected string $cacheId;
+    protected ?Closure $getIds;
+    protected Collection $database;
 
-    public function __construct(string $key, ?Closure $ids = null , private array $config = [])
+    protected Collection $items;
+
+    public function __construct(string $key, ?Closure $getIds = null , private array $config = [])
     {
         parent::__construct($key);
         $this->items = collect();
 
-        if ($ids) $this->ids = $ids;
+        if ($getIds) $this->getIds = $getIds;
 
         $this->type = $this->getCorrectType($config['type'] ?? $key);
 
@@ -37,8 +40,6 @@ class ShopCleaner extends Basic implements JobInterface {
 
         $this->job = Set::Job()
             ->class(AssignClean::class);
-
-        $this->cacheId = Str::uuid();
     }
 
         public function type(string $type) : self
@@ -48,9 +49,9 @@ class ShopCleaner extends Basic implements JobInterface {
         return $this;
     }
 
-    public function items(Closure $ids) : self
+    public function items(Closure $getIds) : self
     {
-        $this->ids = $ids;
+        $this->getIds = $getIds;
 
         return $this;
     }
@@ -79,9 +80,7 @@ class ShopCleaner extends Basic implements JobInterface {
 
     public function prepareItems() : self
     {
-        $items = ($this->ids)();
-
-        Cache::put($this->cacheId, $items, 7200);
+        $this->database = ($this->getIds)();
 
         return $this;
     }
@@ -93,7 +92,7 @@ class ShopCleaner extends Basic implements JobInterface {
                 $this->project->connectorType('shopSix')->getValues(),
                 Find::instruction($this->project, 'Api')->find('shopSix')?->getConfig() ?? collect([])
             ),
-            $this->cacheId,
+            $this->database,
             $this->config
         );
     }

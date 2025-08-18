@@ -19,16 +19,14 @@ abstract class BaseCleaner
 
     protected Collection $difference;
     protected string $type;
-    protected Collection $database;
 
     private ?ActivityLog $log = null;
 
     public function __construct(
         protected Api $api,
-        string $cacheId,
+        protected collection $database,
         protected array $config
     ){
-        $this->database = collect(Cache::get($cacheId));
         $this->typeSpecificActions();
     }
 
