@@ -40,11 +40,13 @@ class Categories extends BaseInstructions implements InstructionInterface {
                                     'properties' => [
                                         'longDescription' => $category->cmsText ?? null,
                                         'category_id' => $category->parentId,
-                                        'metaDescription' => $category->metaDescription,
                                         'dreiscSeoUrl' => $category->attribute->dreiscSeoUrl ?? null,
                                         'dreiscSeoTitle' => $category->attribute->dreiscSeoTitle ?? null,
                                         'subheadlineTeaser' => $category->attribute->subheadlineTeaser ?? null,
-                                        'test' => 'test'
+                                        'metaTitle' => $category->metaTitle ?? null,
+                                        'metaKeywords' => $category->metaKeywords ?? null,
+                                        'metaDescription' => $category->metaDescription ?? null,
+                                        'media_id' => $category->mediaId,
                                     ]
                                 ]);
                         }

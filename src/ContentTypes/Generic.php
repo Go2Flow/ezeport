@@ -128,11 +128,9 @@ class Generic
 
                     if (($attach = $new->diff($current))->count() > 0) {
 
-
                         foreach (GenericModel::whereIn('id', $attach)->with('children')->get() as $child) {
                             $this->contentData->assertNoCircularRelation($child);
                         }
-
 
                         $this->contentData->children()->attach(
                             $attach,

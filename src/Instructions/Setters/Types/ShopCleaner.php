@@ -4,21 +4,25 @@ namespace Go2Flow\Ezport\Instructions\Setters\Types;
 
 use Closure;
 use Go2Flow\Ezport\Cleaners\ShopwareSix\BaseCleaner;
+use Go2Flow\Ezport\Cleaners\ShopwareSix\CrossSellingCleaner;
+use Go2Flow\Ezport\Cleaners\ShopwareSix\ManufacturerCleaner;
+use Go2Flow\Ezport\Cleaners\ShopwareSix\MediaCleaner;
+use Go2Flow\Ezport\Cleaners\ShopwareSix\ProductCleaner;
+use Go2Flow\Ezport\Cleaners\ShopwareSix\ProductMediaCleaner;
+use Go2Flow\Ezport\Cleaners\ShopwareSix\PropertyOptionCleaner;
 use Go2Flow\Ezport\Connectors\ShopwareSix\Api;
 use Go2Flow\Ezport\Finders\Find;
 use Go2Flow\Ezport\Instructions\Setters\Interfaces\JobInterface;
 use Go2Flow\Ezport\Instructions\Setters\Set;
 use Go2Flow\Ezport\Process\Jobs\AssignClean;
-use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 
 class ShopCleaner extends Basic implements JobInterface {
 
-    const PATH = 'Go2Flow\Ezport\Cleaners\ShopwareSix\\';
-
     protected ?string $type;
     protected ?Closure $ids;
-    protected Collection $items;
+    protected string $cacheId;
 
     public function __construct(string $key, ?Closure $ids = null , private array $config = [])
     {
@@ -33,9 +37,11 @@ class ShopCleaner extends Basic implements JobInterface {
 
         $this->job = Set::Job()
             ->class(AssignClean::class);
+
+        $this->cacheId = Str::uuid();
     }
 
-    public function type(string $type) : self
+        public function type(string $type) : self
     {
         $this->type = $this->getCorrectType($type);
 
@@ -73,7 +79,9 @@ class ShopCleaner extends Basic implements JobInterface {
 
     public function prepareItems() : self
     {
-        $this->items = ($this->ids)();
+        $items = ($this->ids)();
+
+        Cache::put($this->cacheId, $items, 7200);
 
         return $this;
     }
@@ -85,7 +93,7 @@ class ShopCleaner extends Basic implements JobInterface {
                 $this->project->connectorType('shopSix')->getValues(),
                 Find::instruction($this->project, 'Api')->find('shopSix')?->getConfig() ?? collect([])
             ),
-            $this->items,
+            $this->cacheId,
             $this->config
         );
     }
@@ -94,16 +102,17 @@ class ShopCleaner extends Basic implements JobInterface {
 
         if (! $type) return null;
 
-        if ($type == 'Media' ) return self::PATH . 'MediaCleaner';
-        if ($type == 'ProductMedia' ) return self::PATH . 'ProductMediaCleaner';
+        if ($type == 'Media' ) return MediaCleaner::class;
+        if ($type == 'ProductMedia' ) return ProductMediaCleaner::class;
 
         return match (Str::of($type)->singular()->ucFirst()->toString()) {
-            'Product' => self::PATH . 'ProductCleaner',
-            'Media' => self::PATH . 'MediaCleaner',
-            'ProductMedia' => self::PATH . 'ProductMediaCleaner',
-            'Manufacturer' => self::PATH . 'ManufacturerCleaner',
-            'CrossSelling' => self::PATH . 'CrossSellingCleaner',
-            default => self::PATH . 'PropertyOptionCleaner',
+
+            'Product' => ProductCleaner::class,
+            'Media' => MediaCleaner::class,
+            'ProductMedia' => ProductMediaCleaner::class,
+            'Manufacturer' => ManufacturerCleaner::class,
+            'CrossSelling' => CrossSellingCleaner::class,
+            default => PropertyOptionCleaner::class,
         };
     }
 }

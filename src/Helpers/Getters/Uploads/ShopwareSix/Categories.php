@@ -46,6 +46,10 @@ class Categories extends BaseInstructions implements InstructionInterface
                     ['productAssignmentType' => 'product'],
                     ['displayNestedProducts' => true],
                     ['name' => fn ($item) => $item->name ],
+                    ['metaDescription' => fn ($item) => $item->properties('metaDescription') ?? null],
+                    ['metaTitle' => fn ($item) => $item->properties('metaTitle') ?? null],
+                    ['metaKeywords' => fn ($item) => $item->properties('metaKeywords') ?? null],
+                    ['mediaId' => fn ($item) => $item->relations('images')?->first()->shop('id') ?? null],
                     $this->setCategoryCmsPageIdField(),
                     $this->setShopwareIdField(),
                     Set::uploadField('parentId')

@@ -9,6 +9,7 @@ use Go2Flow\Ezport\ContentTypes\ActivityLog;
 use Go2Flow\Ezport\Models\Project;
 use Go2Flow\Ezport\Process\Jobs\CleanShop;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Cache;
 
 abstract class BaseCleaner
 {
@@ -24,10 +25,10 @@ abstract class BaseCleaner
 
     public function __construct(
         protected Api $api,
-        Collection|array $database,
+        string $cacheId,
         protected array $config
     ){
-        $this->database = collect($database);
+        $this->database = collect(Cache::get($cacheId));
         $this->typeSpecificActions();
     }
 

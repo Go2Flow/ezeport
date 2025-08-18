@@ -31,12 +31,14 @@ class Images extends BaseInstructions implements InstructionInterface {
 
                         foreach ($chunk as $page) {
 
-                            $items = collect($api
-                                ->media()
-                                ->limit($this->count)
-                                ->start($page * $this->count)
-                                ->get()
-                                ->body()->data)->pluck('id');
+                            $items = collect(
+                                $api
+                                    ->media()
+                                    ->limit($this->count)
+                                    ->start($page * $this->count)
+                                    ->get()
+                                    ->body()->data
+                            )->pluck('id');
 
                             $items->each(
                                 function ($id) use ($api) {
