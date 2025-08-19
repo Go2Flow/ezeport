@@ -62,6 +62,10 @@ class JobBatcher
     {
         return $this->getBatch('shopClean', $type);
     }
+    public function getClean(string $type): Collection
+    {
+        return $this->getBatch('clean', $type);
+    }
 
     public function getTransform(string $type): Collection
     {
@@ -86,6 +90,10 @@ class JobBatcher
     public function runShopClean(string $type): Batch
     {
         return $this->runBatch('shopClean', $type);
+    }
+    public function runClean(string $type): Batch
+    {
+        return $this->runBatch('clean', $type);
     }
 
     public function runTransform(string $type): Batch
@@ -117,6 +125,7 @@ class JobBatcher
                 'import' => $this->prepare->prepareImport($jobs, $type),
                 'shopClean' => $this->prepare->prepareClean($jobs, $type),
                 'ftpClean' => $this->prepare->prepareClean($jobs, $type),
+                'clean' => $this->prepare->prepareClean($jobs, $type),
                 'transform' => $this->prepare->prepareTransform($jobs, $type),
                 default => throw new EzportProcessException('No prepare method found for ' . $method),
             };

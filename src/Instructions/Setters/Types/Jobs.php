@@ -32,6 +32,10 @@ class Jobs extends Base{
         return $this->setKey('ftpClean');
     }
 
+    public function clean() : self {
+        return $this->setKey('clean');
+    }
+
     public function import() : self {
 
         return $this->setKey('import');
