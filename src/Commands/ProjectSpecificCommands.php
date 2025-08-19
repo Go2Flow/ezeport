@@ -155,7 +155,8 @@ class ProjectSpecificCommands
                 label: 'What would you like to clean?',
                 options: [
                     'runFtpClean' => 'ftp',
-                    'runShopClean' => 'shop'
+                    'runShopClean' => 'shop',
+                    'runClean' => 'standard'
                 ]
             );
 
