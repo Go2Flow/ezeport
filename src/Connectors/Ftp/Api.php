@@ -98,7 +98,7 @@ class Api implements ApiInterface
     {
         if (!$this->connection->directoryExists($destination)) $this->connection->makeDirectory($destination);
 
-        $this->connection->move(
+        return $this->connection->move(
             $file,
             $destination . '/' . ($newName ?? Str::afterLast($file, '/'))
         );

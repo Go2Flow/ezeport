@@ -12,6 +12,7 @@ use Go2Flow\Ezport\Process\Jobs\AssignClean;
 use Go2Flow\Ezport\Process\Jobs\CleanWithInstruction;
 use Illuminate\Support\Collection;
 use \Go2Flow\Ezport\Models\Project;
+use Go2Flow\Ezport\Finders\Api as ApiFinder;
 
 class Clean extends Basic implements JobInterface
 {
@@ -24,7 +25,7 @@ class Clean extends Basic implements JobInterface
     protected array $components = [];
     protected int $chunk = 25;
     protected ?closure $process;
-    protected ?GetProxy $api = null;
+    protected GetProxy|ApiFinder|null $api = null;
     protected bool $showNull = false;
     protected string $type;
 
@@ -49,7 +50,7 @@ class Clean extends Basic implements JobInterface
         return $this;
     }
 
-    public function api(GetProxy|Api|string $api) : self {
+    public function api(GetProxy|Api|ApiFinder|string $api) : self {
 
         $this->api = (is_string($api))
             ? Get::api($api)
@@ -101,13 +102,13 @@ class Clean extends Basic implements JobInterface
     public function prepareJobs(Project $project) : Collection
     {
         return $this->items->chunk($this->chunk)
-        ->map(
-            fn ($chunk) => new CleanWithInstruction(
-                $project->id,
-                $this->key->toString(),
-                $chunk,
-            )
-        );
+            ->map(
+                fn ($chunk) => new CleanWithInstruction(
+                    $project->id,
+                    $this->key->toString(),
+                    $chunk,
+                )
+            );
     }
 
     public function processBatch(Collection $chunk) : void {
