@@ -101,6 +101,11 @@ class Schedule extends Base
         return $this->set('event', 'ftpClean');
     }
 
+  public function clean(): self
+    {
+        return $this->set('event', 'clean');
+    }
+
     /**
      * set the job type to 'full' This will run the job type 'full' in the project's job instructions.
      * you will still need to set the event (import, upload, shopClean, ftpClean)
