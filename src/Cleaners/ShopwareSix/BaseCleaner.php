@@ -19,15 +19,18 @@ abstract class BaseCleaner
 
     protected Collection $difference;
     protected string $type;
+    protected Collection $database;
 
     private ?ActivityLog $log = null;
 
     public function __construct(
         protected Api $api,
-        protected collection $database,
+        array|collection $database,
         protected array $config
     ){
         $this->typeSpecificActions();
+
+        $this->database = collect($database);
     }
 
     public function prepareJobs(Project $project, string $type) : Collection

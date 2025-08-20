@@ -23,8 +23,6 @@ class ShopCleaner extends Basic implements JobInterface {
 
     protected ?string $type;
     protected ?Closure $getIds;
-    protected Collection $database;
-
     protected Collection $items;
 
     public function __construct(string $key, ?Closure $getIds = null , private array $config = [])
@@ -80,7 +78,7 @@ class ShopCleaner extends Basic implements JobInterface {
 
     public function prepareItems() : self
     {
-        $this->database = ($this->getIds)();
+        $this->items = ($this->getIds)();
 
         return $this;
     }
@@ -92,7 +90,7 @@ class ShopCleaner extends Basic implements JobInterface {
                 $this->project->connectorType('shopSix')->getValues(),
                 Find::instruction($this->project, 'Api')->find('shopSix')?->getConfig() ?? collect([])
             ),
-            $this->database,
+            $this->items,
             $this->config
         );
     }
