@@ -19,7 +19,7 @@ class Config extends Base implements ArrayAccess {
         $identifier = $project->identifier;
         $fullPath = $this->filePath($identifier, 'config.php');
 
-        Log::debug('EZPORT cfg load', [
+        Log::info('EZPORT cfg load', [
             'project_id' => $id,
             'identifier_hex' => bin2hex($identifier), // catches hidden chars
             'full_path' => $fullPath,
@@ -33,7 +33,7 @@ class Config extends Base implements ArrayAccess {
         $loaded = file_exists($fullPath) ? include $fullPath : [];
         $this->config = is_array($loaded) ? $loaded : [];
 
-        Log::debug('EZPORT cfg keys', [
+        Log::info('EZPORT cfg keys', [
             'keys' => array_keys($this->config),
             'count' => count($this->config),
         ]);
