@@ -5,6 +5,7 @@ namespace Go2Flow\Ezport\Finders;
 use Go2Flow\Ezport\Models\Project;
 use ArrayAccess;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 class Config extends Base implements ArrayAccess {
@@ -12,11 +13,30 @@ class Config extends Base implements ArrayAccess {
     public mixed $config;
     public ?Collection $path = null;
 
-    protected function getObject(Project $project, ?string $path = null ) : self
+    protected function getObject(Project $project, ?string $path = null): self
     {
-        $this->config = file_exists($this->filePath($project->identifier, 'config.php'))
-            ? include($this->filePath($project->identifier, 'config.php'))
-            : [];
+        $id = $project->id;
+        $identifier = $project->identifier;
+        $fullPath = $this->filePath($identifier, 'config.php');
+
+        Log::debug('EZPORT cfg load', [
+            'project_id' => $id,
+            'identifier_hex' => bin2hex($identifier), // catches hidden chars
+            'full_path' => $fullPath,
+            'exists' => file_exists($fullPath),
+            'cwd' => getcwd(),
+            'app_path' => base_path(),
+            'mtime' => @filemtime($fullPath) ?: null,
+            'sha1' => @sha1_file($fullPath) ?: null,
+        ]);
+
+        $loaded = file_exists($fullPath) ? include $fullPath : [];
+        $this->config = is_array($loaded) ? $loaded : [];
+
+        Log::debug('EZPORT cfg keys', [
+            'keys' => array_keys($this->config),
+            'count' => count($this->config),
+        ]);
 
         return $this;
     }

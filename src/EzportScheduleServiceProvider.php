@@ -39,8 +39,6 @@ class EzportScheduleServiceProvider extends ServiceProvider
 
                                         if (!$instruction->isTime()) return;
 
-                                        // if ($instruction->getEnvironment() !== config('app.env')) return;
-
                                         if ($instruction->get('unique')) {
                                             $lock = Cache::lock(
                                                 $instruction->setKey($loop)->get('key'),
