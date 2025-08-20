@@ -19,24 +19,8 @@ class Config extends Base implements ArrayAccess {
         $identifier = $project->identifier;
         $fullPath = $this->filePath($identifier, 'config.php');
 
-        Log::info('EZPORT cfg load', [
-            'project_id' => $id,
-            'identifier_hex' => bin2hex($identifier), // catches hidden chars
-            'full_path' => $fullPath,
-            'exists' => file_exists($fullPath),
-            'cwd' => getcwd(),
-            'app_path' => base_path(),
-            'mtime' => @filemtime($fullPath) ?: null,
-            'sha1' => @sha1_file($fullPath) ?: null,
-        ]);
-
         $loaded = file_exists($fullPath) ? include $fullPath : [];
         $this->config = is_array($loaded) ? $loaded : [];
-
-        Log::info('EZPORT cfg keys', [
-            'keys' => array_keys($this->config),
-            'count' => count($this->config),
-        ]);
 
         return $this;
     }
