@@ -14,6 +14,7 @@ class CustomerFilesCreator
 
     public function __construct(private readonly Project $project)
     {
+
         $this->disk = new File();
     }
 
@@ -41,9 +42,8 @@ class CustomerFilesCreator
     {
         foreach ($this->instructions() as $instruction => $value) {
 
-            $file = $this->basicPrepend($this->getStub('Instruction'), 'Instructions')
+            $file = $this->basicPrepend($this->getStub('Instruction'), 'Instructions\\')
                 ->replace('$CLASSNAME$', $instruction)
-//                ->replace('$EXTENDNAME$', "Base{$instruction}Instructions" )
                 ->append($this->instructionsAdd($value))
                 ->replace('$NAME$', $this->project->name)->replace('$IDENTIFIER$', $this->project->identifier);
 
@@ -66,7 +66,7 @@ class CustomerFilesCreator
         }
 
         return $string->prepend(
-            "namespace " . Str::of(Paths::appCustomers())->replace('/', '\\', )->ucfirst() . $this->project->identifier . "\\" . $folder .  ";\n\n"
+            "namespace " . Paths::className((string) $this->project->identifier, (string) $folder) . "; \n\n"
         )->prepend("<?php \n\n");
     }
 
@@ -81,7 +81,7 @@ class CustomerFilesCreator
 
     private function getStub(?string $stub) : Stringable
     {
-        return Str::of(File::get('vendor/go2flow/ezport/stubs/' . $stub . '.stub'));
+        return Str::of($this->disk::get('vendor/go2flow/ezport/stubs/' . $stub . '.stub'));
     }
 
     private function makeDirectory(string $path) : void
@@ -101,7 +101,7 @@ class CustomerFilesCreator
 
     private function setPath(string $path) : string
     {
-        return Paths::appCustomers() . $path;
+        return Paths::filePath() .  '/' .$path;
     }
 
     private function instructions() : array
@@ -111,7 +111,7 @@ class CustomerFilesCreator
             'Clean' => null,
             'Import' => null,
             'Jobs' => null,
-            'Processors' => null,
+            'Processor' => null,
             'Project' => 'Project',
             'Schedule' => null,
             'Transform' => null,
@@ -121,11 +121,11 @@ class CustomerFilesCreator
 
     private function classes() : array
     {
-        $path = Str::replace('/', '\\', Paths::projectInstructions());
+        $path = Paths::projectName('Instructions');
 
         return [
-            'use '. $path . 'Setters\Set;',
-            'use '. $path . 'Getters\Get;',
+            'use ' . $path . '\Setters\Set;',
+            'use '. $path . '\Getters\Get;',
         ];
     }
 }

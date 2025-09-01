@@ -32,7 +32,7 @@ class PublishHelpers extends Command
 
         File::copyDirectory(
             Str::of(File::dirname(__FILE__))->before('Commands') . 'Helpers',
-            base_path(Paths::appHelpers())
+            Paths::appHelpers()
         );
 
         $this->replaceRecursively(File::Directories(Paths::appHelpers()));
