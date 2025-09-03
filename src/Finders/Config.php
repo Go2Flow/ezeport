@@ -17,7 +17,7 @@ class Config extends Base implements ArrayAccess {
     {
         $id = $project->id;
         $identifier = $project->identifier;
-        $fullPath = $this->filePath($identifier, 'config.php');
+        $fullPath = $this->filePath($identifier, 'config', false);
 
         $loaded = file_exists($fullPath) ? include $fullPath : [];
         $this->config = is_array($loaded) ? $loaded : [];

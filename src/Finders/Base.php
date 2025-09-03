@@ -20,9 +20,13 @@ abstract class Base {
         return $this->object->$method(...$args);
     }
 
-    protected function filePath(string $identifier, ?string $string) : string
+    protected function instructionFilePath(string $identifier, ?string $string) : string
     {
         return Paths::filePath(ucfirst($identifier), 'Instructions', $string .'.php');
+    }
+    protected function filePath(string $identifier, ?string $string) : string
+    {
+        return Paths::filePath(ucfirst($identifier), $string .'.php');
     }
 
     protected function instructionPath(string $identifier, ?string $string) : string
