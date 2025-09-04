@@ -142,7 +142,7 @@ class JobBatcher
 
     private function getJobInstructions(string $method, string $type) : Jobs
     {
-        $instruction = Find::Instruction($this->project, 'jobs')
+        $instruction = Find::Instruction($this->project, 'Jobs')
             ->findAll($method)
             ->filter(fn ($instruction) => $instruction->getType() == $type && $instruction->correctEnv())
             ->first();
