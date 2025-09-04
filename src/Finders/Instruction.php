@@ -21,7 +21,7 @@ class Instruction extends Base {
     private function getCorrectOrEmptyInstructionObject(Project $project, string $folder) : object
     {
 
-        return (file_exists($this->instructionFilePath($project->identifier, $folder, true)))
+        return (file_exists($this->instructionFilePath($project->identifier, $folder)))
             ? new ($this->instructionPath($project->identifier, $folder))($project)
             : new EmptyInstruction($project);
     }

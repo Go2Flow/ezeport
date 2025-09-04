@@ -22,7 +22,7 @@ abstract class Base {
 
     protected function instructionFilePath(string $identifier, ?string $string) : string
     {
-        return Paths::filePath(ucfirst($identifier), 'Instructions', $string .'.php');
+        return Paths::filePath(ucfirst($identifier), 'Instructions', ucfirst($string) .'.php');
     }
     protected function filePath(string $identifier, ?string $string) : string
     {
