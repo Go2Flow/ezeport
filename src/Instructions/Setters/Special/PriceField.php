@@ -35,7 +35,7 @@ class PriceField extends UploadField implements UploadFieldInterface {
     }
 
 
-    public function discount (Closure $discount) : self
+    public function discount (?Closure $discount) : self
     {
         $this->discount = $discount;
 
