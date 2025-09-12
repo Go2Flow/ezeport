@@ -2,6 +2,8 @@
 
 namespace Go2Flow\Ezport\Connectors\ShopwareSix;
 
+use Illuminate\Support\Str;
+
 class StoreLocatorApi extends Api {
 
     public function warehouse()
@@ -32,6 +34,31 @@ class StoreLocatorApi extends Api {
     public function bulkStockPost(array $payload)
     {
         return $this->bulkStockPostRequest($payload);
+    }
+
+    public function deletes(array $ids) :self
+    {
+        $this->response = $this->client
+            ->setAlternativeHeader([
+                'headers' => [
+                    'Content-Type' => 'application/json' ,
+                    'Accept' => 'application/json',
+                ]
+            ])
+            ->addToPayload(
+                [
+                    'delete-' . Str::kebab($this->path) => [
+                        "entity" => Str::of($this->path)->replace('-', '_')->toString(),
+                        "action" => "delete",
+                        'payload' => collect($ids)->map(fn ($item) => ['id' => $item])->toArray()
+                    ]
+                ]
+            )->sendRequest(
+                '_action/sync',
+                'POST'
+            );
+
+        return $this;
     }
 
     /** Requests */
