@@ -23,14 +23,26 @@ class PropertyGroups extends BaseInstructions implements InstructionInterface
 
                         if ($items->isEmpty()) return;
 
-                        if (!isset($config['shopware'])) {
+                        $data = $items->toShopArray();
+
+                        $groupId = null;
+                        foreach ($data as $item) {
+
+                            if (isset($item['groupId'])) {
+                                $groupId = $item['groupId'];
+                                break;
+                            }
+                        }
+
+
+                        if ($groupId && !isset($config['shopware'])) {
 
                             $config['shopware'] = $this->getOrCreatePropertyGroup($config['group'], $api);
                         }
 
                         $response = $this->createOrUpdatePropertyGroupOptions(
                             $config['shopware'],
-                            $items->toShopArray(),
+                            $data,
                             $api
                         );
 

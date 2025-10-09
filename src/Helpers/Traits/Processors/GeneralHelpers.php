@@ -63,7 +63,9 @@ trait GeneralHelpers
     protected function createOrUpdatePropertyGroupOptions($data, array $options, Api $api) : ApiInterface
     {
         for ($i = 0; $i < count($options); $i++) {
-            $options[$i]['groupId'] = $data['id'];
+            if (!isset($options[$i]['groupId'])) {
+                $options[$i]['groupId'] = $data['id'];
+            }
         }
 
         return $api->propertyOption()->bulk(
