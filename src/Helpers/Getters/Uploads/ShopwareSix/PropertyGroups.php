@@ -24,7 +24,8 @@ class PropertyGroups extends BaseInstructions implements InstructionInterface
             Set::Upload('PropertyGroups')
                 ->fields([
                     ['name' => fn ($item, $config) => $item->properties($config['name']?? 'name') ?? $item->name],
-                    $this->setShopwareIdField()
+                    $this->setShopwareIdField(),
+                    ['groupId' => fn ($item) => $item->shop('group_id')]
                 ])->processor(
                     Get::Processor('PropertyGroup')
                         ->config(['group' => 'Group'])
