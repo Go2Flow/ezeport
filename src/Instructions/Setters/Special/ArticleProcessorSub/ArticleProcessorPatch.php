@@ -13,7 +13,7 @@ class ArticleProcessorPatch
     private ?Config $config;
     private string $id_field;
 
-    private array $unsetters = [
+    private array $unSetters = [
         'children',
         'visibilities',
         'configuratorSettings',
@@ -67,9 +67,15 @@ class ArticleProcessorPatch
 
     public function unSet() : self
     {
+        $unSetters = $this->unSetters;
+
+        if (! $this->config->find('articles.categories.replace') === false) {
+            $unSetters[] = 'categories';
+        }
+
         $this->databaseProducts = $this->databaseProducts->map(
             fn ($data) => collect($data)->filter(
-                fn ($item, $key) => !in_array($key, $this->unsetters)
+                fn ($item, $key) => !in_array($key, $unSetters)
             )
         );
 
@@ -106,6 +112,8 @@ class ArticleProcessorPatch
     }
 
     public function categories() : self {
+
+        if ($this->config->find('articles.categories.replace') === false) return $this;
 
         if (($leftovers = $this->prepareLeftovers('categories', 'categoryId'))->count() > 0) {
             $this->apiCalls->deleteCategory(
