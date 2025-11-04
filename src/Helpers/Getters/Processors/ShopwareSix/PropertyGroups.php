@@ -34,8 +34,7 @@ class PropertyGroups extends BaseInstructions implements InstructionInterface
                             }
                         }
 
-
-                        if ($groupId && !isset($config['shopware'])) {
+                        if (!$groupId && !isset($config['shopware'])) {
 
                             $config['shopware'] = $this->getOrCreatePropertyGroup($config['group'], $api);
                         }
