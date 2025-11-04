@@ -29,14 +29,17 @@ class PropertyGroups extends BaseInstructions implements InstructionInterface
                         foreach ($data as $item) {
 
                             if (isset($item['groupId'])) {
-                                $groupId = $item['groupId'];
+                                $config['shopware']['id'] = $item['groupId'];
                                 break;
                             }
                         }
 
-                        if (!$groupId && !isset($config['shopware'])) {
+                        if (!isset($config['shopware'])) {
 
-                            $config['shopware'] = $this->getOrCreatePropertyGroup($config['group'], $api);
+                            $config['shopware'] = $this->getOrCreatePropertyGroup(
+                                $config['group'],
+                                $api
+                            );
                         }
 
                         $response = $this->createOrUpdatePropertyGroupOptions(
