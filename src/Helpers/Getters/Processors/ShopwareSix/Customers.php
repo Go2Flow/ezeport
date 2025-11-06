@@ -34,10 +34,15 @@ class Customers extends BaseInstructions implements InstructionInterface
                             if (! $response) continue;
 
                             $customers = collect($response->customer);
+                            $addresses = collect($response->customer_address);
 
                             while($chunk->count() > 0) {
                                 $item = $chunk->shift();
-                                $item->shopware(['id' => $customers->shift()]);
+                                $item->shopware([
+                                    'id' => $customers->shift(),
+                                    'shippingId' => $addresses->shift(),
+                                    'billingId' => $addresses->shift(),
+                                ]);
                                 $item->updateOrCreate();
                             }
                         }
