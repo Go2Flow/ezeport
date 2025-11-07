@@ -148,7 +148,6 @@ class ProjectSpecificCommands
                 ? Str::lower($type)
                 : null;
 
-
         if ($method == 'runClean') {
 
             $method = $type ?? select(

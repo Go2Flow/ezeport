@@ -120,13 +120,24 @@ class Generic
                         ->wherePivot('group_type', $key)
                         ->pluck('child_id');
 
-                    $new = $group->map(fn ($item) => $item->getModel()->id);
+                    $new = $group->map(fn ($item) => $item->getModel()->id)->unique();
 
-                    if (($detach = $current->diff($new))->count() > 0) {
-                        $this->contentData->children()->detach($detach);
+                    $reAttach = collect();
+
+                    $duplicates = $current->duplicates();
+                    $detach = $current->diff($new);
+
+                    if ($duplicates->count() > 0 || $detach->count() > 0) {
+
+                        $reAttach = $duplicates->unique();
+
+                        $this->contentData
+                            ->children()
+                            ->wherePivot('group_type', $key)
+                            ->detach($detach->merge($duplicates)->all());
                     }
 
-                    if (($attach = $new->diff($current))->count() > 0) {
+                    if (($attach = $new->diff($current)->merge($reAttach)->unique())->count() > 0) {
 
                         foreach (GenericModel::whereIn('id', $attach)->with('children')->get() as $child) {
                             $this->contentData->assertNoCircularRelation($child);
@@ -162,10 +173,8 @@ class Generic
 
     public function process(string|UploadProcessor|null $processor = null, array $array = []) : self {
 
-        if (count($array) == null) $array = $this->toShopArray();
-
         $this->getProcessor($processor)
-            ->run(collect([$array]));
+            ->run(collect([$this]));
 
         return $this;
     }
