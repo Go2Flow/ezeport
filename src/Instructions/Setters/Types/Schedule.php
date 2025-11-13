@@ -47,8 +47,9 @@ class Schedule extends Base
         'fifteen' => 15,
         'twenty' => 20,
         'thirty' => 30,
-        'fortyFive' => 45,
+        'fortyfive' => 45,
         'sixty' => 60,
+        'ninty' => 90,
     ];
 
     /**
