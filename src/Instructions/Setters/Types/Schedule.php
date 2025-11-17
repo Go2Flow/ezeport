@@ -298,7 +298,7 @@ class Schedule extends Base
         ];
     }
 
-    private function prepareTimeString($name, $type) : string
+    private function prepareTimeString(string $name, string $type) : string
     {
         return Str::of($name)
             ->lower()
