@@ -44,6 +44,7 @@ class Schedule extends Base
         'eight' => 8,
         'nine' => 9,
         'ten' => 10,
+        'twelve' => 12,
         'fifteen' => 15,
         'twenty' => 20,
         'thirty' => 30,
