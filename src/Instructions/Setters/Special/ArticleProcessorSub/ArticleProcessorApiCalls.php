@@ -59,16 +59,18 @@ class ArticleProcessorApiCalls {
 
     public function getProducts(array $ids) : ?object {
         return collect($this->api->product()
-            ->association(
-                ShopSix::association([
-                    'children',
-                    'categories',
-                    'properties',
-                    'options',
-                    'configuratorSettings',
-                    'prices'
-                ])
-            )->filter(
+            ->association([
+                "children" => [
+                    "associations" => [
+                        "prices" => []
+                    ]
+                ],
+                "categories" => [],
+                "properties" => [],
+                "options" => [],
+                "configuratorSettings" => [],
+                "prices" => []
+            ])->filter(
                 ShopSix::filter([
                     'value' => $ids,
                     'type' => 'equalsAny'

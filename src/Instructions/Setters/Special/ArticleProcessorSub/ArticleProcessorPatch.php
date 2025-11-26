@@ -109,18 +109,40 @@ class ArticleProcessorPatch
 
     public function removePrices() : self
     {
-        if (! $this->config->find('articles.prices.delete') ?? true) return $this;
+        if (! $this->config->find('articles.prices.delete')) return $this;
 
-        $prices = collect($this->shopwareProducts)
-            ->flatMap(
-                fn($product) => collect($product->prices)
-                    ->map(fn($item) => ["id" => $item->id])
+        $prices = collect();
 
+        foreach ($this->shopwareProducts as $shopwareProduct) {
+
+            $prices = $prices->merge(
+                $this->collectPrices(
+                    $shopwareProduct,
+                    $this->getCorrectData($shopwareProduct->id)
+                )
             );
+        }
 
-        if ($prices->count() > 0) $this->apiCalls->deletePrices($prices->toArray());
+        $priceIds = $prices->map(fn($item) => ["id" => $item->id])->values();
+
+        if ($priceIds->count() > 0) $this->apiCalls->deletePrices($priceIds->toArray());
 
         return $this;
+    }
+
+    private function collectPrices($shopProduct, $databaseProduct) {
+
+        $prices = collect($shopProduct->prices);
+
+        if (! empty($databaseProduct['children'])) {
+
+            foreach ($shopProduct->children as $child) {
+
+                $prices = $prices->merge(collect($child->prices));
+            }
+        }
+
+        return $prices;
     }
 
     public function categories() : self {
