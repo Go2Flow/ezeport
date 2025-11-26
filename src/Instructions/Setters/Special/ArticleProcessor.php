@@ -110,6 +110,7 @@ class ArticleProcessor extends UploadProcessor {
             ->setItems($items)
             ->setShopwareProducts($products)
             ->options()
+            ->properties()
             ->categories()
             ->removePrices()
             ->configurationSettings()

@@ -9,6 +9,7 @@ use Go2Flow\Ezport\Process\Errors\EzportSetterException;
 use Go2Flow\Ezport\Process\Jobs\AssignBatch;
 use Illuminate\Bus\Batch;
 use Illuminate\Cache\Lock;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use Illuminate\Support\Stringable;
 
@@ -17,7 +18,7 @@ class Schedule extends Base
 
     protected ?string $event;
     protected ?string $type;
-    protected array $times = [];
+    protected Collection $times;
     protected ?array $days = null;
     protected bool $unique = false;
     protected ?Schedule $after = null;
@@ -50,7 +51,7 @@ class Schedule extends Base
         'thirty' => 30,
         'fortyfive' => 45,
         'sixty' => 60,
-        'ninty' => 90,
+        'ninety' => 90,
     ];
 
     /**
@@ -59,6 +60,8 @@ class Schedule extends Base
      */
 
     public function __construct(?string $key = null){
+
+        $this->times = collect();
 
         if ($key) $this->key = $this->processKey($key);
     }
@@ -173,7 +176,7 @@ class Schedule extends Base
     {
         $this->days = collect($days)->map(
             function ($day) {
-                if (is_String($day)) return $this->daysArray[Str::lower($day)];
+                if (is_string($day)) return $this->daysArray[Str::lower($day)];
                 if (is_int($day) && $day < 7 && $day >= 0) return $day;
 
                 throw new EzportSetterException("Days must be a week day written out or an integer between 0 and 6");
@@ -195,10 +198,13 @@ class Schedule extends Base
             }
         }
 
-        return $this->addToTimes('between', [
-            'start' => $start,
-            'end' => $end,
-        ]);
+        return $this->addToTimes(
+            'between', [
+                'start' => $start,
+                'end' => $end,
+            ],
+            true
+        );
     }
 
     /**
@@ -276,14 +282,20 @@ class Schedule extends Base
         throw new EzportSetterException("{$method} is not a valid method");
     }
 
-    private function addToTimes($key, $value) : self
+    private function addToTimes($key, $time, $overwrite = false) : self
     {
-        $this->times = array_merge(
-            $this->times,
-            [
-                $key => $value
-            ]
-        );
+        if ($overwrite) {
+            $this->times[$key] = collect([$time]);
+        }
+
+        else {
+            if (! $this->times->has($key)) {
+
+                $this->times[$key] = collect();
+            }
+
+            $this->times[$key]->push($time);
+        }
 
         return $this;
     }
@@ -312,7 +324,10 @@ class Schedule extends Base
         if (! isset ($this->numbers[Str::lower($array[0])])) throw new \Exception("{$array[0]} is not a supported number");
         $number = $this->numbers[Str::lower($array[0])];
 
-        return $this->addToTimes('everyMinutes', $array[1] == 'Hour' ? $number * 60 : $number);
+        return $this->addToTimes(
+            'everyMinutes',
+            $array[1] == 'Hour' ? $number * 60 : $number
+        );
     }
 
     private function prepareLock(array|Lock $lock) : array

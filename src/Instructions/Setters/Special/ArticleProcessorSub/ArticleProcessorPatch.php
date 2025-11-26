@@ -82,6 +82,18 @@ class ArticleProcessorPatch
         return $this;
     }
 
+    public function properties() : self {
+
+        if(($leftovers = $this->prepareLeftovers('properties', 'id'))->count() > 0) {
+
+            $this->apiCalls->deleteProperty(
+                $leftovers->toArray()
+            );
+        }
+
+        return $this;
+    }
+
     public function options() : self {
 
         if(($leftovers = $this->prepareLeftovers('options', 'optionId'))->count() > 0) {
