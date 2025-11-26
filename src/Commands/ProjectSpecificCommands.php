@@ -174,6 +174,39 @@ class ProjectSpecificCommands
             ->$method($type);
     }
 
+    public function runTest()
+    {
+        $upload = select(
+            label: 'What upload would you like to test?',
+            options: Find::instruction($this->project, "Upload")
+                ->collect()
+                ->map->getKey()
+        );
+
+        $id = text(
+            label: 'Please provide the id of the item you would like to test',
+            required: true,
+            validate: fn (string $value) => match (true) {
+                ! is_numeric($value) => 'the id must be numeric',
+                ! GenericModel::exists($value) => 'no item found with id ' . $value,
+                default => null
+            }
+        );
+
+        if (! GenericModel::find($id)){
+            return 'No item found with id ' . $id;
+        }
+        else {
+
+            $instruction = Find::instruction($this->project, "Upload")->find($upload);
+
+            $instruction->getProcessor()
+                ->run(collect([$id]));
+
+            return 'Test completed';
+        }
+    }
+
     public function delete(): string
     {
         if ($this->warning($connector = $this->project->connectorType('shopSix'))) return 'operation cancelled';
