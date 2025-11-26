@@ -84,7 +84,7 @@ class ArticleProcessorPatch
 
     public function properties() : self {
 
-        if(($leftovers = $this->prepareLeftovers('properties', 'id'))->count() > 0) {
+        if(($leftovers = $this->prepareLeftovers('properties', 'optionId'))->count() > 0) {
 
             $this->apiCalls->deleteProperty(
                 $leftovers->toArray()
