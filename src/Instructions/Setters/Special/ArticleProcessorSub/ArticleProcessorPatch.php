@@ -69,7 +69,7 @@ class ArticleProcessorPatch
     {
         $unSetters = $this->unSetters;
 
-        if (! $this->config->find('articles.categories.replace') === false) {
+        if ($this->config->find('articles.categories.replace') === false) {
             $unSetters[] = 'categories';
         }
 
