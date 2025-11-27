@@ -13,7 +13,7 @@ class Client
 {
     const REFRESH_TOKEN_AFTER_MINUTES = 5;
 
-    private Guzzle $client;
+    private ?Guzzle $client;
     private array $payload;
     private ?array $header;
     private ?Guzzle $testGuzzle;
@@ -22,6 +22,7 @@ class Client
 
     public function __construct(private array $connector, ?Guzzle $testGuzzle = null)
     {
+        $this->client = null;
         $this->testGuzzle = $testGuzzle;
         $this->logger = (new LogError($connector['project_id']))->type('api');
 
@@ -67,37 +68,52 @@ class Client
         return $this;
     }
 
-    public function sendRequest($path, $method = 'GET', $content = null) : ?object
+    public function sendRequest($path, $method = 'GET', $content = null): ?object
     {
-        if (!Cache::has('shopware_six_token_' . $this->connector['project_id']) || !!$this->client) {
+        if (! Cache::has('shopware_six_token_' . $this->connector['project_id']) || ! $this->client) {
             $this->setupToken();
         }
+        $payload = $content ?: $this->setPayload();
 
         $report = [
-            'method' => $method,
-            'path' => $path,
-            'content' => $content ?? $this->setPayload()
+            'method'  => $method,
+            'path'    => $path,
+            'content' => $payload,
         ];
 
-        try {
-            $response = $this->client->request(
-                $method,
-                'api/' . $path,
-                $content ?: $this->setPayload()
-            );
-        } catch (ClientException $e) {
-            $this->convertAndLogError($e, $report);
-        } catch (ServerException $e) {
-            $this->convertAndLogError($e, $report);
-        } catch (RequestException $e) {
-            $this->convertAndLogError($e, $report);
+        $maxAttempts = 5;
+        $attempt     = 0;
+
+        while ($attempt < $maxAttempts) {
+            $attempt++;
+
+            try {
+                $response = $this->client->request(
+                    $method,
+                    'api/' . $path,
+                    $payload
+                );
+
+                $this->clearPayload();
+
+                return $response;
+
+            } catch (ClientException|ServerException|RequestException|\Exception $e) {
+
+                if ($this->isDeadlockException($e) && $attempt < $maxAttempts) {
+
+                    usleep(200_000 * $attempt);
+                    continue;
+                }
+
+                $this->convertAndLogError($e, $report);
+                break;
+            }
         }
-        catch (\Exception $e) {
-            $this->convertAndLogError($e, $report);
-        }
+
         $this->clearPayload();
 
-        return $response ?? null;
+        return null;
     }
 
     public function setAlternativeHeader(array $array) : self
@@ -123,41 +139,53 @@ class Client
         return $payload;
     }
 
+    private function isDeadlockException(\Throwable $e): bool
+    {
+        $message = $e->getMessage();
+
+        if (str_contains($message, 'SQLSTATE[40001]')
+            || str_contains($message, '1213 Deadlock')
+            || str_contains($message, 'deadlock')
+        ) {
+            return true;
+        }
+
+        if (method_exists($e, 'getResponse') && $response = $e->getResponse()) {
+            $body = (string) $response->getBody();
+
+            return str_contains($body, 'SQLSTATE[40001]')
+                || str_contains($body, '1213 Deadlock')
+                || str_contains($body, 'Deadlock found when trying to get lock');
+        }
+
+        return false;
+    }
+
     private function authenticate()
     {
         try {
             $this->response = ($this->testGuzzle ?: new Guzzle(['base_uri' => $this->connector['host']]))
-                ->post(
-                    '/api/oauth/token',
-                    [
-                        'headers' => ['Content-Type' => 'application/json'],
-                        'body' => json_encode([
-                            'grant_type' => 'client_credentials',
-                            'client_id' => $this->connector['username'],
-                            'client_secret' => $this->connector['password'],
-                            'scopes' => 'write',
-                        ])
-                    ]
-                );
-        } catch (ClientException $e) {
-            $this->logProblem(
-                $e . "\n"
-            );
-        } catch (ServerException $e) {
-            $this->logProblem(
-                $e . "\n"
-            );
-        } catch (RequestException $e) {
-            $this->logProblem(
-                $e . "\n"
-            );
-        } catch (\Exception $e) {
-            $this->logProblem(
-                $e . "\n"
-            );
+                ->post('/api/oauth/token', [
+                    'headers' => ['Content-Type' => 'application/json'],
+                    'body' => json_encode([
+                        'grant_type'    => 'client_credentials',
+                        'client_id'     => $this->connector['username'],
+                        'client_secret' => $this->connector['password'],
+                        'scopes'        => 'write',
+                    ]),
+                ]);
+        } catch (\Throwable $e) {
+            $this->logProblem((string) $e . "\n");
+            throw new \RuntimeException('Unable to authenticate to Shopware', 0, $e);
         }
 
-        return json_decode($this->response->getBody())->access_token;
+        $data = json_decode($this->response->getBody()->getContents(), false);
+
+        if (! $data || empty($data->access_token)) {
+            throw new \RuntimeException('Shopware auth response did not contain an access_token');
+        }
+
+        return $data->access_token;
     }
 
     private function setToken($token)
@@ -179,43 +207,46 @@ class Client
         );
     }
 
-    private function convertAndLogError($e, $report) : void
+    private function convertAndLogError(\Throwable $e, array $report): void
     {
-        $report = 'report ' . json_encode($report);
+        $reportJson = 'report ' . json_encode($report);
 
-        if ($e->hasResponse()) {
+        if (method_exists($e, 'getResponse') && $response = $e->getResponse()) {
+            $body = (string) $response->getBody();
 
-            $response = $e->getResponse();
             $this->logProblem(
-                "HTTP error " . $response->getStatusCode() . ": " . $response->getReasonPhrase() . "\n"
-                    . "Error body: " . $response->getBody() . "\n"
-                    . $report
+                "HTTP error {$response->getStatusCode()}: {$response->getReasonPhrase()}\n"
+                . "Error body: {$body}\n"
+                . $reportJson
             );
-        } else {
-            $response = $e->getResponse();
-            $response = json_decode($response->getBody()->getContents());
 
-            $this->recursiveErrorLogger($response, $report);
+            $decoded = json_decode($body);
+            if ($decoded) {
+                $this->recursiveErrorLogger($decoded, $reportJson);
+            }
+
+            return;
         }
+
+        $this->logProblem(
+            "Exception: " . $e::class . " - " . $e->getMessage() . "\n" . $reportJson
+        );
     }
 
-    private function recursiveErrorLogger($response, $report) : void
+    private function recursiveErrorLogger($response, string $report): void
     {
-        if (isset($response->errors)) {
-            collect($response)
-                ->each(
-                    function ($item) use ($report) {
-                        if (is_array($item)) {
-
-                            $this->logProblem(json_encode($item, ['report' => $report]));
-                        }
-                    }
+        if (isset($response->errors) && is_array($response->errors)) {
+            foreach ($response->errors as $error) {
+                $this->logProblem(
+                    json_encode(array_merge((array) $error, ['report' => $report]))
                 );
+            }
+
+            return;
         }
-        else {
-            $this->logProblem(
-                json_encode(array_merge(get_object_vars($response), ['report' => $report]))
-            );
-        }
+
+        $this->logProblem(
+            json_encode(array_merge((array) $response, ['report' => $report]))
+        );
     }
 }
