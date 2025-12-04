@@ -24,6 +24,31 @@ class ProjectSpecificCommands
 {
     public function __construct(private readonly Project $project){}
 
+    public function runSchedule(?string $type = null): string
+    {
+        $type = $type
+            ? Str::singular($type)
+            : select(
+                'What Scheduyle would you like to run?',
+                Find::instruction($this->project, "Schedule")
+                    ->collect()
+                    ->mapWithKeys(fn ($schedule) => [$schedule->getKey() => $schedule->getKey()])
+                    ->toArray()
+            );
+
+        if ($type) {
+
+            $instruction = Find::instruction($this->project, 'Schedule')->find($type);
+
+            if (! $instruction) return 'No schedule found with key ' . $type;
+
+            $instruction->jobs();
+
+            return 'Schedule ' . $type . ' has been started!';
+        }
+
+    }
+
     public function addToUpload(?string $type = null): string
     {
         if ($this->warning($this->project->connectorType('shopSix'))) return 'Operation cancelled';

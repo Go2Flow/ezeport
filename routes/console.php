@@ -3,7 +3,7 @@
 use Go2Flow\Ezport\Commands\ProjectSpecificCommands;
 use Go2Flow\Ezport\Models\Project;
 use Illuminate\Support\Facades\Schema;
-use \Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Artisan;
 
 if (Schema::hasTable('projects')) {
     foreach (Project::get() as $shop) {
@@ -23,6 +23,14 @@ if (Schema::hasTable('projects')) {
                 $this->info($command->removeFromUpload($type));
             }
         )->purpose('Remove content type from next upload for ' . $shop->identifier);
+
+
+        Artisan::command(
+            $shop->identifier . ':' . 'run-schedule {type?}',
+            function (?string $type = null) use ($command) {
+                $this->info($command->runSchedule($type));
+            }
+        )->purpose('Run schedule a scheduled set of jobs for ' . $shop->identifier);
 
         foreach (['import' => 'runImport', 'upload' => 'runUpload', 'clean' => 'runClean', 'transform' => 'runTransform'] as $job => $method) {
 
