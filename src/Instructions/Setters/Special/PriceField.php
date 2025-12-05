@@ -79,8 +79,8 @@ class PriceField extends UploadField implements UploadFieldInterface {
         return [
             'key' => $this->key?->toString(),
             'value' => $this->calculatePriceWithDiscount(
-                ($this->price)($item),
-                $this->discount ? ($this->discount)($item) : null,
+                ($this->price)($item,$config),
+                $this->discount ? ($this->discount)($item, $config) : null,
                 $this->addOrRemove,
                 $this->tax
             )
