@@ -25,11 +25,11 @@ trait FieldHelpers
         }
     }
 
-    protected function calculatePriceWithDiscount(float|string $full, float|string|null $discount, ?string $addOrRemove = 'add') : array
+    protected function calculatePriceWithDiscount(float|string $full, float|string|null $discount, ?float $tax, ?string $addOrRemove = 'add') : array
     {
         return $this->checkDiscount($discount)
-            ? [array_merge($this->formatPrice($discount, $addOrRemove), ['listPrice' => $this->formatPrice($full, $addOrRemove)])]
-            : [$this->formatPrice($full, $addOrRemove)];
+            ? [array_merge($this->formatPrice($discount, $addOrRemove, $tax), ['listPrice' => $this->formatPrice($full, $addOrRemove, $tax)])]
+            : [$this->formatPrice($full, $addOrRemove, $tax)];
     }
 
     protected function getCollectionFromRelation(?Collection $items, Closure $closure): Collection
