@@ -10,6 +10,7 @@ use Illuminate\Support\Str;
 class PricesField extends UploadField {
 
     private ?closure $prices;
+    private ?Closure $tax = null;
 
 
     public function __construct(string $key = null)
@@ -27,6 +28,18 @@ class PricesField extends UploadField {
         return $this;
     }
 
+    public function tax (float|Closure $tax) : self {
+
+        if (! $tax instanceof Closure ) {
+            $tax = fn () => $tax;
+        }
+
+        $this->tax = $tax;
+
+        return $this;
+
+    }
+
     public function process(Generic $item, array $config = []) : array|null {
 
         return [
@@ -36,7 +49,11 @@ class PricesField extends UploadField {
                     function ($line, $key) use ($item, $config)  {
                         if (! $line instanceof PriceField) return [$key => $line];
 
-                        $response = $line->setProject($this->project)->process($item, $config);
+                        $response = $line
+                            ->setProject($this->project);
+                        if ($this->tax) $response->tax($this->tax);
+
+                        $response = $response->process($item, $config);
 
                         return [$response['key'] => $response['value']];
                     }
