@@ -65,7 +65,6 @@ class ArticleProcessorApiCalls {
                         "prices" => []
                     ]
                 ],
-                "categories" => [],
                 "properties" => [],
                 "options" => [],
                 "configuratorSettings" => [],

@@ -149,10 +149,32 @@ class ArticleProcessorPatch
 
         if ($this->config->find('articles.categories.replace') === false) return $this;
 
-        if (($leftovers = $this->prepareLeftovers('categories', 'categoryId'))->count() > 0) {
+        $response = $this->shopwareProducts->map(
+            fn($product) => [
+                "productId" => $product->id,
+                "ids" => collect($product->categoryIds)->diff(
+                    collect($this->getCorrectData($product->id)['categories'] ?? [])->flatten())
+            ]
+        );
+
+        $leftOvers = [];
+
+        foreach ($response as $item) {
+
+            foreach ($item['ids'] ?? [] as $id) {
+
+                $leftOvers[] = [
+                    'productId' => $item['productId'],
+                    'categoryId' => $id
+                ];
+            }
+        }
+
+        if (count($leftOvers) > 0) {
             $this->apiCalls->deleteCategory(
-                $leftovers->toArray()
+                $leftOvers
             );
+
         }
 
         return $this;
