@@ -57,10 +57,12 @@ class Split{
         $node = $path->pop();
         $this->collection[$name] = collect();
 
-        while($xml->name == $node)
-        {
-            $this->collection[$name]->push(collect($xml->readOuterXML()));
+        while ($xml->read() && !($xml->nodeType === XMLReader::ELEMENT && $xml->name === $node)) {
 
+        }
+
+        while ($xml->nodeType === XMLReader::ELEMENT && $xml->name === $node) {
+            $this->collection[$name]->push(collect($xml->readOuterXML()));
             $xml->next($node);
         }
 
