@@ -60,6 +60,8 @@ class EzportServiceProvider extends ServiceProvider
                 MakeCustomer::class,
                 PublishHelpers::class
             ]);
+
+            require __DIR__ . '/../routes/console.php';
         }
     }
 }

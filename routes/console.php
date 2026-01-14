@@ -4,6 +4,7 @@ use Go2Flow\Ezport\Commands\ProjectSpecificCommands;
 use Go2Flow\Ezport\Models\Project;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Artisan;
+use \Illuminate\Support\Str;
 
 if (Schema::hasTable('projects')) {
     foreach (Project::get() as $shop) {
