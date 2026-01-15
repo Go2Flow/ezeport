@@ -16,23 +16,46 @@ class RemoveLocalFiles implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, Batchable;
 
-    /**
-     * Create a new job instance.
-     */
-    public function __construct(public int $project, private array $array)
+    public function __construct(public int $project, private array $config)
     {
         //
     }
 
-    /**
-     * Execute the job.
-     */
     public function handle(): void
     {
-        collect(($storage = Storage::drive('public'))
-            ->allFiles(Str::ucfirst(Project::find($this->project)->identifier) . '/' . $this->array['path']))
-            ->each(
-                fn ($file) => $storage->delete($file)
-            );
+        $project = Project::find($this->project);
+
+        if (! $project) {
+            return;
+        }
+
+        $storage = Storage::drive($this->config['drive'] ?? 'public');
+
+        $dir = Str::ucfirst($project->identifier) . '/' . ($this->config['path'] ?? '');
+
+        $files = collect($storage->allFiles($dir));
+
+        if ($files->isEmpty()) {
+            return;
+        }
+
+        $mode = $this->config['mode'] ?? 'all'; // 'all' | 'oldest'
+
+        if ($mode === 'oldest') {
+            $oldest = $files
+                ->map(fn ($file) => ['file' => $file, 'ts' => $storage->lastModified($file)])
+                ->sortBy('ts')
+                ->pluck('file')
+                ->first();
+
+            if ($oldest) {
+                $storage->delete($oldest);
+            }
+
+            return;
+        }
+
+
+        $files->each(fn ($file) => $storage->delete($file));
     }
 }

@@ -36,45 +36,59 @@ class ModifyImportFiles implements ShouldQueue
 
         $baseFolder = ucfirst($project->identifier) . "/";
 
-        if (isset ($this->config['files']) && $this->config['files']) {
+        if (!empty($this->config['files'])) {
 
-            foreach ($this->getAndFilterFiles($baseFolder) as $file) {
+            $file = $this->getLatestFilteredFile($baseFolder);
 
-                $newFile = $this->modify(Storage::get($file), $instruction);
-
-                Storage::put($file, $newFile);
-
+            if (!$file) {
+                return; // or log / fail
             }
+
+            $newFile = $this->modify(Storage::get($file), $instruction);
+            Storage::put($file, $newFile);
+
         }
-        elseif (isset($this->config['name']) && $this->config['name']) {
+        elseif (!empty($this->config['name'])) {
 
-            $file = Storage::get("public/" . $baseFolder . $this->config['path'] . '/' . $this->config['name']);
+            $filePath = "public/" . $baseFolder . $this->config['path'] . '/' . $this->config['name'];
 
+            $file = Storage::get($filePath);
             $newFile = $this->modify($file, $instruction);
 
-
-            Storage::put("public/" . $baseFolder . $this->config['path'] . '/' . $this->config['name'], $newFile);
+            Storage::put($filePath, $newFile);
         }
     }
 
-    private function getAndFilterFiles($baseFolder) {
+    private function getLatestFilteredFile(string $baseFolder): ?string
+    {
+        $path = "public/" . $baseFolder . $this->config['path'];
 
-        return collect(Storage::files("public/" . $baseFolder . $this->config['path']))
-            ->when(
-                isset($this->config['not']),
-                function ($collection) {
-                    return $collection->filter(
-                        function ($file) {
-                            foreach ($this->config['not'] as $filter) {
+        $files = collect(Storage::files($path));
 
-                                if (Str::of($file)->contains($filter)) return false;
-                            }
-                            return true;
-                        }
-                    );
+        if (!empty($this->config['not'])) {
+            $files = $files->filter(function ($file) {
+                foreach ($this->config['not'] as $filter) {
+                    if (Str::of($file)->contains($filter)) {
+                        return false;
+                    }
                 }
-            );
+                return true;
+            });
+        }
+
+        if ($files->isEmpty()) {
+            return null;
+        }
+
+        return $files
+            ->map(fn ($file) => [
+                'file' => $file,
+                'ts'   => Storage::lastModified($file),
+            ])
+            ->sortByDesc('ts')
+            ->first()['file'];
     }
+
 
     private function modify($file, $instruction) {
 

@@ -11,6 +11,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
@@ -52,13 +53,30 @@ class AssignXml implements ShouldQueue, ShouldBeUnique
             );
     }
 
-    private function getFiles($project)
+    private function getFiles(Project $project): Collection
     {
         $storage = Storage::drive($this->config['drive'] ?? 'public');
 
-        return isset($this->config['files']) && $this->config['files'] === true
-            ? collect($storage->files(Str::ucfirst($project->identifier) . '/' . $this->config['path']))
-                ->map(fn ($file) => $storage->path($file))
-            : $storage->path(Str::ucfirst($project->identifier). '/' . ($this->config['path'] ?? null));
+        $base = Str::ucfirst($project->identifier) . '/';
+        $dir  = $base . ($this->config['path'] ?? '');
+
+        if (!empty($this->config['files'])) {
+
+            $files = collect($storage->files($dir));
+
+            $latest = $files
+                ->map(fn ($file) => ['file' => $file, 'ts' => $storage->lastModified($file)])
+                ->sortByDesc('ts')
+                ->pluck('file')
+                ->first();
+
+            return $latest
+                ? collect([$storage->path($latest)])
+                : collect();
+        }
+
+        return collect([$storage->path($dir)]);
     }
+
+
 }
