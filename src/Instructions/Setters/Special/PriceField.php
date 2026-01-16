@@ -17,6 +17,7 @@ class PriceField extends UploadField implements UploadFieldInterface {
     private ?Closure $discount = null;
     private string $addOrRemove = 'add';
     private ?Closure $tax = null;
+    private ?string $currencyId = null;
 
     public function __construct(string $key = null)
     {
@@ -78,6 +79,13 @@ class PriceField extends UploadField implements UploadFieldInterface {
         return $this->add();
     }
 
+    public function currencyId(string $currencyId) : self
+    {
+        $this->currencyId = $currencyId;
+
+        return $this;
+    }
+
     public function process(Generic $item, array $config) : array {
 
         return [
@@ -86,6 +94,7 @@ class PriceField extends UploadField implements UploadFieldInterface {
                 ($this->price)($item,$config),
                 $this->discount ? ($this->discount)($item, $config) : null,
                 $this->tax ? ($this->tax)($item) : null,
+                $this->currencyId,
                 $this->addOrRemove
             )
         ];

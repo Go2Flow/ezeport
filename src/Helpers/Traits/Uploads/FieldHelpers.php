@@ -25,11 +25,11 @@ trait FieldHelpers
         }
     }
 
-    protected function calculatePriceWithDiscount(float|string $full, float|string|null $discount, ?float $tax, ?string $addOrRemove = 'add') : array
+    protected function calculatePriceWithDiscount(float|string $full, float|string|null $discount, ?float $tax, ?string $currencyId, ?string $addOrRemove = 'add') : array
     {
         return $this->checkDiscount($discount)
-            ? [array_merge($this->formatPrice($discount, $addOrRemove, $tax), ['listPrice' => $this->formatPrice($full, $addOrRemove, $tax)])]
-            : [$this->formatPrice($full, $addOrRemove, $tax)];
+            ? [array_merge($this->formatPrice($discount, $currencyId, $addOrRemove, $tax), ['listPrice' => $this->formatPrice($full, $currencyId, $addOrRemove, $tax)])]
+            : [$this->formatPrice($full, $currencyId, $addOrRemove, $tax)];
     }
 
     protected function getCollectionFromRelation(?Collection $items, Closure $closure): Collection
@@ -80,12 +80,12 @@ trait FieldHelpers
         }
     }
 
-    protected function formatPrice(string|float $price, $addOrRemove = 'add', ?float $tax = null) : array
+    protected function formatPrice(string|float $price, ?string $currencyId, $addOrRemove = 'add', ?float $tax = null) : array
     {
         $amount = (float) Str::replace(',', '.', $price);
 
         $priceObject = [
-            'currencyId' => $this->project->cache('currency_ids')['standard'],
+            'currencyId' => $currencyId ?? $this->project->cache('currency_ids')['standard'],
             'linked' => false,
         ];
 
