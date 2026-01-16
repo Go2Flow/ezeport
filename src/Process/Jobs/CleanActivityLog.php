@@ -4,6 +4,7 @@ namespace Go2Flow\Ezport\Process\Jobs;
 
 use Go2Flow\Ezport\Models\Action;
 use Go2Flow\Ezport\Models\Activity;
+use Go2Flow\Ezport\Models\Error;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -28,13 +29,21 @@ class CleanActivityLog implements ShouldQueue
      */
     public function handle(): void
     {
-        Action::where('created_at', '<', now()->subMonths(3))->chunk(
-            100,
-            fn ($actions) => $actions->each->delete()
-        );
         Activity::where('created_at', '<', now()->subMonths(3))->chunk(
             100,
             fn ($activities) => $activities->each->delete()
         );
+
+        Error::where('created_at', '<', now()->subMonths(3))->chunk(
+            100,
+            fn ($activities) => $activities->each->delete()
+        );
+
+
+        Action::where('created_at', '<', now()->subMonths(3))->chunk(
+            100,
+            fn ($actions) => $actions->each->delete()
+        );
+
     }
 }

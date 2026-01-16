@@ -5,6 +5,7 @@ namespace Go2Flow\Ezport;
 use Go2Flow\Ezport\Finders\Find;
 use Go2Flow\Ezport\Models\Action;
 use Go2Flow\Ezport\Models\Project;
+use Go2Flow\Ezport\Process\Batches\Tools\SmallestQueue;
 use Go2Flow\Ezport\Process\Jobs\CleanActivityLog;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Support\Facades\Cache;
@@ -72,7 +73,7 @@ class EzportScheduleServiceProvider extends ServiceProvider
                 )->everyThirtyMinutes();
 
                 $schedule->job(
-                    new CleanActivityLog()
+                    (new CleanActivityLog())->onConnection('redis')->onQueue(SmallestQueue::get())
                 )->daily();
 
             });

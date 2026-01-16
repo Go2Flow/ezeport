@@ -21,9 +21,7 @@ class Log
     {
         if (! $this->action) return;
 
-        $this->getActivityLogObject()
-            ->type($this->current->type)
-            ->uniqueId($this->current->unique_id)
+        $this->getActivityLogObject($this->current->type)
             ->log('deleted');
     }
 
@@ -31,18 +29,17 @@ class Log
     {
         if (! $this->action || count($difference = $this->getDifference($original)) === 0) return;
 
-        $this->getActivityLogObject()
-            ->type('standard')
+        $this->getActivityLogObject('standard')
             ->contentType($this->current->getType())
-            ->uniqueId($this->current->unique_id)
             ->model($this->current)
             ->properties($difference)
             ->log($exists ? 'updated' : 'created');
     }
 
-    private function getActivityLogObject(): ActivityLog
+    private function getActivityLogObject(string $type): ActivityLog
     {
         return (new ActivityLog)
+            ->type($type)
             ->uniqueId($this->current->unique_id)
             ->action($this->action);
     }
