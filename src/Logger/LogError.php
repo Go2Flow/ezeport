@@ -10,9 +10,8 @@ use Illuminate\Support\Facades\Log;
 class LogError {
 
     private Error $error;
-    private int $projectId;
 
-    public function __construct(int $projectId)
+    public function __construct(private int $projectId)
     {
         $this->error = New Error();
     }
