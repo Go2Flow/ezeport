@@ -2,6 +2,7 @@
 
 namespace Go2Flow\Ezport\Logger;
 
+use Go2Flow\Ezport\Models\Action;
 use Go2Flow\Ezport\Models\Error;
 use Go2Flow\Ezport\Models\Project;
 use Illuminate\Support\Facades\Log;
@@ -9,20 +10,23 @@ use Illuminate\Support\Facades\Log;
 class LogError {
 
     private Error $error;
+    private int $projectId;
 
     public function __construct(int $projectId)
     {
         $this->error = New Error();
-
-        if ($action = Project::find($projectId)->actions()?->whereActive(1)->first()) {
-
-            $this->error->action_id = $action->id;
-        }
     }
 
     public function type(string $string) : self {
 
         $this->error->error_type = $string;
+
+        return $this;
+    }
+
+    public function action(Action $action) : self {
+
+        $this->error->action_id = $action->id;
 
         return $this;
     }
@@ -41,6 +45,10 @@ class LogError {
     }
 
     public function log(string $message) : void {
+
+        if ($this->error->action_id == null && $action = Project::find($this->projectId)->actions()?->whereActive(1)->first()) {
+            $this->error->action_id = $action->id;
+        }
 
         $this->error->description = $message;
         $this->error->save();
