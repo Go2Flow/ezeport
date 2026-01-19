@@ -39,4 +39,14 @@ class Action extends Model implements LogInterface
     {
         return $this->hasMany(Error::class, 'action_id', 'id');
     }
+
+    public function finish() : self
+    {
+        $this->update([
+            'finished_at' => now(),
+            'active' => false,
+        ]);
+
+        return $this;
+    }
 }
