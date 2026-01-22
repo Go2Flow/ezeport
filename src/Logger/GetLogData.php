@@ -4,38 +4,46 @@ namespace Go2Flow\Ezport\Logger;
 
 use Go2Flow\Ezport\Models\Action;
 use Go2Flow\Ezport\Models\Activity;
+use Go2Flow\Ezport\Models\Error;
 use Go2Flow\Ezport\Models\Project;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 
 class GetLogData
 {
-    private Builder $activity;
+    private Builder $builder;
 
     public function __construct()
     {
-        $this->activity = Activity::Query();
+        $this->builder = Activity::Query();
     }
 
     public function id(int $id): self
     {
         return $this->set(
-            $this->activity->whereGenericModelId($id)
+            $this->builder->whereGenericModelId($id)
         );
     }
 
     public function uniqueId(string $unique_id): self
     {
         return $this->set(
-            $this->activity->whereUniqueId($unique_id)
+            $this->builder->whereUniqueId($unique_id)
         );
     }
 
     public function action(Action|int $action): self
     {
-        return $this->set(
-            $this->activity->whereActionId(is_int($action) ? $action : $action->id)
 
+        return $this->set(
+            $this->builder->whereActionId(is_int($action) ? $action : $action->id)
+
+        );
+    }
+
+    public function actions(array|Collection $actions) : self {
+        return $this->set(
+            $this->builder->whereIn('action_id', $actions)
         );
     }
 
@@ -43,23 +51,22 @@ class GetLogData
     {
         $actionIds = (is_int($project) ? Project::find($project) : $project)->actions()->pluck('id');
 
-        return $this->where(
+        return $this->whereIn(
             'action_id',
             $actionIds,
-            'in'
         );
     }
 
     public function modelType(string $type) : self
     {
         return $this->set(
-            $this->activity->whereGenericModelType($type)
+            $this->builder->whereGenericModelType($type)
         );
     }
 
     public function query() : Builder
     {
-        return $this->activity;
+        return $this->builder;
     }
 
     public function get() : Collection {
@@ -89,10 +96,14 @@ class GetLogData
         return $this->whereType('api');
     }
 
-    public function set(Builder $activity) : self {
+    public function activity(): self
+    {
+        return $this->set(Activity::query());
+    }
 
-        $this->activity = $activity;
-        return $this;
+    public function error(): self
+    {
+        return $this->set(Error::query());
     }
 
     private function whereType(string $type) : self
@@ -102,20 +113,41 @@ class GetLogData
 
     private function where(string $column, $value, string $operator = '=') : self
     {
-        $this->activity->where($column, $operator, $value);
+        $this->builder->where($column, $operator, $value);
+        return $this;
+    }
+
+    private function whereIn(string $column, array $values) : self
+    {
+        $this->builder->whereIn($column, $values);
+
+        return $this;
+    }
+
+    private function set(Builder $builder) : self {
+
+        $this->builder = $builder;
         return $this;
     }
 
     private function groupByAction(): Collection
     {
-        return $this->activity->get()->maptoGroups(
-            fn ($item) => [$item->action_id => $item]
-        )->map(
-            fn ($item, $key) => [
-                'action' => $action = Action::find($key),
-                'project' => $action->project,
-                'activity' => $item
-            ]
-        )->values();
+        $modelByAction = $this->builder->get()->groupBy('action_id');
+
+        $actions = Action::query()
+            ->with('project')
+            ->whereIn('id', $modelByAction->keys())
+            ->get()
+            ->keyBy('id');
+
+        return $modelByAction->map(function ($models, $actionId) use ($actions) {
+            $action = $actions->get($actionId);
+
+            return [
+                'action' => $action,
+                'project' => $action?->project,
+                'models' => $models,
+            ];
+        })->values();
     }
 }
