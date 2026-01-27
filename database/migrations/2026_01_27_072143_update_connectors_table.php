@@ -13,6 +13,8 @@ return new class extends Migration
     {
         Schema::table('connectors', function (Blueprint $table) {
             $table->boolean('encrypted')->default(false);
+            $table->mediumText('password')->change();
+
         });
     }
 
@@ -23,6 +25,8 @@ return new class extends Migration
     {
         Schema::table('connectors', function (Blueprint $table) {
             $table->dropColumn('encrypted');
+            $table->string('password')->change();
+
         });
     }
 };
