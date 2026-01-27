@@ -72,7 +72,7 @@ class Transform extends Basic
 
     public function relation(\closure $relation) : self
     {
-        $this->processes->push($relation);
+        $this->relations->push($relation);
 
         return $this;
     }
@@ -146,33 +146,36 @@ class Transform extends Basic
 
     public function run(?Collection $chunk, array|Collection $config = []): void
     {
-        $chunk
-            ? GenericModel::whereProjectId($this->project->id)
-            ->whereIn('id', $chunk)
-            ->get()
-            ->toContentType()
-            ->each(
-                fn ($item) => $this->runThroughFunctionality($item, $config)
-            )
-            : $this->runThrough('processes', null, $config);
+
+        if ($chunk) {
+            GenericModel::whereProjectId($this->project->id)
+                ->whereIn('id', $chunk)
+                ->lazy()
+                ->each(fn (GenericModel $model) => $this->runThroughFunctionality($model->toContentType(), $config));
+        }
+        else {
+            $this->runThrough('processes', null, $config);
+        }
     }
 
     private function runThroughFunctionality(?Generic $item, array|Collection $config) : void
     {
         $relations = $this->runThrough('relations', $item, $config);
-        $this->runThrough('processes', $item, $config);
 
         $item->relations(
-            $relations?->filter(
-                fn ($relation) => $relation->filter(fn ($item) => $item)->count() > 0
-            )
+            $relations
+                ->map(fn (Collection $group) => $group->filter())
+                ->filter(fn (Collection $group) => $group->isNotEmpty())
+                ->all()
         );
+
+        unset($relations);
+
+        $this->runThrough('processes', $item, $config);
 
         if(! $this->shouldSave) return;
 
-        $item->updateOrCreate()
-            ->setRelations();
-
+        $item->updateOrCreate()->setRelations();
     }
 
     private function runThrough(string $name, ?Generic $item, array|Collection $config) : Collection

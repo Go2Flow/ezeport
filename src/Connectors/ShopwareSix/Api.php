@@ -19,6 +19,10 @@ class Api implements ApiInterface
         private Collection $structure,
         ?Guzzle $testGuzzle = null
     ) {
+        if ($connector['encrypted']) {
+            $connector['password'] = decrypt($connector['password']);
+        }
+
         $this->client = (new Client($connector, $testGuzzle))->setupToken();
     }
 

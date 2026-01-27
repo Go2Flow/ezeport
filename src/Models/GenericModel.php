@@ -4,7 +4,6 @@ namespace Go2Flow\Ezport\Models;
 
 use Go2Flow\Ezport\ContentTypes\Generic;
 use Go2Flow\Ezport\ContentTypes\Helpers\Content;
-use Go2Flow\Ezport\Instructions\Setters\Types\Model;
 use Go2Flow\Ezport\Process\Errors\CircularRelationException;
 use Illuminate\Database\Eloquent\Casts\AsCollection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;

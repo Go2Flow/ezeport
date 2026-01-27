@@ -13,8 +13,16 @@ class Api implements ApiInterface
     private $response;
     private $queryString = null;
 
-    public function __construct(private array $connector)
+    private array $connector;
+
+    public function __construct(array $connector)
     {
+        if (! empty($connector['encrypted'])) {
+            $connector['password'] = decrypt($connector['password']);
+        }
+
+        $this->connector = $connector;
+
 
     }
 
