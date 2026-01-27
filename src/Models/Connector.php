@@ -45,6 +45,7 @@ class Connector extends Model
             'password' => $this->password,
             'project_id' => $this->project_id,
             'properties' => $this->properties,
+            'encrypted' => $this->encrypted
 
         ];
 
