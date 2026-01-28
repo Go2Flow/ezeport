@@ -276,7 +276,7 @@ class Api implements ApiInterface
                 'headers' => [
                     'Content-Type' => 'application/json',
                     'Accept' => 'application/json',
-//                    'indexing-behavior' => 'use-queue-indexing'
+                    'indexing-behavior' => 'use-queue-indexing'
                 ]
             ])->addToPayload([
                 'write-' . $this->path => [
