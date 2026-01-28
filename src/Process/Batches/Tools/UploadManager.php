@@ -46,7 +46,7 @@ class UploadManager
 
                 $instruction = $instructions->find($key);
 
-                if (! $instruction instanceof Upload) return $instruction->getJob();
+                if (! $instruction instanceof Upload) return [$instruction->getJob()];
 
                 $pluck = $instruction->pluck();
 
