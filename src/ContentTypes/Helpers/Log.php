@@ -36,6 +36,16 @@ class Log
             ->log($exists ? 'updated' : 'created');
     }
 
+    public function hasError(array $errors): void
+    {
+        $this->getActivityLogObject('standard')
+            ->contentType($this->current->getType())
+            ->model($this->current)
+            ->properties($errors)
+            ->failedJob()
+            ->log('error');
+    }
+
     private function getActivityLogObject(string $type): ActivityLog
     {
         return (new ActivityLog)

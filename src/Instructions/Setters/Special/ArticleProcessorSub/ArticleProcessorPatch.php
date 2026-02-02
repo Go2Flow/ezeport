@@ -100,7 +100,6 @@ class ArticleProcessorPatch
 
             $this->apiCalls->deleteProperty(
                 $leftovers->toArray()
-
             );
         }
 
@@ -221,6 +220,7 @@ class ArticleProcessorPatch
         $children = collect();
 
         foreach ($this->databaseProducts as $databaseProduct) {
+
             $product = collect($this->getCorrectProduct($databaseProduct['id']));
             $subChildren = collect($databaseProduct['children'] ?? []);
 
@@ -252,7 +252,12 @@ class ArticleProcessorPatch
         }
 
         if ($deletes->count() > 0) {
-            $this->apiCalls->deleteProducts($deletes->values()->toArray());
+            $response = $this->apiCalls->deleteProducts($deletes->values()->toArray());
+
+            if (! $response) {
+                $this->items->filter(fn ($item) => $item->properties('children')?->isNotEmpty())
+                    ->each(fn ($item) => $item->logError(['children failed to be deleted on shopware']));
+            }
         }
         if ($children->count() > 0) {
 
@@ -266,7 +271,7 @@ class ArticleProcessorPatch
                     $parents[$children[$key]['parentId']][$children[$key]['productNumber']] =  $product;
                 }
 
-                foreach ($this->items as $item) {
+                foreach ($this->items as $item)  {
 
                     if ($parents[$item->shop($this->id_field)]->count() > 0 ) {
 
@@ -275,6 +280,11 @@ class ArticleProcessorPatch
                     }
                 }
             }
+
+            else {
+                $this->items->filter(fn ($item) => $item->properties('children')?->isNotEmpty())
+                    ->each(fn ($item) => $item->logError(['children failed to update on shopware']));
+            }
         }
 
         return $this;
@@ -282,6 +292,12 @@ class ArticleProcessorPatch
 
     public function articles() : self {
         $response = $this->apiCalls->bulkProducts($this->databaseProducts->toArray());
+
+        if (! $response) {
+
+            $this->databaseProducts->each(fn ($item) => $item->logError(['product failed to be updated on shopware']));
+
+        }
 
         return $this;
     }
@@ -296,7 +312,6 @@ class ArticleProcessorPatch
                 collect($product->configuratorSettings)->pluck('optionId')
             ]);
         }
-
 
         return $response;
     }

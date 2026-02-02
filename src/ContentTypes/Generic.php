@@ -317,15 +317,17 @@ class Generic
     }
 
     /**
-     * alternative to 'shopware' method
-     */
-
-
-
-    /**
      * will update or create the model
      * set 'updated' to false if you don't want the 'updated' field to be changed to true
      */
+
+    public function logError(array $errors) : self
+    {
+        (new Log($this))->hasError($errors);
+
+        return $this;
+    }
+
 
     public function updateOrCreate(bool|string $updated = true): self
     {

@@ -19,10 +19,10 @@ class ArticleProcessorApiCalls {
             ->patch($array, $array['id']);
     }
 
-    public function deleteProducts(array $ids) : void {
-        $this->api->product()->bulkDelete(
+    public function deleteProducts(array $ids) {
+        return $this->api->product()->bulkDelete(
             $ids
-        )->body();
+        );
     }
 
     public function bulkProducts(array $items) {
@@ -31,30 +31,30 @@ class ArticleProcessorApiCalls {
         );
     }
 
-    public function configuratorSettings(array $array, $action = 'bulk') : void
+    public function configuratorSettings(array $array, $action = 'bulk')
     {
-        $response = $this->api->productConfiguratorSetting()->$action(
+        return $this->api->productConfiguratorSetting()->$action(
             $array,
         );
     }
 
-    public function deleteProperty($items) : void
+    public function deleteProperty($items)
     {
-        $this->api->productProperty()->bulkDelete(
+        return $this->api->productProperty()->bulkDelete(
             $items
         );
     }
 
-    public function deleteCategory($items) : void
+    public function deleteCategory($items)
     {
-        $this->api->productCategory()->bulkDelete(
+        return $this->api->productCategory()->bulkDelete(
             $items
         );
     }
 
-    public function deletePrices(array $prices) : void {
+    public function deletePrices(array $prices) {
 
-        $this->api->productPrice()->bulkDelete($prices);
+        return $this->api->productPrice()->bulkDelete($prices);
     }
 
     public function getProducts(array $ids) : ?object {

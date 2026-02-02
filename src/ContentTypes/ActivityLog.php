@@ -90,6 +90,11 @@ class ActivityLog {
         return $this->setField($type, 'generic_model_type');
     }
 
+        public function failedJob() : self
+    {
+        return $this->setField(true, 'failed_job');
+    }
+
     private function setErrorType(string $type) : self
     {
         return $this->setField($type, 'error_type');

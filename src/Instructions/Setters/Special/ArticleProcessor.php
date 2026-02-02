@@ -50,6 +50,8 @@ class ArticleProcessor extends UploadProcessor {
             $string = 'uploading of Products to shopware failed. Product ids: ' . $items->map(fn ($item) => $item->unique_id)->implode(', ');
 
             $this->logProblem($string, 'high');
+
+            $items->each(fn ($item) => $item->logError(['uploading of Product to shopware failed.']));
             return;
         }
 
@@ -96,6 +98,8 @@ class ArticleProcessor extends UploadProcessor {
                     'could not find Product ' . $item->unique_id . 'with id'. $item->shopware($this->getCorrectIdField()) . ' in Shopware',
                     'high'
                 );
+
+                $item->logError(['could not find Product in Shopware']);
             }
 
             $items = $existing->map(
