@@ -46,6 +46,9 @@ class ArticleMedia extends BaseInstructions implements InstructionInterface
 
                             }
                         }
+                        else {
+                            $items->each(fn ($item) => $item->logError(['failed to upload product media']));
+                        }
                     }
                 ),
         ];

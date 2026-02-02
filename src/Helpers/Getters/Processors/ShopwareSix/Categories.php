@@ -36,6 +36,9 @@ class Categories extends BaseInstructions implements InstructionInterface
                                 $category->shopware(['id' => $response->data->id]);
                                 $category->updateOrCreate();
                             }
+                            else {
+                                $category->logError(['failed to upload category']);
+                            }
                         }
                     }
                 ),

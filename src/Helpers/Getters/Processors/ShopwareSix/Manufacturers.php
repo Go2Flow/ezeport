@@ -47,11 +47,18 @@ class Manufacturers extends BaseInstructions implements InstructionInterface
                                 $create->values()->map->toShopArray()->toArray()
                             );
 
-                            $this->updateWithShopwareValue(
-                                $created->body()->data,
-                                $create->values(),
-                                ['product_manufacturer' => 'id']
-                            );
+                            if ($created->body()) {
+
+                                $this->updateWithShopwareValue(
+                                    $created->body()->data,
+                                    $create->values(),
+                                    ['product_manufacturer' => 'id']
+                                );
+
+                            } else {
+                                $create->each(fn ($item) => $item->logError(['failed to upload manufacturer']));
+                            }
+
                         }
                     }
                 ),

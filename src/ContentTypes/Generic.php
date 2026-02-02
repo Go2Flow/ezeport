@@ -328,7 +328,6 @@ class Generic
         return $this;
     }
 
-
     public function updateOrCreate(bool|string $updated = true): self
     {
         (new Log($this))->change(... $this->contentData->updateOrCreateModel($updated));

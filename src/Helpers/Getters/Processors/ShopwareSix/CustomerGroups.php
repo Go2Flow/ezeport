@@ -28,8 +28,13 @@ class CustomerGroups extends BaseInstructions implements InstructionInterface
                                 $response = $api->customerGroup()->create($array);
                             }
 
-                            $item->shopware(['id' => $response->body()->data->id]);
-                            $item->updateOrCreate(false);
+                            if( $response->body()) {
+                                $item->shopware(['id' => $response->body()->data->id]);
+                                $item->updateOrCreate(false);
+                            }
+                            else {
+                                $item->logError(['failed to upload customer group']);
+                            }
                         }
                     )
                 ),
@@ -69,13 +74,17 @@ class CustomerGroups extends BaseInstructions implements InstructionInterface
                             if (! $item->shopware('rule_id')) {
                                 $response = $api->rule()->create($array);
 
-
                             } else {
                                 $response = $api->rule()->patch($array, $item->shopware('rule_id'));
                             }
 
-                            $item->shopware(['rule_id' => $response->body()->data->id]);
-                            $item->updateOrCreate(false);
+                            if ($response->body()) {
+                                $item->shopware(['rule_id' => $response->body()->data->id]);
+                                $item->updateOrCreate(false);
+                            } else {
+                                $item->logError(['failed to upload customer group rule']);
+                            }
+
                         }
                     )
                 )

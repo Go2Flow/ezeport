@@ -19,12 +19,15 @@ class Client
     private ?Guzzle $testGuzzle;
     private ?object $response;
     private LogError $logger;
+    private ExceptionReportConverter $errorConverter;
+
 
     public function __construct(private array $connector, ?Guzzle $testGuzzle = null)
     {
         $this->client = null;
         $this->testGuzzle = $testGuzzle;
         $this->logger = (new LogError($connector['project_id']))->type('api');
+        $this->errorConverter = new ExceptionReportConverter();
 
         $this->clearPayload();
     }
@@ -47,6 +50,11 @@ class Client
     public function getResponse()
     {
         return $this->response;
+    }
+
+    public function getErrorLog() : array
+    {
+        return $this->errorConverter->getMessages();
     }
 
     public function addToPayload(string|array $array, string $field = 'body') : self
@@ -106,7 +114,7 @@ class Client
                     continue;
                 }
 
-                $this->convertAndLogError($e, $report);
+                $this->logThrowable($e, $report);
                 break;
             }
         }
@@ -121,6 +129,11 @@ class Client
         $this->header = $array;
 
         return $this;
+    }
+
+    public function getErrorMessages() : array
+    {
+        return $this->errorConverter->getMessages();
     }
 
     private function setPayload() : array
@@ -200,53 +213,15 @@ class Client
         return $this;
     }
 
-    private function logProblem(string $problem) : void
+    private function logProblem(string $problem): void
     {
-        $this->logger->level('high')->log(
-            $problem,
-        );
+        $this->logger->level('high')->log($problem);
     }
 
-    private function convertAndLogError(\Throwable $e, array $report): void
+    private function logThrowable(\Throwable $e, array $report): void
     {
-        $reportJson = 'report ' . json_encode($report);
-
-        if (method_exists($e, 'getResponse') && $response = $e->getResponse()) {
-            $body = (string) $response->getBody();
-
-            $this->logProblem(
-                "HTTP error {$response->getStatusCode()}: {$response->getReasonPhrase()}\n"
-                . "Error body: {$body}\n"
-                . $reportJson
-            );
-
-            $decoded = json_decode($body);
-            if ($decoded) {
-                $this->recursiveErrorLogger($decoded, $reportJson);
-            }
-
-            return;
+        foreach ($this->errorConverter->toLogMessages($e, $report) as $message) {
+            $this->logProblem($message);
         }
-
-        $this->logProblem(
-            "Exception: " . $e::class . " - " . $e->getMessage() . "\n" . $reportJson
-        );
-    }
-
-    private function recursiveErrorLogger($response, string $report): void
-    {
-        if (isset($response->errors) && is_array($response->errors)) {
-            foreach ($response->errors as $error) {
-                $this->logProblem(
-                    json_encode(array_merge((array) $error, ['report' => $report]))
-                );
-            }
-
-            return;
-        }
-
-        $this->logProblem(
-            json_encode(array_merge((array) $response, ['report' => $report]))
-        );
     }
 }

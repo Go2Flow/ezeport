@@ -31,20 +31,25 @@ class Customers extends BaseInstructions implements InstructionInterface
                                     ->toArray()
                             )->body()?->data;
 
-                            if (! $response) continue;
+                            if (! $response) {
+                                $chunk->each(fn ($item) => $item->logError(['failed to upload customer']));
 
-                            $customers = collect($response->customer);
-                            $addresses = collect($response->customer_address);
+                                } else {
 
-                            while($chunk->count() > 0) {
-                                $item = $chunk->shift();
-                                $item->shopware([
-                                    'id' => $customers->shift(),
-                                    'shippingId' => $addresses->shift(),
-                                    'billingId' => $addresses->shift(),
-                                ]);
-                                $item->updateOrCreate();
+                                $customers = collect($response->customer);
+                                $addresses = collect($response->customer_address);
+
+                                while($chunk->count() > 0) {
+                                    $item = $chunk->shift();
+                                    $item->shopware([
+                                        'id' => $customers->shift(),
+                                        'shippingId' => $addresses->shift(),
+                                        'billingId' => $addresses->shift(),
+                                    ]);
+                                    $item->updateOrCreate();
+                                }
                             }
+
                         }
                     }
                 ),

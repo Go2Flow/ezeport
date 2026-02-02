@@ -51,7 +51,11 @@ class CrossSellings extends BaseInstructions implements InstructionInterface
             ->body()
             ?->data;
 
-        if (!$bulk) return;
+        if (!$bulk) {
+
+            $items->each(fn ($item) => $item->logError(['failed to upload cross selling']));
+            return;
+        }
 
         $crossSellings = collect(
             $api->productCrossSelling()
