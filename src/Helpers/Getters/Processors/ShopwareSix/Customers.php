@@ -32,7 +32,10 @@ class Customers extends BaseInstructions implements InstructionInterface
                             )->body()?->data;
 
                             if (! $response) {
-                                $chunk->each(fn ($item) => $item->logError(['failed to upload customer']));
+                                $chunk->each(fn ($item) => $item->logError([
+                                    'reason' => 'failed to upload customer',
+                                    'api-error-messages' => $api->getClient()->getErrorMessages()
+                                    ]));
 
                                 } else {
 

@@ -37,7 +37,10 @@ class Categories extends BaseInstructions implements InstructionInterface
                                 $category->updateOrCreate();
                             }
                             else {
-                                $category->logError(['failed to upload category']);
+                                $category->logError([
+                                    'reason' => 'failed to upload category',
+                                    'api-error-messages' => $api->getClient()->getErrorMessages()
+                                ]);
                             }
                         }
                     }

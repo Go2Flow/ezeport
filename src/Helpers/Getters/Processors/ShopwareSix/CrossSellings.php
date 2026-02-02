@@ -53,7 +53,11 @@ class CrossSellings extends BaseInstructions implements InstructionInterface
 
         if (!$bulk) {
 
-            $items->each(fn ($item) => $item->logError(['failed to upload cross selling']));
+            $items->each(fn ($item) => $item->logError([
+                'reason' => 'failed to upload cross selling',
+                'api-error-messages' => $api->getClient()->getErrorMessages()
+            ]));
+
             return;
         }
 
@@ -92,6 +96,8 @@ class CrossSellings extends BaseInstructions implements InstructionInterface
 
         if ($deletes->isEmpty()) return;
 
-        $api->productCrossSelling()->bulkDelete($deletes->toArray())->body();
+        $api->productCrossSelling()->bulkDelete($deletes->toArray());
+
+
     }
 }

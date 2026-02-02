@@ -27,8 +27,16 @@ class Units extends BaseInstructions implements InstructionInterface
                                 $item->shopware('id')
                             )->body();
 
-                            $item->shopware(['id' => $response->data->id]);
-                            $item->updateOrCreate();
+                            if (!$response) {
+                                $item->shopware(['id' => $response->data->id]);
+                                $item->updateOrCreate();
+                            }
+                            else {
+                                $item->logError([
+                                    'reason' => 'failed to upload or create unit',
+                                    'api-error-messages' => $api->getClient()->getErrorMessages()
+                                ]);
+                            }
                         }
                     )
                 )

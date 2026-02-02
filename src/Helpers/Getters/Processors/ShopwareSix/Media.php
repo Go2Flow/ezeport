@@ -26,12 +26,22 @@ class Media extends BaseInstructions implements InstructionInterface
                                 $items->toShopArray()
                             )->body();
 
-                        for ($i = 0; $i < count($items); $i++) {
-                            $items[$i]->shopware([
-                                'id' => $response->data->media[$i]
-                            ]);
-                            $items[$i]->updateOrCreate();
+                        if ($response) {
+
+                            for ($i = 0; $i < count($items); $i++) {
+                                $items[$i]->shopware([
+                                    'id' => $response->data->media[$i]
+                                ]);
+                                $items[$i]->updateOrCreate();
+                            }
                         }
+                        else {
+                            $items->each(fn ($item) => $item->logError([
+                                'reason' => 'failed to create or update media',
+                                'api-error-messages' => $api->getClient()->getErrorMessages()
+                            ]));
+                        }
+
                     }
                 ),
         ];

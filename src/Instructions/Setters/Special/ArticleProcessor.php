@@ -51,7 +51,11 @@ class ArticleProcessor extends UploadProcessor {
 
             $this->logProblem($string, 'high');
 
-            $items->each(fn ($item) => $item->logError(['uploading of Product to shopware failed.']));
+            $items->each(fn ($item) => $item->logError([
+                'reason' => 'uploading of Product to shopware failed.',
+                'api-error-messages' => $this->apiCalls->getErrorMessages()
+
+                ]));
             return;
         }
 
@@ -99,7 +103,10 @@ class ArticleProcessor extends UploadProcessor {
                     'high'
                 );
 
-                $item->logError(['could not find Product in Shopware']);
+                $item->logError([
+                    'reason' => 'could not find Product in Shopware',
+                    'api-error-messages' => $this->apiCalls->getErrorMessages()
+                ]);
             }
 
             $items = $existing->map(

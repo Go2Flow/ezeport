@@ -48,11 +48,18 @@ class PropertyGroups extends BaseInstructions implements InstructionInterface
                             $api
                         );
 
-                        $this->setPropertyOptionId(
-                            $response,
-                            $items,
-                            $config['stored_id_type'] ?? 'id'
-                        );
+                        if ($response->body()) {
+                            $this->setPropertyOptionId(
+                                $response,
+                                $items,
+                                $config['stored_id_type'] ?? 'id'
+                            );
+                        } else {
+                            $items->each(fn ($item) => $item->logError([
+                                'reason' => 'failed to upload property group options',
+                                'api-error-messages' => $api->getClient()->getErrorMessages()
+                            ]));
+                        }
                     }
                 ),
         ];

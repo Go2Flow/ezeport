@@ -33,7 +33,10 @@ class CustomerGroups extends BaseInstructions implements InstructionInterface
                                 $item->updateOrCreate(false);
                             }
                             else {
-                                $item->logError(['failed to upload customer group']);
+                                $item->logError([
+                                    'reason' => 'failed to upload customer group',
+                                    'api-error-messages' => $api->getClient()->getErrorMessages()
+                                ]);
                             }
                         }
                     )
@@ -82,7 +85,10 @@ class CustomerGroups extends BaseInstructions implements InstructionInterface
                                 $item->shopware(['rule_id' => $response->body()->data->id]);
                                 $item->updateOrCreate(false);
                             } else {
-                                $item->logError(['failed to upload customer group rule']);
+                                $item->logError([
+                                    'reason' => 'failed to upload customer group rule',
+                                    'api-error-messages' => $api->getClient()->getErrorMessages()
+                                ]);
                             }
 
                         }

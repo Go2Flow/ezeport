@@ -86,9 +86,13 @@ class ArticleProcessorPatch
 
         if(($leftovers = $this->prepareLeftovers('properties', 'optionId'))->count() > 0) {
 
-            $this->apiCalls->deleteProperty(
+            $response = $this->apiCalls->deleteProperty(
                 $leftovers->toArray()
             );
+
+
+            $this->logErrorToProducts($response,'properties failed to be deleted on shopware');
+
         }
 
         return $this;
@@ -98,9 +102,12 @@ class ArticleProcessorPatch
 
         if(($leftovers = $this->prepareLeftovers('options', 'optionId'))->count() > 0) {
 
-            $this->apiCalls->deleteProperty(
+            $response = $this->apiCalls->deleteProperty(
                 $leftovers->toArray()
             );
+
+            $this->logErrorToProducts($response, 'options failed to be deleted on shopware');
+
         }
 
         return $this;
@@ -124,7 +131,12 @@ class ArticleProcessorPatch
 
         $priceIds = $prices->map(fn($item) => ["id" => $item->id])->values();
 
-        if ($priceIds->count() > 0) $this->apiCalls->deletePrices($priceIds->toArray());
+        if ($priceIds->count() > 0) {
+            $response = $this->apiCalls->deletePrices($priceIds->toArray());
+
+            $this->logErrorToProducts($response, 'prices failed to be deleted on shopware');
+
+        }
 
         return $this;
     }
@@ -170,10 +182,11 @@ class ArticleProcessorPatch
         }
 
         if (count($leftOvers) > 0) {
-            $this->apiCalls->deleteCategory(
+            $response = $this->apiCalls->deleteCategory(
                 $leftOvers
             );
 
+            $this->logErrorToProducts($response,'categories failed to be deleted on shopware');
         }
 
         return $this;
@@ -190,13 +203,23 @@ class ArticleProcessorPatch
             $delete = $delete->merge($this->prepareConfiguratorSettingsOptions($shopwareIds->diff($dbIds), $productId));
         }
 
-        if ($add->count() > 0) $this->apiCalls->configuratorSettings($add->toArray());
-        if ($delete->count() > 0) $this->prepareConfiguratorSettingsDelete($delete);
+        if ($add->count() > 0) {
+            $response = $this->apiCalls->configuratorSettings($add->toArray());
+
+            $this->logErrorToProducts($response, 'configurator settings failed to be added on shopware');
+
+        }
+        if ($delete->count() > 0) {
+            $response = $this->prepareConfiguratorSettingsDelete($delete);
+
+            $this->logErrorToProducts($response, 'configurator settings failed to be deleted on shopware');
+
+        }
 
         return $this;
     }
 
-    private function prepareConfiguratorSettingsDelete(Collection $delete) : void
+    private function prepareConfiguratorSettingsDelete(Collection $delete)
     {
 
         $response = $delete->flatMap(
@@ -210,8 +233,10 @@ class ArticleProcessorPatch
         )->filter()->values();
 
         if ($response->count() > 0) {
-            $this->apiCalls->configuratorSettings($response->toArray(), 'bulkDelete');
+            return $this->apiCalls->configuratorSettings($response->toArray(), 'bulkDelete');
         }
+
+        return null;
     }
 
     public function children(): self
@@ -254,16 +279,14 @@ class ArticleProcessorPatch
         if ($deletes->count() > 0) {
             $response = $this->apiCalls->deleteProducts($deletes->values()->toArray());
 
-            if (! $response) {
-                $this->items->filter(fn ($item) => $item->properties('children')?->isNotEmpty())
-                    ->each(fn ($item) => $item->logError(['children failed to be deleted on shopware']));
-            }
+            $this->logErrorToProducts($response,'children failed to be deleted on shopware');;
+
         }
         if ($children->count() > 0) {
 
-            $response = $this->apiCalls->bulkProducts($children->values()->toArray())?->body();
+            $response = $this->apiCalls->bulkProducts($children->values()->toArray());
 
-            if ($response) {
+            if ($response->body()) {
                 $parents = $this->items->mapWithKeys(fn ($item) => [$item->shop($this->id_field) => collect()]);
 
                 foreach ($response->data->product as $key => $product) {
@@ -282,8 +305,7 @@ class ArticleProcessorPatch
             }
 
             else {
-                $this->items->filter(fn ($item) => $item->properties('children')?->isNotEmpty())
-                    ->each(fn ($item) => $item->logError(['children failed to update on shopware']));
+                $this->logErrorToProducts($response, 'children failed to be created on shopware');
             }
         }
 
@@ -293,27 +315,23 @@ class ArticleProcessorPatch
     public function articles() : self {
         $response = $this->apiCalls->bulkProducts($this->databaseProducts->toArray());
 
-        if (! $response) {
-
-            $this->databaseProducts->each(fn ($item) => $item->logError(['product failed to be updated on shopware']));
-
-        }
+        $this->logErrorToProducts($response, 'product failed to be updated on shopware');
 
         return $this;
     }
 
     private function getConfigurationIds() : Collection
     {
-        $response = collect();
+        $configurationIds = collect();
         foreach ($this->shopwareProducts as $product) {
-            $response->push([
+            $configurationIds->push([
                 $product->id,
                 collect($this->getCorrectData($product->id)['configuratorSettings'] ?? [])->pluck('optionId'),
                 collect($product->configuratorSettings)->pluck('optionId')
             ]);
         }
 
-        return $response;
+        return $configurationIds;
     }
 
     private function prepareLeftovers($type, string $key) : Collection {
@@ -384,5 +402,15 @@ class ArticleProcessorPatch
                         : null
                 )->filter()
             )->map(fn ($item) => ['id' => $item]);
+    }
+
+    private function logErrorToProducts($response, string $message) : void
+    {
+        if ($response->body()) return;
+
+        $this->databaseProducts->each(fn ($item) => $item->logError([
+            'reason' => $message,
+            'api-error-messages' => $this->apiCalls->getErrorMessages()
+        ]));
     }
 }

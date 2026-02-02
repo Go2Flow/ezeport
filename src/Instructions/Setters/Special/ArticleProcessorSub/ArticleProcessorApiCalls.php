@@ -45,7 +45,7 @@ class ArticleProcessorApiCalls {
         );
     }
 
-    public function deleteCategory($items)
+    public function deleteCategory(array $items)
     {
         return $this->api->productCategory()->bulkDelete(
             $items
@@ -55,6 +55,11 @@ class ArticleProcessorApiCalls {
     public function deletePrices(array $prices) {
 
         return $this->api->productPrice()->bulkDelete($prices);
+    }
+
+    public function getErrorMessages() : array
+    {
+        return $this->api->getClient()->getErrorMessages();
     }
 
     public function getProducts(array $ids) : ?object {
