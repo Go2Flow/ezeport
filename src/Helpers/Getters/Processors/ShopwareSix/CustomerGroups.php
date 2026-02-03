@@ -28,8 +28,8 @@ class CustomerGroups extends BaseInstructions implements InstructionInterface
                                 $response = $api->customerGroup()->create($array);
                             }
 
-                            if( $response->body()) {
-                                $item->shopware(['id' => $response->body()->data->id]);
+                            if($response = $response->body()) {
+                                $item->shopware(['id' => $response->data->id]);
                                 $item->updateOrCreate(false);
                             }
                             else {

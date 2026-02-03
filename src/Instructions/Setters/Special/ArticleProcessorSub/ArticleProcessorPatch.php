@@ -91,7 +91,7 @@ class ArticleProcessorPatch
             );
 
 
-            $this->logErrorToProducts($response,'properties failed to be deleted on shopware');
+            $this->logErrorToProducts($response->body(),'properties failed to be deleted on shopware');
 
         }
 
@@ -106,7 +106,7 @@ class ArticleProcessorPatch
                 $leftovers->toArray()
             );
 
-            $this->logErrorToProducts($response, 'options failed to be deleted on shopware');
+            $this->logErrorToProducts($response->body(), 'options failed to be deleted on shopware');
 
         }
 
@@ -134,7 +134,7 @@ class ArticleProcessorPatch
         if ($priceIds->count() > 0) {
             $response = $this->apiCalls->deletePrices($priceIds->toArray());
 
-            $this->logErrorToProducts($response, 'prices failed to be deleted on shopware');
+            $this->logErrorToProducts($response->body(), 'prices failed to be deleted on shopware');
 
         }
 
@@ -160,7 +160,7 @@ class ArticleProcessorPatch
 
         if ($this->config->find('articles.categories.replace') === false) return $this;
 
-        $response = $this->shopwareProducts->map(
+        $items = $this->shopwareProducts->map(
             fn($product) => [
                 "productId" => $product->id,
                 "ids" => collect($product->categoryIds)->diff(
@@ -170,7 +170,7 @@ class ArticleProcessorPatch
 
         $leftOvers = [];
 
-        foreach ($response as $item) {
+        foreach ($items as $item) {
 
             foreach ($item['ids'] ?? [] as $id) {
 
@@ -186,7 +186,7 @@ class ArticleProcessorPatch
                 $leftOvers
             );
 
-            $this->logErrorToProducts($response,'categories failed to be deleted on shopware');
+            $this->logErrorToProducts($response->body(),'categories failed to be deleted on shopware');
         }
 
         return $this;
@@ -206,13 +206,13 @@ class ArticleProcessorPatch
         if ($add->count() > 0) {
             $response = $this->apiCalls->configuratorSettings($add->toArray());
 
-            $this->logErrorToProducts($response, 'configurator settings failed to be added on shopware');
+            $this->logErrorToProducts($response->body(), 'configurator settings failed to be added on shopware');
 
         }
         if ($delete->count() > 0) {
             $response = $this->prepareConfiguratorSettingsDelete($delete);
 
-            $this->logErrorToProducts($response, 'configurator settings failed to be deleted on shopware');
+            $this->logErrorToProducts($response->body(), 'configurator settings failed to be deleted on shopware');
 
         }
 
@@ -279,17 +279,17 @@ class ArticleProcessorPatch
         if ($deletes->count() > 0) {
             $response = $this->apiCalls->deleteProducts($deletes->values()->toArray());
 
-            $this->logErrorToProducts($response,'children failed to be deleted on shopware');;
+            $this->logErrorToProducts($response->body(),'children failed to be deleted on shopware');;
 
         }
         if ($children->count() > 0) {
 
             $response = $this->apiCalls->bulkProducts($children->values()->toArray());
 
-            if ($response->body()) {
+            if ($response = $response->body()) {
                 $parents = $this->items->mapWithKeys(fn ($item) => [$item->shop($this->id_field) => collect()]);
 
-                foreach ($response->body()->data->product as $key => $product) {
+                foreach ($response->data->product as $key => $product) {
 
                     $parents[$children[$key]['parentId']][$children[$key]['productNumber']] =  $product;
                 }
@@ -315,7 +315,7 @@ class ArticleProcessorPatch
     public function articles() : self {
         $response = $this->apiCalls->bulkProducts($this->databaseProducts->toArray());
 
-        $this->logErrorToProducts($response, 'product failed to be updated on shopware');
+        $this->logErrorToProducts($response->body(), 'product failed to be updated on shopware');
 
         return $this;
     }
@@ -406,7 +406,7 @@ class ArticleProcessorPatch
 
     private function logErrorToProducts($response, string $message) : void
     {
-        if ($response->body()) return;
+        if ($response) return;
 
         $this->databaseProducts->each(fn ($item) => $item->logError([
             'reason' => $message,

@@ -47,7 +47,7 @@ class Manufacturers extends BaseInstructions implements InstructionInterface
                                 $create->values()->map->toShopArray()->toArray()
                             );
 
-                            if ($response->body()) {
+                            if ($response = $response->body()) {
 
                                 $this->updateWithShopwareValue(
                                     $response->body()->data,
