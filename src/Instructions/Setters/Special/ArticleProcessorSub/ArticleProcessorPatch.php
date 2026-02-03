@@ -289,7 +289,7 @@ class ArticleProcessorPatch
             if ($response->body()) {
                 $parents = $this->items->mapWithKeys(fn ($item) => [$item->shop($this->id_field) => collect()]);
 
-                foreach ($response->data->product as $key => $product) {
+                foreach ($response->body()->data->product as $key => $product) {
 
                     $parents[$children[$key]['parentId']][$children[$key]['productNumber']] =  $product;
                 }
