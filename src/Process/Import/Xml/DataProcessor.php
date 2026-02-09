@@ -63,7 +63,7 @@ class DataProcessor
             ->setRelations();
     }
 
-    private function prepareContent($text, xmlImport $structure): ?Collection
+    private function prepareContent($text, XmlImport $structure): ?Collection
     {
         $data = $this->parseXml(
             $text, $structure->get('values') ?? [],

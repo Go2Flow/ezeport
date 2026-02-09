@@ -29,7 +29,7 @@ class JobBatcher
     ){
         $this->action = new ManageActions($this->project);
         $this->batch = new BatchTool;
-        $this->prepare = New Prepare($uploadManager, $this->project, $this->action);
+        $this->prepare = New Prepare($uploadManager, $this->project);
     }
 
     /** will execute the job batches you pass in. You have two choices about what you pass in. Either a collection of jobs

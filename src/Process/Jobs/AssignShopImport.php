@@ -36,7 +36,7 @@ class AssignShopImport implements ShouldQueue
         }
     }
 
-    public function tag()
+    public function tags()
     {
         return $this->array['type'];
     }

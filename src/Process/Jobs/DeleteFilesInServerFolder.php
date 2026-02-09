@@ -30,9 +30,9 @@ class DeleteFilesInServerFolder implements ShouldQueue
      */
     public function handle(): void
     {
-        $project = Project::first();
+        $project = Project::find($this->project);
 
-        $api = Find::Api($project, 'Ftp')->get();
+        $api = Find::api($project, 'Ftp')->get();
 
         $list = $api->processed()->list();
 

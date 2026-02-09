@@ -33,7 +33,7 @@ class ShopImport implements ShouldQueue
             ->process($this->chunk);
     }
 
-    public function tag()
+    public function tags()
     {
         return $this->config['key'] . ' ' . $this->chunk->implode(', ');
     }
