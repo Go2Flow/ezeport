@@ -11,6 +11,8 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Str;
 
 class GetFiles implements ShouldQueue
 {
@@ -32,28 +34,30 @@ class GetFiles implements ShouldQueue
      */
     public function handle(): void
     {
-        $api = Find::api(Project::find($this->project), 'ftp')->{$this->array['path']}();
+        $api = Find::api(Project::find($this->project), $this->array['api'] ?? 'ftp');
+
+        if (isset($this->array['path'])) {
+            $api = $api->{$this->array['path']}();
+        }
 
         if (isset($this->array['name']))
         {
             $this->tryCatch(
                 fn() => $api->findAndStore(
                     $this->array['name'],
-                    $this->array['path']
+                    $this->array['path'] ?? '/'
                 )
             );
 
             return;
         }
 
-        if (isset($this->array['not'])) $api =  $api->removeFromList($this->array['not']);
-
         if ($this->setAndTrue('newest')) {
 
             $this->tryCatch(
-                fn() => $api->{$this->array['path']}()->findAndStore(
-                    $api->{$this->array['path']}()->list()->first(),
-                    $this->array['path']
+                fn() => $api->findAndStore(
+                    $this->filterList($api)->first(),
+                    $this->array['path'] ?? '/'
                 )
             );
             return;
@@ -61,14 +65,29 @@ class GetFiles implements ShouldQueue
         if ($this->setAndTrue('files')) {
 
             $this->tryCatch(
-            fn() => $api->{$this->array['path']}()->list()
+                fn() => $this->filterList($api)
                     ->each(
-                        fn($file) => $api->{$this->array['path']}()->findAndStore($file, $this->array['path'])
+                        fn($file) => $api->findAndStore($file, $this->array['path'] ?? '/')
                     )
             );
-
-            return;
         }
+    }
+
+    private function filterList($api) : Collection
+    {
+        $list = $api->list();
+
+        if (isset($this->array['not'])) {
+
+            $list = $list->filter(fn ($file) => $file !== $this->array['not']);
+        }
+
+        if (isset($this->array['type'])) {
+
+            $list = $list->filter(fn ($file) => Str::endsWith($file, $this->array['type']));
+        }
+
+        return $list;
     }
 
     private function tryCatch(Closure $method): void
@@ -85,6 +104,6 @@ class GetFiles implements ShouldQueue
 
     private function setAndTrue(string $key): bool
     {
-        return isset($this->array[$key]) && $this->array[$key] == true;
+        return isset($this->array[$key]) && $this->array[$key] === true;
     }
 }

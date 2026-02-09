@@ -6,7 +6,6 @@ use Go2Flow\Ezport\Connectors\ApiInterface;
 use Go2Flow\Ezport\Models\Project;
 use Go2Flow\Ezport\Process\Errors\EzportFinderException;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Go2Flow\Ezport\Connectors\Ftp\Api as FtpApi;
 use Go2Flow\Ezport\Connectors\ShopwareSix\Api as ShopSixApi;

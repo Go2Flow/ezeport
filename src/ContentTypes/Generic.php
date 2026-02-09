@@ -181,14 +181,14 @@ class Generic
 
     public function external(): ?Model
     {
-        return $this->contentData->external; // returns the parent
+        return $this->contentData->external;
     }
 
     public function attachExternal(Model $model): self
     {
         $this->contentData->update([
             'morph_id' => $model->id,
-            'morph_type' => get_class($model), // optional: use full class
+            'morph_type' => get_class($model),
         ]);
 
         return $this;
