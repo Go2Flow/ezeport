@@ -45,7 +45,7 @@ class GetFiles implements ShouldQueue
             $this->tryCatch(
                 fn() => $api->findAndStore(
                     $this->array['name'],
-                    $this->array['path'] ?? '/'
+                    $this->getDestinationFolder()
                 )
             );
 
@@ -57,7 +57,7 @@ class GetFiles implements ShouldQueue
             $this->tryCatch(
                 fn() => $api->findAndStore(
                     $this->filterList($api)->first(),
-                    $this->array['path'] ?? '/'
+                    $this->getDestinationFolder()
                 )
             );
             return;
@@ -67,7 +67,10 @@ class GetFiles implements ShouldQueue
             $this->tryCatch(
                 fn() => $this->filterList($api)
                     ->each(
-                        fn($file) => $api->findAndStore($file, $this->array['path'] ?? '/')
+                        fn($file) => $api->findAndStore(
+                            $file,
+                            $this->getDestinationFolder()
+                        )
                     )
             );
         }
@@ -105,5 +108,10 @@ class GetFiles implements ShouldQueue
     private function setAndTrue(string $key): bool
     {
         return isset($this->array[$key]) && $this->array[$key] === true;
+    }
+
+    private function getDestinationFolder() : string
+    {
+        return $this->array['destination'] ?? $this->array['path'] ?? '/';
     }
 }
