@@ -111,29 +111,6 @@ class Schedule extends Base
         return $this->set('event', 'clean');
     }
 
-    /**
-     * set the job type to 'full' This will run the job type 'full' in the project's job instructions.
-     * you will still need to set the event (import, upload, shopClean, ftpClean)
-     */
-
-    /* @deprecated */
-    public function full(): self
-    {
-        return $this->set('type', 'full');
-    }
-
-    /**
-     * set the job type to 'full' This will run the job type 'partial' in the project's job instructions.
-     * you will still need to set the event (import, upload, shopClean, ftpClean)
-     */
-
-    /* @deprecated */
-
-    public function partial(): self
-    {
-        return $this->set('type', 'partial');
-    }
-
     public function type($string) : self
     {
         return $this->set('type', $string);

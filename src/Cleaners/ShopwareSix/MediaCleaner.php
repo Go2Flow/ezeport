@@ -3,6 +3,7 @@
 namespace Go2Flow\Ezport\Cleaners\ShopwareSix;
 
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Log;
 
 class MediaCleaner extends BaseCleaner
 {
@@ -17,18 +18,18 @@ class MediaCleaner extends BaseCleaner
     {
         $media = $this->difference;
 
-        dump('gathering media');
+        Log::debug('Ezport: gathering media');
 
         $this->difference = $this->media(
             $media
         );
 
-        dump('remove product media');
+        Log::debug('Ezport: remove product media');
         $this->removeProductMedia();
 
         $this->difference = $media;
 
-        dump ('remove media');
+        Log::debug('Ezport: remove media');
 
         $this->difference->each(function ($id) {
             $this->api->media()->delete($id);

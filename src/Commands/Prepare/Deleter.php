@@ -4,6 +4,7 @@ namespace Go2Flow\Ezport\Commands\Prepare;
 
 use Go2Flow\Ezport\Connectors\ShopwareSix\Api;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 class Deleter
@@ -19,7 +20,7 @@ class Deleter
 
     public function remove($type) : void
     {
-        dump('Removing ' . Str::plural($type));
+        Log::debug('Ezport: Removing ' . Str::plural($type));
         $deleteWay = (collect(['category'])->contains($type))
             ? 'single'
             : 'bulk';
@@ -33,7 +34,7 @@ class Deleter
 
         while ($totalNow < $totalThen ) {
 
-            dump($totalNow . " remaining");
+            Log::debug('Ezport: ' . $totalNow . ' remaining');
             $ids = $this->extractIds(
                 $response
             );

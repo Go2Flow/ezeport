@@ -268,9 +268,8 @@ class Generic
     }
 
     /**
-     * @deprecated
-     **/
-
+     * @deprecated Use shop() instead.
+     */
     public function shopware($input = null)
     {
         return $this->contentData->getOrSetData($input, 'shop');

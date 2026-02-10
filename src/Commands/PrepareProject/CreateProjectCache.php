@@ -6,6 +6,7 @@ use Go2Flow\Ezport\Finders\Api;
 use Go2Flow\Ezport\Models\Project;
 use Illuminate\Support\Str;
 use Go2Flow\Ezport\Process\Errors\EzportException;
+use Illuminate\Support\Facades\Log;
 
 class CreateProjectCache
 {
@@ -20,7 +21,7 @@ class CreateProjectCache
     {
         foreach ($this->caches() as $key => $closure) {
 
-            dump('creating ' . $key . ' cache');
+            Log::debug('Ezport: creating ' . $key . ' cache');
             $this->project->cache($closure());
         }
 

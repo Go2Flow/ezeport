@@ -1,0 +1,8 @@
+parameters:
+    level: 3
+    paths:
+        - src
+    ignoreErrors:
+        - '#Call to an undefined method#'
+        - '#Access to an undefined property#'
+    reportUnmatchedIgnoredErrors: false

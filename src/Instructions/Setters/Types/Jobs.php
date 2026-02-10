@@ -6,9 +6,9 @@ use Illuminate\Support\Collection;
 
 class Jobs extends Base{
 
-    protected ?collection $steps;
+    protected ?Collection $steps;
     protected string $type;
-    protected collection $environment;
+    protected Collection $environment;
 
     public function __construct(string $key = '')
     {
@@ -44,27 +44,6 @@ class Jobs extends Base{
     public function transform() : self {
 
         return $this->setKey('transform');
-    }
-
-    /**
-     * @deprecated
-     */
-
-    public function partial() : self {
-
-        $this->type = 'partial';
-
-        return $this;
-    }
-
-    /**
-     * @deprecated
-     */
-    public function full() : self {
-
-        $this->type = 'full';
-
-        return $this;
     }
 
     public function type(string $string) : self {

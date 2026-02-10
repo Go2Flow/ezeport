@@ -10,6 +10,7 @@ use Go2Flow\Ezport\Models\Project;
 use Go2Flow\Ezport\Process\Jobs\CleanShop;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 
 abstract class BaseCleaner
 {
@@ -25,7 +26,7 @@ abstract class BaseCleaner
 
     public function __construct(
         protected Api $api,
-        array|collection $database,
+        array|Collection $database,
         protected array $config
     ){
         $this->typeSpecificActions();
@@ -56,7 +57,7 @@ abstract class BaseCleaner
 
     protected function getIdsToDelete() : Collection
     {
-        dump('getIdsToDelete');
+        Log::debug('Ezport: getIdsToDelete');
         return $this->serverDatabaseDifference(
             $this->itemsFromShop()->pluck('id')
         );
