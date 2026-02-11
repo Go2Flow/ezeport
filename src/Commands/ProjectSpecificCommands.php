@@ -194,9 +194,11 @@ class ProjectSpecificCommands
             options: $this->getOptions($job)
         );
 
+        $event = lcfirst(Str::after($method, 'run'));
+
         (new JobBatcher($this->project, new UploadManager($this->project)))
             ->startAction(Str::after($method, 'run'), $type)
-            ->$method($type);
+            ->run($event, $type);
     }
 
     public function runTest()

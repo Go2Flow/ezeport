@@ -233,7 +233,7 @@ class Schedule extends Base
 
     private function getJobs(JobBatcher $batcher, array $lock)
     {
-        return $batcher->{'get' . Str::ucfirst($this->event)}($this->type)
+        return $batcher->get($this->event, $this->type)
             ->when(
                 $this->after,
                 fn ($collection) => $collection->push(
