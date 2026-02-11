@@ -88,7 +88,7 @@ class Log
                         : null;
                 }
 
-                if (!$original->has($key) || $item !== $original[$key]) {
+                if (!$original->has($key) || $item != $original[$key]) {
 
                     return $item;
                 }
