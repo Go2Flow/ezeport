@@ -192,8 +192,7 @@ class TypeGetter implements BuilderContract
         if (! $this->query) {
 
             $this->query = GenericModel::where('type', $this->type)
-                ->where('project_id', $this->project->id)
-                ->with('children');
+                ->where('project_id', $this->project->id);
             }
 
         return $this->query;

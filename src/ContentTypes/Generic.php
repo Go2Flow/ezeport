@@ -30,6 +30,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class Generic
 {
+    private static array $projectCache = [];
+
     protected ?Upload $setUpload = null;
     protected ?Project $project;
     private ?GenericModel $contentData;
@@ -139,7 +141,7 @@ class Generic
 
                     if (($attach = $new->diff($current)->merge($reAttach)->unique())->count() > 0) {
 
-                        foreach (GenericModel::whereIn('id', $attach)->with('children')->get() as $child) {
+                        foreach (GenericModel::whereIn('id', $attach)->get() as $child) {
                             $this->contentData->assertNoCircularRelation($child);
                         }
 
@@ -253,6 +255,10 @@ class Generic
 
     public function relations(string|array|Collection $input = null): mixed
     {
+        if ($input === null || is_string($input)) {
+            $this->ensureRelationsLoaded();
+        }
+
         return $this->contentData->getOrSetData($input, 'modelRelations');
     }
 
@@ -371,7 +377,9 @@ class Generic
 
     public function project(): Project
     {
-        return $this->project = $this->project ?? Project::find($this->contentData->project_id);
+        return $this->project = $this->project
+            ?? (self::$projectCache[$this->contentData->project_id]
+                ??= Project::find($this->contentData->project_id));
     }
 
     public function __get($name) :?string
@@ -394,6 +402,26 @@ class Generic
         }
 
         throw new EzportContentTypeException("Method {$method} does not exist on this object");
+    }
+
+    private function ensureRelationsLoaded(): void
+    {
+        if ($this->contentData->modelRelations !== null) {
+            return;
+        }
+
+        $children = $this->contentData->children()->get();
+
+        if ($children->isEmpty()) {
+            $this->contentData->modelRelations = collect();
+            return;
+        }
+
+        $this->contentData->modelRelations = $children->groupBy(
+            fn ($child) => $child->pivot->group_type
+        )->map(
+            fn ($group) => $group->map(fn ($child) => new Generic($child))
+        );
     }
 
     private function forget($field, $input = null)

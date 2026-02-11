@@ -114,12 +114,9 @@ class GenericModel extends BaseModel
         return [$original, $exists];
     }
 
-    public function toContentType(array $getDescendants = [true, false]): Generic
+    public function toContentType(): Generic
     {
-        $class = new Generic($this);
-        if (array_shift($getDescendants)) $class->relations($this->arrangeChildren($getDescendants));
-
-        return $class;
+        return new Generic($this);
     }
 
     public function setContentAndRelations($data) : self
@@ -182,12 +179,4 @@ class GenericModel extends BaseModel
         }
     }
 
-    private function arrangeChildren(array $getDescendants): Collection
-    {
-        return $this->children->groupBy(
-            fn ($child) => $child->pivot->group_type
-        )->map(
-            fn ($group) => $group->toContentType($getDescendants)
-        );
-    }
 }
