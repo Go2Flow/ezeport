@@ -28,7 +28,7 @@ class MoveFilesInServerFolder implements ShouldQueue
     {
         $project = Project::find($this->project);
 
-        $api = Find::Api($project, 'Ftp')->get();
+        $api = Find::Api($project,  $this->array['api'] ?? 'ftp')->get();
 
         foreach ($api->{$this->config['from']}()->list() as $file) {
 

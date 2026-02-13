@@ -3,6 +3,7 @@
 namespace Go2Flow\Ezport\Process\Jobs;
 
 use Go2Flow\Ezport\Finders\Find;
+use Go2Flow\Ezport\Instructions\Setters\Types\CsvImport;
 use Go2Flow\Ezport\Models\Project;
 use Go2Flow\Ezport\Process\Import\Csv\Importer;
 use Illuminate\Bus\Batchable;

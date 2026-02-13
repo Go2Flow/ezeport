@@ -32,7 +32,7 @@ class DeleteFilesInServerFolder implements ShouldQueue
     {
         $project = Project::find($this->project);
 
-        $api = Find::api($project, 'Ftp')->get();
+        $api = Find::api($project,  $this->array['api'] ?? 'ftp')->get();
 
         $list = $api->processed()->list();
 
