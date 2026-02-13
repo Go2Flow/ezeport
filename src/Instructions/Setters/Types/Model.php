@@ -5,15 +5,14 @@ namespace Go2Flow\Ezport\Instructions\Setters\Types;
 use Closure;
 use Go2Flow\Ezport\Instructions\Getters\GetProxy;
 use Go2Flow\Ezport\Instructions\Interfaces\ImportInstructionInterface;
+use Go2Flow\Ezport\Instructions\Setters\Interfaces\Assignable;
 use Go2Flow\Ezport\Instructions\Setters\Interfaces\JobInterface;
 use Go2Flow\Ezport\Instructions\Setters\Set;
-use Go2Flow\Ezport\Process\Jobs\AssignProcess;
+use Go2Flow\Ezport\Process\Jobs\AssignInstruction;
 use Go2Flow\Ezport\Process\Jobs\ModifyModel;
 use Illuminate\Support\Collection;
-use Illuminate\Contracts\Queue\ShouldQueue;
 
-
-class Model extends Basic implements ImportInstructionInterface, JobInterface
+class Model extends Basic implements ImportInstructionInterface, JobInterface, Assignable
 {
 
     protected Collection $getters;
@@ -25,7 +24,7 @@ class Model extends Basic implements ImportInstructionInterface, JobInterface
     {
         parent::__construct($key);
         $this->job = Set::job()
-            ->class(AssignProcess::class);
+            ->class(AssignInstruction::class);
     }
 
     /**
@@ -58,7 +57,7 @@ class Model extends Basic implements ImportInstructionInterface, JobInterface
 
     }
 
-    public function getJobs() : Collection
+    public function assignJobs(): Collection
     {
         return ($this->items)()
             ->chunk(100)

@@ -5,7 +5,7 @@ namespace Go2Flow\Ezport\Finders\Abstracts;
 class BaseTransformInstructions extends BaseInstructions
 {
 
-    protected ?string $importInstructionType = 'transform';
+    protected ?string $instructionType = 'transform';
 
 
 

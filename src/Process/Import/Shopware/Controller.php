@@ -8,7 +8,7 @@ use Go2Flow\Ezport\Instructions\Setters\Types\ShopImport as SetShopImport;
 use Go2Flow\Ezport\Models\Project;
 use Go2Flow\Ezport\Process\Errors\EzportImportException;
 use Go2Flow\Ezport\Process\Import\Helpers\HasStructure;
-use Go2Flow\Ezport\Process\Jobs\RunProcess as RunProcessJob;
+use Go2Flow\Ezport\Process\Jobs\ProcessInstruction;
 use Go2Flow\Ezport\Process\Jobs\ShopImport;
 use Illuminate\Support\Collection;
 
@@ -34,9 +34,9 @@ class Controller
 
         return $items->chunk(25)
             ->map(
-                fn ($chunk) => new RunProcessJob(
+                fn ($chunk) => new ProcessInstruction(
                     $this->project->id,
-                    ['items' => $chunk, 'type' => 'Import', 'key' => $this->config['key']]
+                    ['items' => $chunk, 'instructionType' => 'import', 'key' => $this->config['key']]
                 )
             );
     }

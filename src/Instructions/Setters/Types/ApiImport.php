@@ -6,12 +6,14 @@ use Closure;
 use Go2Flow\Ezport\Instructions\Getters\Get;
 use Go2Flow\Ezport\Instructions\Getters\GetProxy;
 use Go2Flow\Ezport\Instructions\Interfaces\ImportInstructionInterface;
+use Go2Flow\Ezport\Instructions\Setters\Interfaces\Assignable;
+use Go2Flow\Ezport\Instructions\Setters\Interfaces\Executable;
 use Go2Flow\Ezport\Instructions\Setters\Set;
-use Go2Flow\Ezport\Process\Jobs\AssignProcess;
-use Go2Flow\Ezport\Process\Jobs\RunProcess as RunProcessJob;
+use Go2Flow\Ezport\Process\Jobs\AssignInstruction;
+use Go2Flow\Ezport\Process\Jobs\ProcessInstruction;
 use Illuminate\Support\Collection;
 
-class ApiImport extends Basic implements ImportInstructionInterface {
+class ApiImport extends Basic implements ImportInstructionInterface, Assignable, Executable {
 
     protected string $type;
     protected string $uniqueId;
@@ -35,7 +37,7 @@ class ApiImport extends Basic implements ImportInstructionInterface {
         $this->chunk = 25;
 
         $this->job = Set::Job()
-            ->class(AssignProcess::class);
+            ->class(AssignInstruction::class);
 
     }
 
@@ -70,16 +72,25 @@ class ApiImport extends Basic implements ImportInstructionInterface {
         return $this->setProperty('chunk', $chunk);
     }
 
-    public function getJobs() : Collection
+    public function assignJobs(): Collection
     {
-        $items = ($this->items)(($this->api)($this->project));
-
-        return $items->chunk($this->chunk)
+        return ($this->items)(($this->api)($this->project))
+            ->chunk($this->chunk)
             ->map(
-                fn ($chunk) => new RunProcessJob(
+                fn ($chunk) => new ProcessInstruction(
                     $this->project->id,
-                    ['items' => $chunk, 'type' => 'Import', 'key' => $this->key]
+                    ['items' => $chunk, 'instructionType' => $this->instructionType, 'key' => $this->key]
                 )
             );
+    }
+
+    public function execute(array $config): void
+    {
+        ($this->process)(
+            $config['items'] ?? collect([]),
+            $this->has('api')
+                ? ($this->api)($this->project)
+                : null,
+        );
     }
 }

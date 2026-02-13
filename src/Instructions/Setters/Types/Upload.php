@@ -8,14 +8,15 @@ use Go2Flow\Ezport\ContentTypes\Helpers\Content;
 use Go2Flow\Ezport\ContentTypes\Helpers\TypeGetter;
 use Go2Flow\Ezport\Instructions\Getters\Get;
 use Go2Flow\Ezport\Instructions\Getters\GetProxy;
+use Go2Flow\Ezport\Instructions\Setters\Interfaces\Executable;
 use Go2Flow\Ezport\Instructions\Setters\Interfaces\JobInterface;
 use Go2Flow\Ezport\Instructions\Setters\Set;
 use Go2Flow\Ezport\Models\GenericModel;
-use Go2Flow\Ezport\Process\Jobs\UploadWithInstruction;
+use Go2Flow\Ezport\Process\Jobs\ProcessInstruction;
 use Illuminate\Contracts\Database\Query\Builder;
 use Illuminate\Support\Collection;
 
-class Upload extends Basic implements JobInterface
+class Upload extends Basic implements JobInterface, Executable
 {
 
     protected Collection $getters;
@@ -31,7 +32,7 @@ class Upload extends Basic implements JobInterface
         parent::__construct($key);
         $this->getters = collect();
         $this->job = Set::job()
-            ->class(UploadWithInstruction::class);
+            ->class(ProcessInstruction::class);
     }
 
     /**
@@ -249,6 +250,12 @@ class Upload extends Basic implements JobInterface
         }
 
         return $processor->setComponents($this->components);
+    }
+
+    public function execute(array $config): void
+    {
+        $this->getProcessor()
+            ->run($this->prepareItems(collect($config['items'])));
     }
 
     protected function builder(): TypeGetter|Collection|Builder

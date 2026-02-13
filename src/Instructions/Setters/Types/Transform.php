@@ -3,15 +3,17 @@
 namespace Go2Flow\Ezport\Instructions\Setters\Types;
 
 use Go2Flow\Ezport\ContentTypes\Generic;
+use Go2Flow\Ezport\Instructions\Setters\Interfaces\Assignable;
+use Go2Flow\Ezport\Instructions\Setters\Interfaces\Executable;
 use Go2Flow\Ezport\Process\Errors\EzportSetterException;
-use Go2Flow\Ezport\Process\Jobs\AssignTransform;
-use Go2Flow\Ezport\Process\Jobs\Transform as TransformJob;
+use Go2Flow\Ezport\Process\Jobs\AssignInstruction;
+use Go2Flow\Ezport\Process\Jobs\ProcessInstruction;
 use Go2Flow\Ezport\Models\GenericModel;
 use Illuminate\Contracts\Database\Query\Builder;
 use Illuminate\Support\Collection;
 use Go2Flow\Ezport\Instructions\Setters\Special\Relation;
 
-class Transform extends Basic
+class Transform extends Basic implements Assignable, Executable
 {
     protected ?\closure $prepare = null;
     protected Collection $processes;
@@ -33,7 +35,7 @@ class Transform extends Basic
             }
         }
 
-        $this->job = (new Job)->class(AssignTransform::class);
+        $this->job = (new Job)->class(AssignInstruction::class);
 
         $this->processes = collect();
         $this->relations = collect();
@@ -104,21 +106,38 @@ class Transform extends Basic
         return $this;
     }
 
-    public function getJobs()
+    public function assignJobs(): Collection
     {
+        $this->pluck();
         $config = $this->config ? ($this->config)() : collect();
 
         return !$this->items
-            ? collect([new TransformJob($this->project->id, $this->key->toString(), null, $config) ])
+            ? collect([new ProcessInstruction($this->project->id, [
+                'instructionType' => $this->instructionType,
+                'key' => $this->key,
+                'chunk' => null,
+                'transformConfig' => $config,
+            ])])
             : $this->items->chunk($this->chunk)
                 ->map(
-                    fn ($chunk) => new TransformJob(
+                    fn ($chunk) => new ProcessInstruction(
                         $this->project->id,
-                        $this->key->toString(),
-                        $chunk,
-                        $config
+                        [
+                            'instructionType' => $this->instructionType,
+                            'key' => $this->key,
+                            'chunk' => $chunk,
+                            'transformConfig' => $config,
+                        ]
                     )
                 );
+    }
+
+    public function execute(array $config): void
+    {
+        $this->run(
+            isset($config['chunk']) ? collect($config['chunk']) : null,
+            $config['transformConfig'] ?? []
+        );
     }
 
     public function pluck(): self

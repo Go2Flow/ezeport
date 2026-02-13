@@ -3,14 +3,16 @@
 namespace Go2Flow\Ezport\Instructions\Setters\Types;
 
 use Go2Flow\Ezport\Finders\Api;
+use Go2Flow\Ezport\Finders\Find;
 use Go2Flow\Ezport\Instructions\Interfaces\ImportInstructionInterface;
+use Go2Flow\Ezport\Instructions\Setters\Interfaces\Assignable;
+use Go2Flow\Ezport\Instructions\Setters\Interfaces\Executable;
 use Go2Flow\Ezport\Instructions\Setters\Interfaces\JobInterface;
-use Go2Flow\Ezport\Jobs\FileImport;
-use Go2Flow\Ezport\Process\Jobs\AssignFtpFileImport;
-use Go2Flow\Ezport\Process\Jobs\FtpFileImport as FtpFileImportJob;
+use Go2Flow\Ezport\Process\Jobs\AssignInstruction;
+use Go2Flow\Ezport\Process\Jobs\ProcessInstruction;
 use Illuminate\Support\Collection;
 
-class FtpFileImport extends Basic implements JobInterface, ImportInstructionInterface
+class FtpFileImport extends Basic implements JobInterface, ImportInstructionInterface, Assignable, Executable
 {
 
     protected ?\closure $prepare = null;
@@ -21,7 +23,7 @@ class FtpFileImport extends Basic implements JobInterface, ImportInstructionInte
     {
         parent::__construct($key);
 
-        $this->jobClass = AssignFtpFileImport::class;
+        $this->jobClass = AssignInstruction::class;
     }
 
     public function config(array $config): self
@@ -44,25 +46,31 @@ class FtpFileImport extends Basic implements JobInterface, ImportInstructionInte
         return $this;
     }
 
-    public function prepareJobs(Api $api, array $config) : Collection {
+    public function assignJobs(): Collection
+    {
+        $api = Find::api($this->project, 'ftp');
 
         return ($this->prepare)($api, $this->config)
             ->chunk(25)
             ->map(
-                fn ($chunk) => new FtpFileImportJob(
-                    $chunk,
+                fn ($chunk) => new ProcessInstruction(
                     $this->project->id,
-                    $config
+                    [
+                        'chunk' => $chunk,
+                        'instructionType' => $this->instructionType,
+                        'key' => $this->key,
+                        'tries' => 5,
+                    ]
                 )
             );
     }
 
-    public function run (Collection $chunk, Api $api) : void {
-
+    public function execute(array $config): void
+    {
         ($this->process)(
-            $chunk,
+            collect($config['chunk']),
             $this->config,
-            $api
+            Find::api($this->project, 'ftp')
         );
     }
 }

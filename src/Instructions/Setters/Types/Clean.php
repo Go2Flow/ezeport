@@ -6,15 +6,17 @@ use Closure;
 use Go2Flow\Ezport\Finders\Find;
 use Go2Flow\Ezport\Instructions\Getters\Get;
 use Go2Flow\Ezport\Instructions\Getters\GetProxy;
+use Go2Flow\Ezport\Instructions\Setters\Interfaces\Assignable;
+use Go2Flow\Ezport\Instructions\Setters\Interfaces\Executable;
 use Go2Flow\Ezport\Instructions\Setters\Interfaces\JobInterface;
 use Go2Flow\Ezport\Instructions\Setters\Set;
-use Go2Flow\Ezport\Process\Jobs\AssignClean;
-use Go2Flow\Ezport\Process\Jobs\CleanWithInstruction;
+use Go2Flow\Ezport\Process\Jobs\AssignInstruction;
+use Go2Flow\Ezport\Process\Jobs\ProcessInstruction;
 use Illuminate\Support\Collection;
 use \Go2Flow\Ezport\Models\Project;
 use Go2Flow\Ezport\Finders\Api as ApiFinder;
 
-class Clean extends Basic implements JobInterface
+class Clean extends Basic implements JobInterface, Assignable, Executable
 {
 
     protected Collection $getters;
@@ -33,7 +35,7 @@ class Clean extends Basic implements JobInterface
     {
         parent::__construct($key);
         $this->job = Set::job()
-            ->class(AssignClean::class);
+            ->class(AssignInstruction::class);
     }
 
     /**
@@ -99,19 +101,26 @@ class Clean extends Basic implements JobInterface
         return $this;
     }
 
-    public function prepareJobs(Project $project) : Collection
+    public function assignJobs(): Collection
     {
+        $this->prepareItems();
+
         return $this->items->chunk($this->chunk)
             ->map(
-                fn ($chunk) => new CleanWithInstruction(
-                    $project->id,
-                    $this->key->toString(),
-                    $chunk,
+                fn ($chunk) => new ProcessInstruction(
+                    $this->project->id,
+                    ['chunk' => $chunk, 'instructionType' => $this->instructionType, 'key' => $this->key]
                 )
             );
     }
 
-    public function processBatch(Collection $chunk) : void {
+    public function execute(array $config): void
+    {
+        $this->processBatch(collect($config['chunk']));
+    }
+
+    public function processBatch(Collection $chunk): void
+    {
         ($this->process)(
             $chunk,
             $this->api ?? Find::api($this->project, 'ShopSix')

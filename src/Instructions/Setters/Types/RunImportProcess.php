@@ -2,11 +2,7 @@
 
 namespace Go2Flow\Ezport\Instructions\Setters\Types;
 
-use Go2Flow\Ezport\Instructions\Setters\Interfaces\JobInterface;
-use Go2Flow\Ezport\Instructions\Setters\Set;
-use Illuminate\Contracts\Queue\ShouldQueue;
-
-class RunImportProcess extends RunProcess implements JobInterface {
+class RunImportProcess extends RunProcess {
 
     public function __construct(string $key) {
 

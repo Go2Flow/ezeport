@@ -5,7 +5,7 @@ namespace Go2Flow\Ezport\Process\Import\Xml;
 use Go2Flow\Ezport\Finders\Find;
 use Go2Flow\Ezport\Models\GenericModel;
 use Go2Flow\Ezport\Models\Project;
-use Go2Flow\Ezport\Process\Jobs\Transform;
+use Go2Flow\Ezport\Process\Jobs\ProcessInstruction;
 use Illuminate\Contracts\Database\Query\Builder;
 
 class Transformer
@@ -32,7 +32,10 @@ class Transformer
     {
         return $this->items->chunk(25)
             ->map(
-                fn ($chunk) => new Transform($this->project->id, $this->type, $chunk)
+                fn ($chunk) => new ProcessInstruction(
+                    $this->project->id,
+                    ['instructionType' => 'transform', 'key' => $this->type, 'chunk' => $chunk]
+                )
             );
     }
 
