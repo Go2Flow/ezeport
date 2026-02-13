@@ -93,7 +93,7 @@ class ArticleProcessor extends UploadProcessor {
 
             $ids = $products->pluck('id');
 
-            [$existing, $missing] = $products->partition(
+            [$existing, $missing] = $items->partition(
                 fn ($item) => $ids->contains($item->id)
             );
 
@@ -134,7 +134,7 @@ class ArticleProcessor extends UploadProcessor {
     {
         (new LogError($this->project->id))
             ->type('api')
-            ->level('high')
+            ->level($level)
             ->log(json_encode($problem));
     }
 
