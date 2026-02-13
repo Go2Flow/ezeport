@@ -212,7 +212,7 @@ class ArticleProcessorPatch
         if ($delete->count() > 0) {
             $response = $this->prepareConfiguratorSettingsDelete($delete);
 
-            $this->logErrorToProducts($response->body(), 'configurator settings failed to be deleted on shopware');
+            $this->logErrorToProducts($response?->body(), 'configurator settings failed to be deleted on shopware');
 
         }
 
@@ -408,7 +408,7 @@ class ArticleProcessorPatch
     {
         if ($response) return;
 
-        $this->databaseProducts->each(fn ($item) => $item->logError([
+        $this->items->each(fn ($item) => $item->logError([
             'reason' => $message,
             'api-error-messages' => $this->apiCalls->getErrorMessages()
         ]));
