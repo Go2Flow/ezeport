@@ -145,6 +145,10 @@ class TypeGetter implements BuilderContract
         $original->properties($values['content'] ?? []);
         $original->shop($values['shop'] ?? []);
 
+        if (!empty($values['name'])) {
+            $original->name = $values['name'];
+        }
+
         return $original->updateOrCreate();
     }
 
