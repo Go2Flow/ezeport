@@ -196,6 +196,17 @@ class Generic
         return $this;
     }
 
+    public function detachExternal(): self
+    {
+        $this->contentData->update([
+            'morph_id' => null,
+            'morph_type' => null,
+        ]);
+
+        return $this;
+    }
+
+
     public function getProcessor(string|UploadProcessor|null $processor) : UploadProcessor|Processor {
 
         if ($processor instanceof UploadProcessor) return $processor;
