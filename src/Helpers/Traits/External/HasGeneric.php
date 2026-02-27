@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Ezport\Helpers\Traits\External;
+namespace Go2Flow\Ezport\Helpers\Traits\External;
 
 use Go2Flow\Ezport\Models\GenericModel;
 use Go2Flow\Ezport\ContentTypes\Generic;
