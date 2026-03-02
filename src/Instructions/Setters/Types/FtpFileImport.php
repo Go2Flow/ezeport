@@ -55,12 +55,15 @@ class FtpFileImport extends Basic implements JobInterface, ImportInstructionInte
             ->map(
                 fn ($chunk) => new ProcessInstruction(
                     $this->project->id,
-                    [
-                        'chunk' => $chunk,
-                        'instructionType' => $this->instructionType,
-                        'key' => $this->key,
-                        'tries' => 5,
-                    ]
+                    array_merge(
+                        [
+                            'chunk' => $chunk,
+                            'instructionType' => $this->instructionType,
+                            'key' => $this->key,
+                            'tries' => 5,
+                        ],
+                        $this->jobConfig,
+                    )
                 )
             );
     }

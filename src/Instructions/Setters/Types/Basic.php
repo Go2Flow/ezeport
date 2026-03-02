@@ -10,12 +10,20 @@ class Basic extends Base implements JobInterface {
     protected ?Job $job;
     protected ?string $jobClass = null;
     protected ?\Closure $process;
+    protected array $jobConfig = [];
 
     public function __construct(string $key){
 
         $this->key = $this->processKey($key);
     }
 
+
+    public function jobConfig(array $config): self
+    {
+        $this->jobConfig = array_merge($this->jobConfig, $config);
+
+        return $this;
+    }
 
     public function job(Job $job): self{
 
@@ -37,7 +45,8 @@ class Basic extends Base implements JobInterface {
                 [
                     'key' => $this->key,
                     'instructionType' => $this->instructionType
-                ]
+                ],
+                $this->jobConfig,
             )
         );
     }

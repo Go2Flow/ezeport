@@ -109,7 +109,10 @@ class Clean extends Basic implements JobInterface, Assignable, Executable
             ->map(
                 fn ($chunk) => new ProcessInstruction(
                     $this->project->id,
-                    ['chunk' => $chunk, 'instructionType' => $this->instructionType, 'key' => $this->key]
+                    array_merge(
+                        ['chunk' => $chunk, 'instructionType' => $this->instructionType, 'key' => $this->key],
+                        $this->jobConfig,
+                    )
                 )
             );
     }

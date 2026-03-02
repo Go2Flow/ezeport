@@ -95,7 +95,10 @@ class CsvImport extends Basic implements Assignable, Executable
             ->map(
                 fn ($chunk) => new ProcessInstruction(
                     $this->project->id,
-                    ['items' => $chunk, 'instructionType' => $this->instructionType, 'key' => $this->key]
+                    array_merge(
+                        ['items' => $chunk, 'instructionType' => $this->instructionType, 'key' => $this->key],
+                        $this->jobConfig,
+                    )
                 )
             );
     }

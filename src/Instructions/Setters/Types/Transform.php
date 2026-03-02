@@ -112,22 +112,22 @@ class Transform extends Basic implements Assignable, Executable
         $config = $this->config ? ($this->config)() : collect();
 
         return !$this->items
-            ? collect([new ProcessInstruction($this->project->id, [
+            ? collect([new ProcessInstruction($this->project->id, array_merge([
                 'instructionType' => $this->instructionType,
                 'key' => $this->key,
                 'chunk' => null,
                 'transformConfig' => $config,
-            ])])
+            ], $this->jobConfig))])
             : $this->items->chunk($this->chunk)
                 ->map(
                     fn ($chunk) => new ProcessInstruction(
                         $this->project->id,
-                        [
+                        array_merge([
                             'instructionType' => $this->instructionType,
                             'key' => $this->key,
                             'chunk' => $chunk,
                             'transformConfig' => $config,
-                        ]
+                        ], $this->jobConfig)
                     )
                 );
     }
