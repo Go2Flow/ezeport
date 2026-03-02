@@ -48,7 +48,7 @@ class PropertyGroups extends BaseInstructions implements InstructionInterface
                             $api
                         );
 
-                        if ($response->body()) {
+                        if ($response->status() == 200) {
                             $this->setPropertyOptionId(
                                 $response,
                                 $items,
