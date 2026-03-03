@@ -133,13 +133,19 @@ class TypeGetter implements BuilderContract
 
         $values = $this->setPropertiesToContent($values);
 
-        if (! $original = Content::type($this->type, $this->project)->find($attributes['unique_id'])) {
-            return $this->create(
-                array_merge(
-                    $values,
-                    $attributes
-                )
-            );
+        $original = Content::type($this->type, $this->project)->find($attributes['unique_id']);
+
+        if (! $original) {
+            try {
+                return $this->create(
+                    array_merge(
+                        $values,
+                        $attributes
+                    )
+                );
+            } catch (EzportContentTypeException) {
+                $original = Content::type($this->type, $this->project)->find($attributes['unique_id']);
+            }
         }
 
         $original->properties($values['content'] ?? []);
