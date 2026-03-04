@@ -94,12 +94,12 @@ class ArticleProcessor extends UploadProcessor {
             $ids = $products->pluck('id');
 
             [$existing, $missing] = $items->partition(
-                fn ($item) => $ids->contains($item->id)
+                fn ($item) => $ids->contains($item->shopware($this->getCorrectIdField()))
             );
 
             foreach ($missing as $item) {
                 $this->logProblem(
-                    'could not find Product ' . $item->unique_id . 'with id'. $item->shopware($this->getCorrectIdField()) . ' in Shopware',
+                    'could not find Product ' . $item->unique_id . 'with id '. $item->shopware($this->getCorrectIdField()) . ' in Shopware',
                     'high'
                 );
 
