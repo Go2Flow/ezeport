@@ -38,6 +38,8 @@ class Log
 
     public function hasError(array $errors): void
     {
+        if (! $this->action) return;
+
         $this->getActivityLogObject('standard')
             ->contentType($this->current->getType())
             ->model($this->current)
