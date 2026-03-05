@@ -93,7 +93,7 @@ class ArticleProcessor extends UploadProcessor {
 
             $ids = $products->pluck('id');
 
-            [$existing, $missing] = $items->partition(
+            [$items, $missing] = $items->partition(
                 fn ($item) => $ids->contains($item->shopware($this->getCorrectIdField()))
             );
 
@@ -114,7 +114,7 @@ class ArticleProcessor extends UploadProcessor {
         $this->patch
             ->setConfig(Find::config($this->project))
             ->setIdField($this->getCorrectIdField())
-            ->setItems($existing ?? $items)
+            ->setItems($items)
             ->setShopwareProducts($products)
             ->options()
             ->properties()
