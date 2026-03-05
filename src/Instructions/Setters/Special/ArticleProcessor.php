@@ -109,16 +109,12 @@ class ArticleProcessor extends UploadProcessor {
                 ]);
             }
 
-            $items = $existing->map(
-                fn ($exist) => $items->filter(
-                    fn ($item) => $item->shopware($this->getCorrectIdField()) == $exist->id)->first()
-            );
         }
 
         $this->patch
             ->setConfig(Find::config($this->project))
             ->setIdField($this->getCorrectIdField())
-            ->setItems($items)
+            ->setItems($existing ?? $items)
             ->setShopwareProducts($products)
             ->options()
             ->properties()
