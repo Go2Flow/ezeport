@@ -81,8 +81,8 @@ class CustomerGroups extends BaseInstructions implements InstructionInterface
                                 $response = $api->rule()->patch($array, $item->shopware('rule_id'));
                             }
 
-                            if ($response->body()) {
-                                $item->shopware(['rule_id' => $response->body()->data->id]);
+                            if ($body = $response->body()) {
+                                $item->shopware(['rule_id' => $body->data->id]);
                                 $item->updateOrCreate(false);
                             } else {
                                 $item->logError([
