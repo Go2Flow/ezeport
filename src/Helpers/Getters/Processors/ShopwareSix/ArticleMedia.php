@@ -34,6 +34,8 @@ class ArticleMedia extends BaseInstructions implements InstructionInterface
                             ->bulk(
                                 $items->flatMap(
                                     fn ($item) => $item->toShopArray()
+                                )->filter(
+                                    fn ($entry) => ! empty($entry['productId'])
                                 )->values()->toArray()
                             )->body();
 
