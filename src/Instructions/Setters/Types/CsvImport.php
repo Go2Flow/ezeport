@@ -10,6 +10,7 @@ use Go2Flow\Ezport\Process\Jobs\AssignInstruction;
 use Go2Flow\Ezport\Process\Jobs\ProcessInstruction;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class CsvImport extends Basic implements Assignable, Executable
 {
@@ -106,14 +107,15 @@ class CsvImport extends Basic implements Assignable, Executable
     private function fileAndFolder($disk) : array {
 
         $array = [];
+        $base = Str::ucfirst($this->project->identifier);
 
         if ($this->file) {
-            $array[] = $this->project->identifier . '/' . $this->file;
+            $array[] = $base . '/' . $this->file;
         }
 
         if ($this->folder) {
 
-            foreach ($disk->files($this->project->identifier . '/' . $this->folder) as $file) {
+            foreach ($disk->files($base . '/' . $this->folder) as $file) {
                 $array[] = $file;
             }
         }
