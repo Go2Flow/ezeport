@@ -145,17 +145,19 @@ class TypeGetter implements BuilderContract
                 );
             } catch (EzportContentTypeException) {
                 $original = Content::type($this->type, $this->project)->find($attributes['unique_id']);
+
+                if (! $original) {
+                    throw new EzportContentTypeException(
+                        "Failed to create or find {$this->type} with unique_id {$attributes['unique_id']}"
+                    );
+                }
             }
         }
 
         $original->properties($values['content'] ?? []);
         $original->shop($values['shop'] ?? []);
 
-        if (!empty($values['name'])) {
-            $original->name = $values['name'];
-        }
-
-        return $original->updateOrCreate();
+        return $original->save();
     }
 
     public function __call($method, array|null $parameters)

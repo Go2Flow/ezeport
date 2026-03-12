@@ -344,11 +344,19 @@ class Generic
         return $this;
     }
 
-    public function updateOrCreate(bool|string $updated = true): self
+    public function save(bool|string $updated = true): self
     {
         (new Log($this))->change(... $this->contentData->updateOrCreateModel($updated));
 
         return $this;
+    }
+
+    /**
+     * @deprecated Use save() instead.
+     */
+    public function updateOrCreate(bool|string $updated = true): self
+    {
+        return $this->save($updated);
     }
 
     public function setUpdated(bool $value = true): self
@@ -372,7 +380,7 @@ class Generic
     public function relationsAndSave($setTouched = false): self
     {
         return $this->processRelations()
-            ->updateOrCreate($setTouched)
+            ->save($setTouched)
             ->setRelations();
     }
 
