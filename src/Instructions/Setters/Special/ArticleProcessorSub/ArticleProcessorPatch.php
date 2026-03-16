@@ -243,6 +243,7 @@ class ArticleProcessorPatch
     {
         $deletes = collect();
         $children = collect();
+        $staleOptions = collect();
 
         foreach ($this->databaseProducts as $databaseProduct) {
 
@@ -251,16 +252,28 @@ class ArticleProcessorPatch
 
             $children = $children->merge(
                 $subChildren->map(
-                    function ($child) use ($databaseProduct, $product) {
+                    function ($child) use ($databaseProduct, $product, &$staleOptions) {
 
                         $child['parentId'] = $databaseProduct['id'];
 
-                        if (!isset($child['id'])) {
-                            $id = collect($product['children'])->filter(
-                                fn ($variant) => $variant->productNumber == $child['productNumber']
-                            )->first()?->id;
+                        $shopwareChild = collect($product['children'])->filter(
+                            fn ($variant) => $variant->productNumber == $child['productNumber']
+                        )->first();
 
-                            if ($id) $child['id'] = $id;
+                        if ($shopwareChild) {
+                            if (!isset($child['id'])) {
+                                $child['id'] = $shopwareChild->id;
+                            }
+
+                            $newOptionIds = collect($child['options'] ?? [])->pluck('id');
+                            $oldOptionIds = collect($shopwareChild->optionIds ?? []);
+
+                            foreach ($oldOptionIds->diff($newOptionIds) as $optionId) {
+                                $staleOptions->push([
+                                    'productId' => $shopwareChild->id,
+                                    'optionId' => $optionId,
+                                ]);
+                            }
                         }
 
                         return $child;
@@ -274,6 +287,10 @@ class ArticleProcessorPatch
                     $subChildren
                 )
             );
+        }
+
+        if ($staleOptions->count() > 0) {
+            $this->apiCalls->deleteProductOption($staleOptions->toArray());
         }
 
         if ($deletes->count() > 0) {

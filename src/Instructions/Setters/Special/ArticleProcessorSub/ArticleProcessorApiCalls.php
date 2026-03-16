@@ -45,6 +45,13 @@ class ArticleProcessorApiCalls {
         );
     }
 
+    public function deleteProductOption(array $items)
+    {
+        return $this->api->productOption()->bulkDelete(
+            $items
+        );
+    }
+
     public function deleteCategory(array $items)
     {
         return $this->api->productCategory()->bulkDelete(
