@@ -38,6 +38,7 @@ class Api implements ApiInterface
                 'host' => $connector['host'],
                 'username' => $connector['username'],
                 'password' => $connector['password'],
+                'timeout' => 300,
             ],
         ]);
 
