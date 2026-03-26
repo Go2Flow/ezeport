@@ -176,11 +176,19 @@ class Api implements ApiInterface
      * Check if the specified directory exists and if it does, get the list of files in it
      */
 
+    public function forceRefreshCache(): self
+    {
+        Cache::forget('ftp-' . $this->identifier . '-' . $this->directory);
+        $this->files = $this->checkDirectory();
+
+        return $this;
+    }
+
     private function checkDirectory()
     {
         return Cache::remember(
             'ftp-' .  $this->identifier . '-' . $this->directory,
-            300,
+            3600,
             function () {
 
                 if (!$this->connection->directoryExists($this->directory) || ! $names = $this->connection->allFiles($this->directory)) {
