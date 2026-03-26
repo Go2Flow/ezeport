@@ -278,6 +278,8 @@ class Api implements ApiInterface
 
     private function storeFile($name, $file)
     {
+        if ($file === null) return;
+
         if (!$this->storage->directoryExists($this->baseFolder)) $this->storage->makeDirectory($this->baseFolder);
 
         $this->storage->put(
