@@ -5,6 +5,7 @@ namespace Go2Flow\Ezport\Connectors\Ftp;
 use Go2Flow\Ezport\Models\Connector;
 use Go2Flow\Ezport\Connectors\ApiInterface;
 use Go2Flow\Ezport\Finders\Find;
+use Go2Flow\Ezport\Logger\LogError;
 use Go2Flow\Ezport\Models\Project;
 use Illuminate\Filesystem\FilesystemAdapter;
 use Illuminate\Support\Collection;
@@ -20,15 +21,13 @@ class Api implements ApiInterface
     private $files;
     private string $directory;
 
-    private string $identifier;
+    private Project $project;
 
     public function __construct(array $connector, private Collection $structure, string $drive = 'public')
     {
 
-        $project = Project::find($connector['project_id']);
-        $this->identifier = $project->identifier;
-
-        $this->baseFolder = ucfirst($project->identifier) . '/';
+        $this->project = Project::find($connector['project_id']);
+        $this->baseFolder = ucfirst($this->project->identifier) . '/';
 
         $this->storage = Storage::drive($drive);
 
@@ -178,7 +177,7 @@ class Api implements ApiInterface
 
     public function forceRefreshCache(): self
     {
-        Cache::forget('ftp-' . $this->identifier . '-' . $this->directory);
+        Cache::forget('ftp-' . $this->project->identifier . '-' . $this->directory);
         $this->files = $this->checkDirectory();
 
         return $this;
@@ -187,7 +186,7 @@ class Api implements ApiInterface
     private function checkDirectory()
     {
         return Cache::remember(
-            'ftp-' .  $this->identifier . '-' . $this->directory,
+            'ftp-' .  $this->project->identifier . '-' . $this->directory,
             3600,
             function () {
 
@@ -200,6 +199,27 @@ class Api implements ApiInterface
                 return collect($names);
             }
         );
+    }
+
+    /**
+     * Fetch files directly by their stored paths, keyed by name. Bypasses directory listing entirely.
+     * Each item in $images must have 'name' and 'path' keys.
+     */
+
+    public function getByPaths(Collection $images): Collection
+    {
+        return $images->mapWithKeys(function ($image) {
+            try {
+                return [$image['name'] => $this->getFile($image['path'])];
+            } catch (\Exception $e) {
+                (new LogError($this->project->id))
+                    ->type('ftp')
+                    ->level('high')
+                    ->log("Failed to fetch file '{$image['path']}': {$e->getMessage()}");
+
+                return [$image['name'] => null];
+            }
+        })->filter();
     }
 
     /**
