@@ -37,7 +37,7 @@ trait XmlHelpers {
                 $xml->addAttribute($key, $value['attribute']);
             }
              else {
-                $xml->addChild($key, $value);
+                $xml->addChild($key, htmlspecialchars((string) $value, ENT_XML1));
             }
         }
 
