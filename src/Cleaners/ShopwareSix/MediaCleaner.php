@@ -18,18 +18,13 @@ class MediaCleaner extends BaseCleaner
     {
         $media = $this->difference;
 
-        Log::debug('Ezport: gathering media');
-
         $this->difference = $this->media(
             $media
         );
 
-        Log::debug('Ezport: remove product media');
         $this->removeProductMedia();
 
         $this->difference = $media;
-
-        Log::debug('Ezport: remove media');
 
         $this->difference->each(function ($id) {
             $this->api->media()->delete($id);
