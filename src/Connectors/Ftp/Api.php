@@ -154,6 +154,18 @@ class Api implements ApiInterface
     }
 
     /**
+     * Check whether a single file exists in the current directory.
+     * Stats the one file rather than listing the whole directory.
+     */
+
+    public function exists($name) : bool
+    {
+        return $this->connection->fileExists(
+            $this->directory . '/' . $name
+        );
+    }
+
+    /**
      * Get the last modified date of the specified file
      */
 
