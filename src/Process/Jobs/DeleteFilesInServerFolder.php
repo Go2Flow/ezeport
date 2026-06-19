@@ -32,7 +32,7 @@ class DeleteFilesInServerFolder implements ShouldQueue
     {
         $project = Project::find($this->project);
 
-        $api = Find::api($project,  $this->array['api'] ?? 'ftp')->get();
+        $api = Find::api($project,  $this->config['api'] ?? 'ftp')->get();
 
         $list = $api->processed()->list();
 
@@ -48,25 +48,39 @@ class DeleteFilesInServerFolder implements ShouldQueue
     {
         if (!isset($this->config['olderThan'])) return false;
 
-        try {
-            $modified = Carbon::createFromTimestamp(
-                $api->processed()
-                    ->lastModified($file)
-            );
-        } catch (\Exception $e) {
-            $timestamp = Str::of($file)->afterLast('_')->before('.')->toString();
-
-            if (!is_numeric($timestamp)) return false;
-
-            try {
-                $modified = Carbon::createFromTimestamp((int) $timestamp);
-            } catch (\Exception $e) {
-                return false;
-            }
-        }
+        // Prefer the timestamp embedded in the filename (files moved here with
+        // addTimeStamp are named "..._<unixtime>.ext"). This avoids a per-file
+        // lastModified() round-trip to the ftp server, which gets slow and flaky
+        // once the folder holds more than a handful of files. Fall back to the
+        // server's modified time only when the name carries no timestamp.
+        $modified = $this->modifiedFromName($file) ?? $this->modifiedFromServer($file, $api);
 
         if (! $modified) return false;
 
-        if (now()->subDays($this->config['olderThan'])->lessThan($modified)) return true;
+        return now()->subDays($this->config['olderThan'])->lessThan($modified);
+    }
+
+    private function modifiedFromName($file) : ?Carbon
+    {
+        $timestamp = Str::of($file)->afterLast('_')->before('.')->toString();
+
+        if (!is_numeric($timestamp)) return null;
+
+        try {
+            return Carbon::createFromTimestamp((int) $timestamp);
+        } catch (\Exception $e) {
+            return null;
+        }
+    }
+
+    private function modifiedFromServer($file, $api) : ?Carbon
+    {
+        try {
+            return Carbon::createFromTimestamp(
+                $api->processed()->lastModified($file)
+            );
+        } catch (\Exception $e) {
+            return null;
+        }
     }
 }
