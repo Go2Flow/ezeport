@@ -22,16 +22,16 @@ Content::type('Article', $project)->find('SKU') // Find by unique_id
 ### Generic API
 
 ```php
-$item->properties('key')              // get from content JSON
-$item->properties(['key' => 'value']) // merge into content JSON
-$item->shop('key')                    // get from shop JSON (alias: shopware())
-$item->shop(['key' => 'value'])       // merge into shop JSON
-$item->relations('group')             // get related Generics by group_type
-$item->relations(['group' $group])    // merge into relations collection. Note: This is not saved by 'updateAndCreate' but needs 'setRelations'
-$item->parents()                      // get parent Generics via pivot
-$item->unique_id                      // business key
-$item->type                           // content type name
-$item->updateOrCreate()               // persist
+$item->properties('key')                // get from content JSON
+$item->properties(['key' => 'value'])   // merge into content JSON
+$item->shop('key')                      // get from shop JSON
+$item->shop(['key' => 'value'])         // merge into shop JSON
+$item->relations('group')               // get related Generics by group_type
+$item->relations(['group' => $group])   // merge into relations collection. Note: This is not saved by 'save()' but needs 'setRelations'
+$item->parents()                        // get parent Generics via pivot
+$item->unique_id                        // business key
+$item->type                             // content type name
+$item->save()                           // persist (see deprecation note below)
 ```
 
 The getter/setter behavior is driven by `BaseModel::getOrSetData()` — same pattern for all three:
@@ -39,7 +39,11 @@ The getter/setter behavior is driven by `BaseModel::getOrSetData()` — same pat
 - `string` → gets value by key
 - `array`/`Collection` → merges into the data
 
-**Persistence difference**: `properties()` and `shop()` modify database-backed JSON columns saved by `updateOrCreate()`. `relations()` modifies the in-memory `modelRelations` property only — to persist, call `setRelations()` or `relationsAndSave()` which syncs to the `nested_relationships` pivot table.
+**Deprecated aliases** — both still work (they delegate to the new method), but prefer the replacement in new code:
+- `updateOrCreate()` → use `save()`
+- `shopware()` → use `shop()`
+
+**Persistence difference**: `properties()` and `shop()` modify database-backed JSON columns saved by `save()`. `relations()` modifies the in-memory `modelRelations` property only — to persist, call `setRelations()` or `relationsAndSave()` which syncs to the `nested_relationships` pivot table.
 
 ## Instruction System
 
@@ -145,6 +149,6 @@ This sets the upload fields (so `toShopArray()` works) and then runs the named p
 - **Processor override priority**: `Get::processor('X')` checks the project's `Processors.php` FIRST. If you're debugging a processor, check the project override before looking at the package default.
 - **`->filter()` on payload arrays**: `collect($arrayOfArrays)->filter()` does NOT filter out arrays with null values inside them — `['productId' => null, 'mediaId' => '...']` is truthy. Use explicit callbacks: `->filter(fn ($entry) => !empty($entry['productId']))`.
 - **Null IDs in API payloads**: When building payloads that reference other entities (e.g. product media referencing products), the referenced entity may not exist in Shopware yet. Shopware interprets `{"id": null}` as "create a new entity" and will fail validation on required fields. Always filter out null references before API calls.
-- **shop() vs shopware()**: These are aliases. Both access the `shop` JSON column.
+- **shop() vs shopware()**: Both access the `shop` JSON column, but `shopware()` is deprecated — use `shop()`.
 - **properties() dual behavior**: `$item->properties('key')` reads; `$item->properties(['key' => 'val'])` writes. Easy to confuse when passing variables.
 - **Processor auto-matching via `processKey()`**: Upload step names are singularized and camelCased to find their processor — `mediaGroups` → `mediaGroup`. If you name a step with a prefix (e.g. `repairMediaGroups`), it singularizes to `repairMediaGroup`, not `mediaGroup`. The processor won't be found. Always declare the processor explicitly on non-standard step names: `->processor(Get::processor('mediaGroup'))`.
