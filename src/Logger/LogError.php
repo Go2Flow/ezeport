@@ -35,7 +35,8 @@ class LogError
     public function properties(string|array $properties): self
     {
 
-        $this->error->properties = $properties;
+        // the column is cast to a collection; a bare string would be read back as null
+        $this->error->properties = collect(is_string($properties) ? ['message' => $properties] : $properties);
 
         return $this;
     }
