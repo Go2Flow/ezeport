@@ -9,6 +9,10 @@ parameters:
         # the users of a project live in the host application
         - message: '#App\\Models\\User not found#'
           path: src/Models/Project.php
-        - '#Call to an undefined method#'
-        - '#Access to an undefined property#'
     reportUnmatchedIgnoredErrors: false
+
+services:
+    -
+        class: Go2Flow\Ezport\PHPStan\MagicCallMethodsExtension
+        tags:
+            - phpstan.broker.methodsClassReflectionExtension
