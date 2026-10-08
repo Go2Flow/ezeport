@@ -26,6 +26,9 @@ class Api implements ApiInterface
 
     private Project $project;
 
+    /** @var array<string, FilesystemAdapter> one connection per FTP config and process */
+    private static array $connections = [];
+
     public function __construct(array $connector, private Collection $structure, string $drive = 'public')
     {
 
@@ -34,9 +37,29 @@ class Api implements ApiInterface
 
         $this->storage = Storage::drive($drive);
 
-        // Built per connector instead of Storage::drive('ftp'): a named disk is cached for the
-        // whole process, so a queue worker would keep using the first project's FTP server.
-        $this->connection = Storage::build(self::diskConfig($connector));
+        $this->connection = self::connection(self::diskConfig($connector));
+    }
+
+    /**
+     * Reuses the connection per FTP config within the process (login costs ~0.2s and the Api
+     * is created per item in some transforms). Keyed by config instead of the named disk
+     * Storage::drive('ftp'), which a queue worker kept for every later project.
+     */
+    private static function connection(array $config): FilesystemAdapter
+    {
+        $key = md5(serialize($config));
+
+        if (! isset(self::$connections[$key])) {
+            $disk = Storage::build($config);
+
+            if (! $disk instanceof FilesystemAdapter) {
+                throw new \UnexpectedValueException('FTP disk must be a '.FilesystemAdapter::class.', got '.$disk::class);
+            }
+
+            self::$connections[$key] = $disk;
+        }
+
+        return self::$connections[$key];
     }
 
     /**
