@@ -17,8 +17,8 @@ trait ArticleFields
      * You don't need to include the 'set' or 'Field' part of the method name. These will be added if missing
      * the returned result must flattened to be used in the upload
      */
-
-    protected function setStandardArticleFields(Collection|array $list) : Collection {
+    protected function setStandardArticleFields(Collection|array $list): Collection
+    {
 
         return collect($list)->map(
 
@@ -32,7 +32,7 @@ trait ArticleFields
                     $item->contains('configurationSettings') => $this->setConfigurationSettingsField(),
                     $item->contains('visibilities') => $this->setVisibilitiesField(),
                     $item->contains('categories') => $this->setCategoriesField(),
-                    default => throw new EzportSetterException('Method ' . $item . ' does not exist')
+                    default => throw new EzportSetterException('Method '.$item.' does not exist')
                 };
             }
         );
@@ -41,7 +41,6 @@ trait ArticleFields
     /**
      * returns the cached id from the project object stored in the 'cms_page_ids' array under the key 'product'
      */
-
     protected function setProductCmsPageIdField(): UploadField
     {
         return $this->getFromProject('cmsPageId', 'cms_page_ids', 'product');
@@ -50,7 +49,6 @@ trait ArticleFields
     /**
      * returns the cached id from the project object stored in the 'tax_ids' array under the key 'standard'
      */
-
     protected function setTaxIdField(): UploadField
     {
         return $this->getFromProject('taxId', 'tax_ids', 'standard');
@@ -59,7 +57,6 @@ trait ArticleFields
     /**
      * returns the cached id from the project object stored in the 'currency_ids' array under the key 'standard'
      */
-
     protected function setCurrencyIdField(): UploadField
     {
         return $this->getFromProject('currencyId', 'currency_ids', 'standard');
@@ -68,7 +65,6 @@ trait ArticleFields
     /**
      * sets up the ConfigurationSettings field based on the options in the config attribute
      */
-
     protected function setConfigurationSettingsField(): UploadField
     {
         return Set::UploadField('configuratorSettings')
@@ -87,8 +83,8 @@ trait ArticleFields
                 fn ($item) => [
                     [
                         'salesChannelId' => $item->project()->cache('sales_channel_ids')['standard'],
-                        'visibility' => 30
-                    ]
+                        'visibility' => 30,
+                    ],
                 ]
             );
     }
@@ -113,7 +109,7 @@ trait ArticleFields
                         'array' => $response->values()->toArray(),
                         'config' => [
                             'options' => $response->pluck('id')->values()->toArray(),
-                        ]
+                        ],
                     ];
                 }
             );
@@ -133,8 +129,8 @@ trait ArticleFields
             );
     }
 
-    protected function checkDiscount($discount) : bool
+    protected function checkDiscount($discount): bool
     {
-        return $discount && 0 != Str::replace(',', '',  $discount);
+        return $discount && Str::replace(',', '', $discount) != 0;
     }
 }
