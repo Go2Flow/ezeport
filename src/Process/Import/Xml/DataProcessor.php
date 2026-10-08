@@ -4,6 +4,7 @@ namespace Go2Flow\Ezport\Process\Import\Xml;
 
 use Exception;
 use Go2Flow\Ezport\ContentTypes\Generic;
+use Go2Flow\Ezport\ContentTypes\Helpers\CreationLock;
 use Go2Flow\Ezport\Finders\Find;
 use Go2Flow\Ezport\Instructions\Setters\Types\XmlImport;
 use Go2Flow\Ezport\Models\Project;
@@ -47,20 +48,26 @@ class DataProcessor
         )->filter();
     }
 
-    private function toClass(Collection|array $content, string $class): Generic
+    private function toClass(Collection|array $content, string $type): Generic
     {
-        $class = new Generic(
-            [
-                'type' => $class,
-                'unique_id' => $content['unique_id'],
-                'project_id' => $this->project->id,
-            ]
+        $generic = CreationLock::run(
+            $this->project->id,
+            $type,
+            $content['unique_id'] ?? null,
+            function () use ($content, $type) {
+                $generic = new Generic([
+                    'type' => $type,
+                    'unique_id' => $content['unique_id'],
+                    'project_id' => $this->project->id,
+                ]);
+
+                $generic->setContentAndRelations($content);
+
+                return $generic->updateOrCreate(true);
+            }
         );
 
-        $class->setContentAndRelations($content);
-
-        return $class
-            ->updateOrCreate(true)
+        return $generic
             ->processRelations()
             ->setRelations();
     }

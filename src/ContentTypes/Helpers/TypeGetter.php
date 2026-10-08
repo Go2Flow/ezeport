@@ -131,6 +131,16 @@ class TypeGetter implements BuilderContract
 
     public function updateOrCreate(array $attributes, array $values) : Generic {
 
+        return CreationLock::run(
+            $this->project->id,
+            $this->type,
+            $attributes['unique_id'] ?? null,
+            fn () => $this->updateOrCreateUnlocked($attributes, $values)
+        );
+    }
+
+    private function updateOrCreateUnlocked(array $attributes, array $values) : Generic {
+
         $values = $this->setPropertiesToContent($values);
 
         $original = Content::type($this->type, $this->project)->find($attributes['unique_id']);
