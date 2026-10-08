@@ -7,13 +7,15 @@ use Go2Flow\Ezport\Process\Errors\EzportSetterException;
 use Illuminate\Support\Str;
 use Illuminate\Support\Stringable;
 
-abstract class Base {
-
+abstract class Base
+{
     protected ?Stringable $key;
+
     protected ?Project $project;
+
     protected ?string $instructionType;
 
-    public function setProject(Project $project) : self
+    public function setProject(Project $project): self
     {
         $this->project = $project;
 
@@ -21,7 +23,6 @@ abstract class Base {
     }
 
     /** change the key */
-
     public function key(string $key): self
     {
         $this->key = $this->processKey($key);
@@ -46,24 +47,26 @@ abstract class Base {
         return $this->key ? $this->key->__toString() : null;
     }
 
-    public function has(string $key) : bool
+    public function has(string $key): bool
     {
         return property_exists($this, $key);
     }
 
     public function get(string $key)
     {
-        if (! property_exists($this, $key)) throw new EzportSetterException("Attribute {$key} does not exist in " . __CLASS__);
+        if (! property_exists($this, $key)) {
+            throw new EzportSetterException("Attribute {$key} does not exist in ".__CLASS__);
+        }
 
         return $this->$key;
     }
 
-    public function getThis() : self
+    public function getThis(): self
     {
         return $this;
     }
 
-    protected function processKey(string|Stringable $key) : Stringable
+    protected function processKey(string|Stringable $key): Stringable
     {
         $plural = Str::lower($key) === 'media' ? true : false;
 
