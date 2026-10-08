@@ -20,7 +20,6 @@ use Go2Flow\Ezport\Instructions\Setters\Types\FtpFileImport;
 use Go2Flow\Ezport\Instructions\Setters\Types\Job;
 use Go2Flow\Ezport\Instructions\Setters\Types\Jobs;
 use Go2Flow\Ezport\Instructions\Setters\Types\Model;
-use Go2Flow\Ezport\Instructions\Setters\Types\Old\CsvImportOld;
 use Go2Flow\Ezport\Instructions\Setters\Types\Project;
 use Go2Flow\Ezport\Instructions\Setters\Types\RunImportProcess;
 use Go2Flow\Ezport\Instructions\Setters\Types\RunTransformProcess;
@@ -43,7 +42,6 @@ use Illuminate\Support\Stringable;
  * @method static Connector Connector(string $key, array $config = [])
  * @method static CsvImport CsvImport(string $key)
  * @method static CsvCreate CsvCreate(string $key)
- * @method static CsvImportOld CsvImportOld(string $key)
  * @method static CsvImportStep CsvImportStep()
  * @method static FtpCleaner FtpCleaner(string $key)
  * @method static Jobs Jobs(string $key = '')
