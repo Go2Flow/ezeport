@@ -3,7 +3,6 @@
 namespace Go2Flow\Ezport\Commands;
 
 use Go2Flow\Ezport\Commands\Prepare\Deleter;
-use Go2Flow\Ezport\Commands\PrepareProject\CreateProject;
 use Go2Flow\Ezport\Commands\PrepareProject\CreateProjectCache;
 use Go2Flow\Ezport\Finders\Api;
 use Go2Flow\Ezport\Finders\Find;
@@ -279,7 +278,7 @@ class ProjectSpecificCommands
 
     public function prepareShop(): void
     {
-        (new CreateProjectCache((new CreateProject($this->project))->run()))->prepareCache();
+        (new CreateProjectCache($this->project))->prepareCache();
     }
 
     private function warning(Connector $connector): bool
