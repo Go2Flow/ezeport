@@ -108,7 +108,7 @@ class Client
 
             } catch (ClientException|ServerException|RequestException|\Exception $e) {
 
-                if ($this->isDeadlockException($e) && $attempt < $maxAttempts) {
+                if ($this->isTransientException($e) && $attempt < $maxAttempts) {
 
                     usleep(200_000 * $attempt);
                     continue;
@@ -152,26 +152,38 @@ class Client
         return $payload;
     }
 
-    private function isDeadlockException(\Throwable $e): bool
-    {
-        $message = $e->getMessage();
+    /**
+     * Shopware answers concurrent writes with transient database errors: a deadlock, or, when the
+     * deadlock hit inside a nested transaction, the lost savepoint MySQL rolled back with it.
+     * Repeating the request succeeds; sync and upsert requests are idempotent.
+     */
+    public const TRANSIENT_DATABASE_ERRORS = [
+        'SQLSTATE[40001]',
+        '1213 Deadlock',
+        'Deadlock found when trying to get lock',
+        '1305 SAVEPOINT',
+    ];
 
-        if (str_contains($message, 'SQLSTATE[40001]')
-            || str_contains($message, '1213 Deadlock')
-            || str_contains($message, 'deadlock')
-        ) {
+    public static function isTransientDatabaseError(string $text): bool
+    {
+        foreach (self::TRANSIENT_DATABASE_ERRORS as $marker) {
+            if (str_contains($text, $marker)) {
+                return true;
+            }
+        }
+
+        return str_contains($text, 'deadlock');
+    }
+
+    private function isTransientException(\Throwable $e): bool
+    {
+        if (self::isTransientDatabaseError($e->getMessage())) {
             return true;
         }
 
-        if (method_exists($e, 'getResponse') && $response = $e->getResponse()) {
-            $body = (string) $response->getBody();
-
-            return str_contains($body, 'SQLSTATE[40001]')
-                || str_contains($body, '1213 Deadlock')
-                || str_contains($body, 'Deadlock found when trying to get lock');
-        }
-
-        return false;
+        return method_exists($e, 'getResponse')
+            && ($response = $e->getResponse())
+            && self::isTransientDatabaseError((string) $response->getBody());
     }
 
     private function authenticate()
