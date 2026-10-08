@@ -21,14 +21,14 @@ class Basic extends Base implements JobInterface
         $this->key = $this->processKey($key);
     }
 
-    public function jobConfig(array $config): self
+    public function jobConfig(array $config): static
     {
         $this->jobConfig = array_merge($this->jobConfig, $config);
 
         return $this;
     }
 
-    public function job(Job $job): self
+    public function job(Job $job): static
     {
 
         $this->job = ($this->jobClass && ! $job->getClass())

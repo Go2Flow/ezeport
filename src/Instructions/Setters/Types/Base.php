@@ -15,7 +15,7 @@ abstract class Base
 
     protected ?string $instructionType;
 
-    public function setProject(Project $project): self
+    public function setProject(Project $project): static
     {
         $this->project = $project;
 
@@ -23,14 +23,14 @@ abstract class Base
     }
 
     /** change the key */
-    public function key(string $key): self
+    public function key(string $key): static
     {
         $this->key = $this->processKey($key);
 
         return $this;
     }
 
-    public function instructionType(?string $instructionType): self
+    public function instructionType(?string $instructionType): static
     {
         $this->instructionType = $instructionType;
 
@@ -61,7 +61,7 @@ abstract class Base
         return $this->$key;
     }
 
-    public function getThis(): self
+    public function getThis(): static
     {
         return $this;
     }
