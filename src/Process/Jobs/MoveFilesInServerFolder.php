@@ -14,34 +14,34 @@ use Illuminate\Support\Str;
 
 class MoveFilesInServerFolder implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, Batchable;
+    use Batchable, Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     /**
      * Create a new job instance.
      */
-    public function __construct(public int $project, private array $config){}
+    public function __construct(public int $project, private array $config) {}
 
     /**
      * Execute the job.
      */
     public function handle(): void
     {
-        $project = Project::find($this->project);
+        $project = Project::query()->find($this->project);
 
-        $api = Find::Api($project,  $this->array['api'] ?? 'ftp')->get();
+        $api = Find::api($project, $this->config['api'] ?? 'ftp')->get();
 
         foreach ($api->{$this->config['from']}()->list() as $file) {
 
-            if ($this->shouldNotMove($file)) continue;
+            if ($this->shouldNotMove($file)) {
+                continue;
+            }
 
             $api->{$this->config['from']}()->moveFile($file, $this->config['to']);
         }
     }
 
-    private function shouldNotMove(string $file)
+    private function shouldNotMove(string $file): bool
     {
-        if (!isset($this->config['not'])) return false;
-
-        if (collect($this->config['not'])->contains(Str::afterLast($file, '/'))) return true;
+        return collect($this->config['not'] ?? [])->contains(Str::afterLast($file, '/'));
     }
 }
