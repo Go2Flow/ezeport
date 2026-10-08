@@ -15,7 +15,7 @@ class CustomerGroups extends BaseInstructions implements InstructionInterface
     public function get(): array
     {
         return [
-            Set::upload('rules')
+            Set::Upload('rules')
                 ->items(
                     fn () => Content::type('CustomerGroup', $this->project)
                 )->fields([
@@ -23,7 +23,7 @@ class CustomerGroups extends BaseInstructions implements InstructionInterface
                     ['id' => fn ($item) => $item->shop('rule_id')],
                 ]),
 
-            Set::upload('CustomerGroups')
+            Set::Upload('CustomerGroups')
                 ->items(
                     fn () => Content::type('CustomerGroup', $this->project)
                         ->whereNot('unique_id', 'EK')

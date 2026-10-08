@@ -13,9 +13,9 @@ use Illuminate\Support\Collection;
 
 class FtpFileImport extends Basic implements Assignable, Executable, ImportInstructionInterface, JobInterface
 {
-    protected ?\closure $prepare = null;
+    protected ?\Closure $prepare = null;
 
-    protected ?\closure $process;
+    protected ?\Closure $process;
 
     protected array $config = [];
 

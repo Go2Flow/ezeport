@@ -22,7 +22,7 @@ class ImageGroups extends BaseInstructions implements InstructionInterface
                 ->process(
                     function (Collection $items, Api $api) {
 
-                        $ftp = Find::Api($this->project, 'ftp');
+                        $ftp = Find::api($this->project, 'ftp');
                         $content = $items->flatMap(
                             function ($item) use ($ftp) {
 

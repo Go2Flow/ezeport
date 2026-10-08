@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Casts\AsCollection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 
 /**
@@ -33,6 +34,7 @@ class Project extends BaseModel
         'cache' => AsCollection::class,
     ];
 
+    /** @return HasMany<Action, $this> */
     public function actions(): HasMany
     {
 
@@ -57,6 +59,7 @@ class Project extends BaseModel
         return 'public/'.Str::ucfirst($this->identifier).'/'.$path;
     }
 
+    /** @return HasMany<Connector, $this> */
     public function connectors(): HasMany
     {
         return $this->hasMany(Connector::class);

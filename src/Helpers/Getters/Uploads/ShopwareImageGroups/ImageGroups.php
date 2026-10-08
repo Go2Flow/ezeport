@@ -15,11 +15,11 @@ class ImageGroups extends BaseInstructions implements InstructionInterface
     public function get(): array
     {
         return [
-            Set::upload('articleMediaGroups')
+            Set::Upload('articleMediaGroups')
                 ->items(fn () => Content::type('ImageGroup', $this->project))
                 ->chunk(1)
                 ->field(
-                    Set::uploadField()
+                    Set::UploadField()
                         ->field(
                             fn ($item, $config) => $item->shopware('images')?->map(
                                 function ($imageId, $key) use ($config) {
@@ -52,7 +52,7 @@ class ImageGroups extends BaseInstructions implements InstructionInterface
                                 ->where('project_id', $this->project->id)
                         )
                 )->field(
-                    Set::uploadField()
+                    Set::UploadField()
                         ->field(
                             fn ($item) => $item->properties('images')
                                 ->map(

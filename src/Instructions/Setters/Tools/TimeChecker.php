@@ -83,7 +83,7 @@ class TimeChecker
 
     private function minutesSinceStartOfDay(Carbon $time): int
     {
-        return $time->diffInMinutes(
+        return (int) $time->diffInMinutes(
             $time->copy()
                 ->setTimezone('Europe/Berlin')
                 ->startOfDay()

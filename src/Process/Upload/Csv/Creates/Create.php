@@ -14,9 +14,6 @@ class Create implements FromCollection, WithCustomCsvSettings, WithHeadings
 
     public function __construct(private readonly Collection $collection, private readonly array $config = []) {}
 
-    /**
-     * @param  Collection  $collection
-     */
     public function collection(): Collection
     {
         return $this->collection;

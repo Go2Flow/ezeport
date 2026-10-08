@@ -25,7 +25,7 @@ class Model extends Basic implements Assignable, ImportInstructionInterface, Job
     public function __construct(string $key)
     {
         parent::__construct($key);
-        $this->job = Set::job()
+        $this->job = Set::Job()
             ->class(AssignInstruction::class);
     }
 

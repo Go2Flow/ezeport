@@ -52,7 +52,7 @@ class Categories extends BaseInstructions implements InstructionInterface
                     ['mediaId' => fn ($item) => $item->relations('images')?->first()->shop('id') ?? null],
                     $this->setCategoryCmsPageIdField(),
                     $this->setShopwareIdField(),
-                    Set::uploadField('parentId')
+                    Set::UploadField('parentId')
                         ->field(
                             function ($item) {
                                 if ($parent = $item->relations('category')) {

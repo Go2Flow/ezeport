@@ -49,6 +49,7 @@ class ProjectSpecificCommands
             return 'Schedule '.$type.' has been started!';
         }
 
+        return 'No schedule selected';
     }
 
     public function addToUpload(?string $type = null): string
@@ -165,7 +166,7 @@ class ProjectSpecificCommands
             'password' => $password == '' ? $connector->password : $password,
             'environment' => $environment,
             'project_id' => $this->project->id,
-            'name' => $name ?? null,
+            'name' => $name,
         ])->save();
 
         return 'Connector '.$newOrUpdate.'d';
@@ -222,7 +223,7 @@ class ProjectSpecificCommands
             required: true,
             validate: fn (string $value) => match (true) {
                 ! is_numeric($value) => 'the id must be numeric',
-                ! GenericModel::exists($value) => 'no item found with id '.$value,
+                ! GenericModel::whereKey($value)->exists() => 'no item found with id '.$value,
                 default => null
             }
         );

@@ -24,7 +24,7 @@ class ArticleMedia extends BaseInstructions implements InstructionInterface
             Set::Upload('articleMedia')
                 ->items(fn () => Content::type('Image', $this->project))
                 ->field(
-                    Set::uploadField()
+                    Set::UploadField()
                         ->field(
                             function ($image) {
                                 $article = $image->parents('images')?->first();

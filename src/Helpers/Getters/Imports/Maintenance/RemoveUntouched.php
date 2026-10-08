@@ -12,7 +12,7 @@ class RemoveUntouched extends BaseInstructions implements InstructionInterface
     public function get(): array
     {
         return [
-            Set::model('RemoveUntouched')
+            Set::Model('RemoveUntouched')
                 ->items(fn () => GenericModel::where('project_id', $this->project->id)
                     ->where('touched', false)
                     ->where('updated', false)

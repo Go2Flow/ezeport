@@ -21,7 +21,7 @@ class Customers extends BaseInstructions implements InstructionInterface
     public function get(): array
     {
         return [
-            Set::upload('customers')
+            Set::Upload('customers')
                 ->fields([
                     $this->setShopwareUploadField(),
                     ['email' => fn ($item) => $item->properties('email')],

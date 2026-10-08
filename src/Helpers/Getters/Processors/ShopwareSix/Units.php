@@ -27,7 +27,7 @@ class Units extends BaseInstructions implements InstructionInterface
                                 $item->shopware('id')
                             )->body();
 
-                            if (! $response) {
+                            if (isset($response->data->id)) {
                                 $item->shopware(['id' => $response->data->id]);
                                 $item->updateOrCreate();
                             } else {

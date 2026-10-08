@@ -36,7 +36,7 @@ class Upload extends Basic implements Executable, JobInterface
     {
         parent::__construct($key);
         $this->getters = collect();
-        $this->job = Set::job()
+        $this->job = Set::Job()
             ->class(ProcessInstruction::class);
     }
 
@@ -229,21 +229,12 @@ class Upload extends Basic implements Executable, JobInterface
      */
     public function getProcessor(): UploadProcessor
     {
-
-        if ($this->processor) {
-
-            if ($this->processor instanceof GetProxy) {
-
-                $processor = ($this->processor)($this->project);
-            }
-
-            if ($this->processor instanceof UploadProcessor) {
-                $processor = $this->processor
-                    ->setProject($this->project);
-            }
-        } else {
-            $processor = Get::processor($this->key)($this->project);
-        }
+        $processor = match (true) {
+            $this->processor instanceof UploadProcessor => $this->processor->setProject($this->project),
+            $this->processor instanceof GetProxy => ($this->processor)($this->project),
+            is_string($this->processor) && $this->processor !== '' => Get::processor($this->processor)($this->project),
+            default => Get::processor($this->key)($this->project),
+        };
 
         return $processor->setComponents($this->components);
     }

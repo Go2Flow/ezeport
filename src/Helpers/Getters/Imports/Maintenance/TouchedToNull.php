@@ -12,7 +12,7 @@ class TouchedToNull extends BaseInstructions implements InstructionInterface
     public function get(): array
     {
         return [
-            Set::model('TouchedToNull')
+            Set::Model('TouchedToNull')
                 ->items(fn () => GenericModel::where('project_id', $this->project->id)
                     ->where('touched', true)
                     ->pluck('id'))

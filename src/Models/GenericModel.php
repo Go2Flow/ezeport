@@ -25,7 +25,7 @@ use Illuminate\Support\Str;
  * @property bool $updated
  * @property bool $touched
  * @property ?Collection $content
- * @property ?Collection shop
+ * @property ?Collection $shop
  * @property Pivot $pivot
  */
 class GenericModel extends BaseModel
