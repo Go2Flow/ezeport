@@ -15,6 +15,7 @@ use Go2Flow\Ezport\Process\Errors\EzportSetterException;
 class Connector extends Base {
 
     protected ?string $name;
+    protected ?string $username;
     protected ?string $password;
     protected ?string $host;
     protected ?string $environment;

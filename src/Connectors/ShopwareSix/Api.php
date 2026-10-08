@@ -4,14 +4,16 @@ namespace Go2Flow\Ezport\Connectors\ShopwareSix;
 
 use Go2Flow\Ezport\Connectors\ApiInterface;
 use GuzzleHttp\Client as Guzzle;
+use GuzzleHttp\Psr7\Response;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
-use GuzzleHttp\Psr7\Response;
 
 class Api implements ApiInterface
 {
     protected Client $client;
+
     protected ?object $response;
+
     protected ?string $path;
 
     public function __construct(
@@ -19,22 +21,16 @@ class Api implements ApiInterface
         private Collection $structure,
         ?Guzzle $testGuzzle = null
     ) {
-        if ($connector['encrypted']) {
-            $connector['password'] = decrypt($connector['password']);
-        }
-
         $this->client = (new Client($connector, $testGuzzle))->setupToken();
     }
 
     /** special path setter for manufacturers that shortens the path */
-
     public function manufacturer(): self
     {
         return $this->setPath('product-manufacturer');
     }
 
     /** speical path setter for property options that shortens the path */
-
     public function propertyOption(): self
     {
         return $this->setPath('property-group-option');
@@ -84,45 +80,42 @@ class Api implements ApiInterface
     {
         return $this->postRequest(
             [],
-            '_action/' . Str::replace('-', '_', $this->path) . '/' . $id . '/state/' . $transition
+            '_action/'.Str::replace('-', '_', $this->path).'/'.$id.'/state/'.$transition
         );
     }
 
     /** a simple get. The parameter sets how many you'd like to get back */
-
     public function get(int $limit = 10)
     {
-        $this->path .= '?limit=' . $limit . '&total-count-mode=1';
+        $this->path .= '?limit='.$limit.'&total-count-mode=1';
+
         return $this->getRequest();
     }
 
     /** sets the url that shopware should download an image from. Only works for images.  */
-
-    public function url(string $url, string|int $id, $extension = 'jpg') : self
+    public function url(string $url, string|int $id, $extension = 'jpg'): self
     {
         return $this->postRequest(
             ['url' => $url],
-            '_action/' . $this->path . '/' . $id . '/upload?extension=' . $extension . '&_response=true',
+            '_action/'.$this->path.'/'.$id.'/upload?extension='.$extension.'&_response=true',
         );
     }
 
     /** uploads an image file to the server */
-
-    public function upload(array $payload, string|int $id, $extension = 'jpg') : self
+    public function upload(array $payload, string|int $id, $extension = 'jpg'): self
     {
         return $this->uploadRequest(
             $payload['file'],
-            '_action/' . $this->path . '/' . $id . '/upload?extension=' . $extension . '&_response=true',
+            '_action/'.$this->path.'/'.$id.'/upload?extension='.$extension.'&_response=true',
 
         );
     }
 
     /** index the server. Should be run in case in other places you've not set */
-
-    public function index() : self
+    public function index(): self
     {
         $this->response = $this->client->addToPayload([
-            'parameter' => 'skip[]'
+            'parameter' => 'skip[]',
         ])->sendRequest(
             '_action/index',
             'POST'
@@ -134,17 +127,15 @@ class Api implements ApiInterface
     /** search for an entry of the specific set path. You'll need to use the 'filter' function to specify what it should search for
      * you can also add associations using the 'associations' method. You can use the ShopSix::association helper
      */
-
-    public function search(array $array = []) : self
+    public function search(array $array = []): self
     {
         return $this->postRequest(
             $array,
-            'search/' . $this->path
+            'search/'.$this->path
         );
     }
 
     /** filter the search. You can use this to search for specific things. You can use the ShopSix::filter helper */
-
     public function filter(array $array): self
     {
 
@@ -161,7 +152,6 @@ class Api implements ApiInterface
     }
 
     /** add associations to your search */
-
     public function association(array $array): self
     {
         return count($array) > 0
@@ -175,7 +165,6 @@ class Api implements ApiInterface
     }
 
     /** returns a specific page in the result if there are multiple pages */
-
     public function page(int $int): self
     {
         return $this->simplePayloadAdd(
@@ -198,8 +187,8 @@ class Api implements ApiInterface
             ['total-count-mode' => 1]
         );
     }
-    /** this method lets you reduce the amount of data the server sends by seleecting specific fields */
 
+    /** this method lets you reduce the amount of data the server sends by seleecting specific fields */
     public function include(array $array): self
     {
         return count($array) > 0
@@ -228,14 +217,17 @@ class Api implements ApiInterface
      *     data: array
      * }
      */
-
     public function body(array $remove = []): ?object
     {
-        if (! $this->response ) return $this->response;
+        if (! $this->response) {
+            return $this->response;
+        }
 
         $response = $this->response->getBody()->getContents();
 
-        if ($this->path == 'media') $remove = array_merge($remove, ['\u0000*\u0000']);
+        if ($this->path == 'media') {
+            $remove = array_merge($remove, ['\u0000*\u0000']);
+        }
 
         foreach ($remove as $key) {
             $response = str_replace($key, '', $response);
@@ -245,7 +237,6 @@ class Api implements ApiInterface
     }
 
     /** returns the status code of the response */
-
     public function status(): ?int
     {
         return ($this->response)
@@ -254,7 +245,6 @@ class Api implements ApiInterface
     }
 
     /** get the guzzle client */
-
     public function getClient(): Client
     {
         return $this->client;
@@ -276,14 +266,14 @@ class Api implements ApiInterface
                 'headers' => [
                     'Content-Type' => 'application/json',
                     'Accept' => 'application/json',
-                    'indexing-behavior' => 'use-queue-indexing'
-                ]
+                    'indexing-behavior' => 'use-queue-indexing',
+                ],
             ])->addToPayload([
-                'write-' . $this->path => [
+                'write-'.$this->path => [
                     'entity' => Str::replace('-', '_', $this->path),
                     'action' => 'upsert',
-                    'payload' => $payload
-                ]
+                    'payload' => $payload,
+                ],
             ])->sendRequest(
                 '_action/sync?_response=true',
                 'POST'
@@ -299,13 +289,13 @@ class Api implements ApiInterface
                 'headers' => [
                     'Content-Type' => 'application/json',
                     'Accept' => 'application/vnd.api+json',
-                ]
+                ],
             ])->addToPayload([
-                'delete-' . $this->path => [
+                'delete-'.$this->path => [
                     'entity' => Str::replace('-', '_', $this->path),
                     'action' => 'delete',
-                    'payload' => $payload
-                ]
+                    'payload' => $payload,
+                ],
             ])->sendRequest(
                 '_action/sync',
                 'POST'
@@ -318,8 +308,9 @@ class Api implements ApiInterface
     {
         $this->response = $this->client
             ->sendRequest(
-                $this->path . '?_response=true'
+                $this->path.'?_response=true'
             );
+
         return $this;
     }
 
@@ -328,7 +319,7 @@ class Api implements ApiInterface
         $this->response = $this->client
             ->addToPayload($payload)
             ->sendRequest(
-                $this->path . '/' . $id . '?_response=true',
+                $this->path.'/'.$id.'?_response=true',
                 'PATCH'
             );
 
@@ -340,7 +331,7 @@ class Api implements ApiInterface
         $this->response = $this->client
             ->addToPayload($payload)
             ->sendRequest(
-                $path . '?_response=true',
+                $path.'?_response=true',
                 'POST'
             );
 
@@ -355,10 +346,10 @@ class Api implements ApiInterface
             'POST',
             [
                 'headers' => [
-                    'Content-Type' => 'image/jpg', 'Accept' => 'application/json'
+                    'Content-Type' => 'image/jpg', 'Accept' => 'application/json',
                 ],
 
-                'body' =>  $payload,
+                'body' => $payload,
             ]
         );
 
@@ -370,7 +361,7 @@ class Api implements ApiInterface
 
         $this->response = $this->client
             ->sendRequest(
-                $this->path . '/' . $id,
+                $this->path.'/'.$id,
                 'DELETE'
             );
 

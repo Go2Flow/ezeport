@@ -2,10 +2,9 @@
 
 namespace Go2Flow\Ezport\Connectors\Ftp;
 
-use Go2Flow\Ezport\Models\Connector;
 use Go2Flow\Ezport\Connectors\ApiInterface;
-use Go2Flow\Ezport\Finders\Find;
 use Go2Flow\Ezport\Logger\LogError;
+use Go2Flow\Ezport\Models\Connector;
 use Go2Flow\Ezport\Models\Project;
 use Illuminate\Filesystem\FilesystemAdapter;
 use Illuminate\Support\Collection;
@@ -16,9 +15,13 @@ use Illuminate\Support\Str;
 class Api implements ApiInterface
 {
     private $baseFolder;
+
     private $connection;
+
     private $storage;
+
     private $files;
+
     private string $directory;
 
     private Project $project;
@@ -26,28 +29,40 @@ class Api implements ApiInterface
     public function __construct(array $connector, private Collection $structure, string $drive = 'public')
     {
 
-        $this->project = Project::find($connector['project_id']);
-        $this->baseFolder = ucfirst($this->project->identifier) . '/';
+        $this->project = Project::query()->find($connector['project_id']);
+        $this->baseFolder = ucfirst($this->project->identifier).'/';
 
         $this->storage = Storage::drive($drive);
 
-        config([
-            'filesystems.disks.ftp' => [
-                'driver' => 'ftp',
-                'host' => $connector['host'],
-                'username' => $connector['username'],
-                'password' => $connector['password'],
-                'timeout' => 300,
-            ],
-        ]);
+        // Built per connector instead of Storage::drive('ftp'): a named disk is cached for the
+        // whole process, so a queue worker would keep using the first project's FTP server.
+        $this->connection = Storage::build(self::diskConfig($connector));
+    }
 
-        $this->connection = Storage::drive('ftp');
+    /**
+     * Flysystem config for a connector. An optional `root` in the connector properties
+     * scopes every path (listing, moving, uploading) to that folder, e.g. `stage`.
+     */
+    public static function diskConfig(array $connector): array
+    {
+        $config = [
+            'driver' => 'ftp',
+            'host' => $connector['host'],
+            'username' => $connector['username'],
+            'password' => $connector['password'],
+            'timeout' => 300,
+        ];
+
+        if ($root = trim((string) data_get($connector, 'properties.root', ''), '/')) {
+            $config['root'] = $root;
+        }
+
+        return $config;
     }
 
     /**
      * Get all the files in the specified directory
      */
-
     public function get()
     {
         return $this->list()->map(
@@ -58,7 +73,6 @@ class Api implements ApiInterface
     /**
      * Get all the files in the specified directory and store them in the storage specified in the 2nd parameter of the constructor
      */
-
     public function getAndStore()
     {
         return $this->list()->map(
@@ -76,10 +90,11 @@ class Api implements ApiInterface
     /**
      * take the specified file out of the list stored in memory (not from the ftp server)
      */
-
-    public function removeFromList(array $array) : self
+    public function removeFromList(array $array): self
     {
-        if (! $this->checkDirectory()) $this->files = false;
+        if (! $this->checkDirectory()) {
+            $this->files = false;
+        }
 
         $this->files = $this->checkDirectory()
             ->filter(
@@ -93,34 +108,33 @@ class Api implements ApiInterface
      * Move a file from one directory to another.
      * If the destination folder does not exist it will be created
      */
-
     public function moveFile($file, $destination, $newName = null)
     {
-        if (!$this->connection->directoryExists($destination)) $this->connection->makeDirectory($destination);
+        if (! $this->connection->directoryExists($destination)) {
+            $this->connection->makeDirectory($destination);
+        }
 
         return $this->connection->move(
             $file,
-            $destination . '/' . ($newName ?? Str::afterLast($file, '/'))
+            $destination.'/'.($newName ?? Str::afterLast($file, '/'))
         );
     }
 
     /**
      * put the specified file in the storage directory specified in the 2nd paramater of the constructor
      */
-
-    public function post($file) : string|bool
+    public function post($file): string|bool
     {
         return $this->connection->put(
-            $this->directory . '/' . $file,
-            $this->storage->get($this->baseFolder . $this->directory . '/' . $file)
+            $this->directory.'/'.$file,
+            $this->storage->get($this->baseFolder.$this->directory.'/'.$file)
         );
     }
 
     /**
      * Delete the specified file from the ftp server
      */
-
-    public function delete($file) : bool
+    public function delete($file): bool
     {
         return $this->connection->delete($file);
     }
@@ -128,7 +142,6 @@ class Api implements ApiInterface
     /**
      * Go through the list of files and keep only those who are jpg, png or jpeg
      */
-
     public function imagesOnly(): self
     {
 
@@ -142,11 +155,10 @@ class Api implements ApiInterface
     /**
      * Upload a file to the ftp server
      */
-
-    public function upload($name, $file) : self
+    public function upload($name, $file): self
     {
         $this->connection->put(
-            $this->directory . '/' . $name,
+            $this->directory.'/'.$name,
             $file
         );
 
@@ -157,19 +169,17 @@ class Api implements ApiInterface
      * Check whether a single file exists in the current directory.
      * Stats the one file rather than listing the whole directory.
      */
-
-    public function exists($name) : bool
+    public function exists($name): bool
     {
         return $this->connection->fileExists(
-            $this->directory . '/' . $name
+            $this->directory.'/'.$name
         );
     }
 
     /**
      * Get the last modified date of the specified file
      */
-
-    public function lastModified($file) : int
+    public function lastModified($file): int
     {
         return $this->connection->lastModified($file);
     }
@@ -177,8 +187,7 @@ class Api implements ApiInterface
     /**
      * Get the list of files in the specified directory
      */
-
-    public function list() : Collection
+    public function list(): Collection
     {
         return $this->files ?: $this->checkDirectory();
     }
@@ -186,10 +195,9 @@ class Api implements ApiInterface
     /**
      * Check if the specified directory exists and if it does, get the list of files in it
      */
-
     public function forceRefreshCache(): self
     {
-        Cache::forget('ftp-' . $this->project->identifier . '-' . $this->directory);
+        Cache::forget('ftp-'.$this->project->identifier.'-'.$this->directory);
         $this->files = $this->checkDirectory();
 
         return $this;
@@ -198,11 +206,11 @@ class Api implements ApiInterface
     private function checkDirectory()
     {
         return Cache::remember(
-            'ftp-' .  $this->project->identifier . '-' . $this->directory,
+            'ftp-'.$this->project->identifier.'-'.$this->directory,
             3600,
             function () {
 
-                if (!$this->connection->directoryExists($this->directory) || ! $names = $this->connection->allFiles($this->directory)) {
+                if (! $this->connection->directoryExists($this->directory) || ! $names = $this->connection->allFiles($this->directory)) {
 
                     return collect();
 
@@ -217,7 +225,6 @@ class Api implements ApiInterface
      * Fetch files directly by their stored paths, keyed by name. Bypasses directory listing entirely.
      * Each item in $images must have 'name' and 'path' keys.
      */
-
     public function getByPaths(Collection $images): Collection
     {
         return $images->mapWithKeys(function ($image) {
@@ -237,7 +244,6 @@ class Api implements ApiInterface
     /**
      * pass in an array or collection of identifiers to have these found in the list and returned sorted by their key.
      */
-
     public function find(array|Collection $identifiers)
     {
         return collect($identifiers)
@@ -254,18 +260,19 @@ class Api implements ApiInterface
     /**
      * pass in an identifier to have the file found in the list and saved locally on a drive specified in the 2nd paramater of the constructor
      */
-
     public function findAndStore($identifier, $path)
     {
         $files = $this->list()
             ->filter(fn ($file) => Str::of($file)->contains($identifier));
 
-        if ($files->count() == 0) throw new \Exception('File not found');
+        if ($files->count() == 0) {
+            throw new \Exception('File not found');
+        }
 
         $files->map(
-                function ($file) use ($path) {
+            function ($file) use ($path) {
                 $this->storeFile(
-                    $path. '/' . Str::afterLast($file, '/'),
+                    $path.'/'.Str::afterLast($file, '/'),
                     $this->getFile($file)
                 );
 
@@ -277,8 +284,7 @@ class Api implements ApiInterface
     /**
      * return the FilesystemAdapter instance
      */
-
-    public function connector() : FilesystemAdapter
+    public function connector(): FilesystemAdapter
     {
         return $this->connection;
     }
@@ -290,17 +296,22 @@ class Api implements ApiInterface
 
     private function storeFile($name, $file)
     {
-        if ($file === null) return;
+        if ($file === null) {
+            return;
+        }
 
-        if (!$this->storage->directoryExists($this->baseFolder)) $this->storage->makeDirectory($this->baseFolder);
+        if (! $this->storage->directoryExists($this->baseFolder)) {
+            $this->storage->makeDirectory($this->baseFolder);
+        }
 
         $this->storage->put(
-            $this->baseFolder . $name,
+            $this->baseFolder.$name,
             $file
         );
     }
 
-    public function setPath($path) : self {
+    public function setPath($path): self
+    {
 
         $this->directory = $path;
 
