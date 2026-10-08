@@ -28,6 +28,8 @@ class CsvImport extends Basic implements Assignable, Executable
     {
         parent::__construct($key);
 
+        $this->config = $config;
+
         $this->job = Set::Job()
             ->class(AssignInstruction::class);
     }
