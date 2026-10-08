@@ -11,26 +11,27 @@ use Go2Flow\Ezport\Helpers\Traits\Uploads\ArticleFields;
 use Go2Flow\Ezport\Helpers\Traits\Uploads\GeneralFields;
 use Go2Flow\Ezport\Instructions\Setters\Set;
 
-
 class ArticleMedia extends BaseInstructions implements InstructionInterface
 {
-    use GeneralHelpers,
-        StandardShopSixArticle,
-        ArticleFields,
-        GeneralFields;
+    use ArticleFields,
+        GeneralFields,
+        GeneralHelpers,
+        StandardShopSixArticle;
 
-    public function get() : array
+    public function get(): array
     {
         return [
             Set::Upload('articleMedia')
                 ->items(fn () => Content::type('Image', $this->project))
                 ->field(
-                    Set::uploadField()
+                    Set::UploadField()
                         ->field(
                             function ($image) {
                                 $article = $image->parents('images')?->first();
 
-                                if (! $article) return [];
+                                if (! $article) {
+                                    return [];
+                                }
 
                                 return array_merge([
                                     'mediaId' => $image->shopware('id'),
@@ -41,7 +42,7 @@ class ArticleMedia extends BaseInstructions implements InstructionInterface
                                 );
                             }
                         )
-                )
+                ),
         ];
     }
 }

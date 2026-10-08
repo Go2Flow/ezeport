@@ -10,26 +10,26 @@ use Go2Flow\Ezport\Instructions\Setters\Set;
 
 class CustomerGroups extends BaseInstructions implements InstructionInterface
 {
-
     use GeneralFields;
-    public function get() : array
+
+    public function get(): array
     {
         return [
-            Set::upload('rules')
+            Set::Upload('rules')
                 ->items(
                     fn () => Content::type('CustomerGroup', $this->project)
                 )->fields([
-                    ['name' => fn ($item) => 'Kundenpreisregel ' .  $item->properties('name') . ' | ' . $item->unique_id],
-                    ['id' => fn ($item) => $item->shop('rule_id')]
+                    ['name' => fn ($item) => 'Kundenpreisregel '.$item->properties('name').' | '.$item->unique_id],
+                    ['id' => fn ($item) => $item->shop('rule_id')],
                 ]),
 
-            Set::upload('CustomerGroups')
+            Set::Upload('CustomerGroups')
                 ->items(
                     fn () => Content::type('CustomerGroup', $this->project)
                         ->whereNot('unique_id', 'EK')
                 )->fields([
-                    ['name' => fn ($item) => 'Kundengruppe ' . $item->properties('name') . ' | ' . $item->unique_id],
-                    $this->setShopwareIdField()
+                    ['name' => fn ($item) => 'Kundengruppe '.$item->properties('name').' | '.$item->unique_id],
+                    $this->setShopwareIdField(),
                 ]),
         ];
     }

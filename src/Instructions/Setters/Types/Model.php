@@ -12,18 +12,20 @@ use Go2Flow\Ezport\Process\Jobs\AssignInstruction;
 use Go2Flow\Ezport\Process\Jobs\ModifyModel;
 use Illuminate\Support\Collection;
 
-class Model extends Basic implements ImportInstructionInterface, JobInterface, Assignable
+class Model extends Basic implements Assignable, ImportInstructionInterface, JobInterface
 {
-
     protected Collection $getters;
+
     protected UploadProcessor|GetProxy|null|string $processor = null;
-    protected ?closure $items = null;
+
+    protected ?Closure $items = null;
+
     protected array $instructions = [];
 
     public function __construct(string $key)
     {
         parent::__construct($key);
-        $this->job = Set::job()
+        $this->job = Set::Job()
             ->class(AssignInstruction::class);
     }
 
@@ -32,8 +34,7 @@ class Model extends Basic implements ImportInstructionInterface, JobInterface, A
      * In the case of a builder, the program will add that updated and touched must be true.
      * In the case of a collection, this collection should only contain ids (e.g. pluck).
      */
-
-    public function items(closure $items): self
+    public function items(Closure $items): self
     {
 
         $this->items = $items;
@@ -41,7 +42,7 @@ class Model extends Basic implements ImportInstructionInterface, JobInterface, A
         return $this;
     }
 
-    public function type(string $type) : self
+    public function type(string $type): self
     {
         $this->job = $this->job->config(['type' => $type]);
 
@@ -49,7 +50,7 @@ class Model extends Basic implements ImportInstructionInterface, JobInterface, A
 
     }
 
-    public function instructions(array $instructions) : self
+    public function instructions(array $instructions): self
     {
         $this->instructions = $instructions;
 

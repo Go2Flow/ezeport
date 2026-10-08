@@ -14,7 +14,7 @@ class Units extends BaseInstructions implements InstructionInterface
 {
     use GeneralHelpers, StandardShopSixArticle;
 
-    public function get() : array
+    public function get(): array
     {
         return [
             Set::UploadProcessor('Units')
@@ -27,19 +27,18 @@ class Units extends BaseInstructions implements InstructionInterface
                                 $item->shopware('id')
                             )->body();
 
-                            if (!$response) {
+                            if (isset($response->data->id)) {
                                 $item->shopware(['id' => $response->data->id]);
                                 $item->updateOrCreate();
-                            }
-                            else {
+                            } else {
                                 $item->logError([
                                     'reason' => 'failed to upload or create unit',
-                                    'api-error-messages' => $api->getClient()->getErrorMessages()
+                                    'api-error-messages' => $api->getClient()->getErrorMessages(),
                                 ]);
                             }
                         }
                     )
-                )
+                ),
         ];
     }
 }

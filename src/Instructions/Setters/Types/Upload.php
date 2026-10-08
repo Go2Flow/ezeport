@@ -16,22 +16,27 @@ use Go2Flow\Ezport\Process\Jobs\ProcessInstruction;
 use Illuminate\Contracts\Database\Query\Builder;
 use Illuminate\Support\Collection;
 
-class Upload extends Basic implements JobInterface, Executable
+class Upload extends Basic implements Executable, JobInterface
 {
-
     protected Collection $getters;
+
     protected UploadProcessor|GetProxy|null|string $processor = null;
-    protected ?closure $items = null;
+
+    protected ?Closure $items = null;
+
     protected array $config = [];
+
     protected array $components = [];
+
     protected int $chunk = 25;
+
     protected bool $showNull = false;
 
     public function __construct(string $key)
     {
         parent::__construct($key);
         $this->getters = collect();
-        $this->job = Set::job()
+        $this->job = Set::Job()
             ->class(ProcessInstruction::class);
     }
 
@@ -40,8 +45,7 @@ class Upload extends Basic implements JobInterface, Executable
      * In the case of a builder, the program will add that updated and touched must be true.
      * In the case of a collection, this collection should only contain ids (e.g. pluck).
      */
-
-    public function items(closure $items): self
+    public function items(Closure $items): self
     {
 
         $this->items = $items;
@@ -54,11 +58,10 @@ class Upload extends Basic implements JobInterface, Executable
      * These will then be added to the upload array by the name.
      * If the closure evaluates to null it will not be added to the array.
      */
-
     public function field(UploadField|array $field): self
     {
 
-        if (!$field instanceof UploadField) {
+        if (! $field instanceof UploadField) {
             foreach ($field as $key => $value) {
 
                 $field = Set::UploadField($key)->field($value);
@@ -77,14 +80,15 @@ class Upload extends Basic implements JobInterface, Executable
     /**
      * Add multiple fields at once. Will be passed to the field method.
      */
+    public function fields(array|Collection $fields): self
+    {
 
-     public function fields(array|Collection $fields): self
-     {
+        foreach ($fields as $field) {
+            $this->field($field);
+        }
 
-         foreach ($fields as $field) $this->field($field);
-
-         return $this;
-     }
+        return $this;
+    }
 
     /**
      * Add another SetUpload as a child to the current SetUpload.
@@ -92,7 +96,6 @@ class Upload extends Basic implements JobInterface, Executable
      * It will be passed to the processor as the fourth parameter
      * In both cases, you can access it there by its key
      */
-
     public function components(array $components): self
     {
         collect($components)->each(
@@ -102,7 +105,8 @@ class Upload extends Basic implements JobInterface, Executable
         return $this;
     }
 
-    public function component(Upload|Set $component) {
+    public function component(Upload|Set $component)
+    {
 
         $this->components[$component->getKey()] = $component;
 
@@ -110,7 +114,6 @@ class Upload extends Basic implements JobInterface, Executable
     }
 
     /** add items to config so that it is available to the fields */
-
     public function config(array $config): self
     {
 
@@ -122,8 +125,8 @@ class Upload extends Basic implements JobInterface, Executable
     /**
      * Size of the chunk to be passed to a job (default 25). Shrink this if jobs are timing out.
      */
-
-    public function chunk(int $chunk) {
+    public function chunk(int $chunk)
+    {
 
         $this->chunk = $chunk;
 
@@ -131,7 +134,6 @@ class Upload extends Basic implements JobInterface, Executable
     }
 
     /** drops all fields. Useful when calling a pre-fabricated upload via 'Find' and the fields there are not correct*/
-
     public function dropFields(): self
     {
 
@@ -141,19 +143,16 @@ class Upload extends Basic implements JobInterface, Executable
     }
 
     /** drop specific field. Useful when calling a pre-fabricated upload via 'Find' and the fields there are not correct  */
-
-    public function dropField(string $key) : self
+    public function dropField(string $key): self
     {
         $this->getters = $this->getters->filter(fn ($item) => ! $item->hasKey($key));
 
         return $this;
     }
 
-
     /**
      * The items and the api will be passed into the processor at run time.
      */
-
     public function processor(string|UploadProcessor|GetProxy $processor): self
     {
 
@@ -165,7 +164,6 @@ class Upload extends Basic implements JobInterface, Executable
     /**
      * An instance of the Class Generic will be transformed into a shop array.
      */
-
     public function toShopArray(Generic $model): array
     {
         $tempConfig = $this->config;
@@ -177,7 +175,7 @@ class Upload extends Basic implements JobInterface, Executable
                         ->process($model, $this->config, $this->components)
                 )
             )->when(
-                !$this->showNull,
+                ! $this->showNull,
                 fn ($collection) => $collection->filter(fn ($field) => $field !== null)
             )->toArray();
 
@@ -190,12 +188,13 @@ class Upload extends Basic implements JobInterface, Executable
      * returns the ids of the items that should be uploaded.
      * these can then be passed to the processor.
      */
-
     public function pluck(): Collection
     {
         $response = $this->builder();
 
-        if (!$response instanceof Builder) return $response->chunk($this->chunk);
+        if (! $response instanceof Builder) {
+            return $response->chunk($this->chunk);
+        }
 
         $ids = collect();
 
@@ -205,7 +204,6 @@ class Upload extends Basic implements JobInterface, Executable
 
                 $ids->push($chunk->pluck('id'));
 
-
             });
 
         return $ids->flatten()->chunk($this->chunk);
@@ -214,7 +212,6 @@ class Upload extends Basic implements JobInterface, Executable
     /**
      * Expects a Collection of Ids which it will prepare for the processor
      */
-
     public function prepareItems(Collection $ids): Collection
     {
 
@@ -230,24 +227,14 @@ class Upload extends Basic implements JobInterface, Executable
      * if the processor field is a string it will look for that processor in the project
      * if the processor field is null it will look for a processor with the same name as the key
      */
-
-    public function getProcessor() : UploadProcessor
+    public function getProcessor(): UploadProcessor
     {
-
-        if ($this->processor) {
-
-            if ($this->processor instanceof GetProxy) {
-
-                $processor = ($this->processor)($this->project);
-            }
-
-            if ($this->processor instanceof UploadProcessor) {
-                $processor = $this->processor
-                    ->setProject($this->project);
-            }
-        } else {
-            $processor = Get::processor($this->key)($this->project);
-        }
+        $processor = match (true) {
+            $this->processor instanceof UploadProcessor => $this->processor->setProject($this->project),
+            $this->processor instanceof GetProxy => ($this->processor)($this->project),
+            is_string($this->processor) && $this->processor !== '' => Get::processor($this->processor)($this->project),
+            default => Get::processor($this->key)($this->project),
+        };
 
         return $processor->setComponents($this->components);
     }
@@ -268,7 +255,9 @@ class Upload extends Basic implements JobInterface, Executable
     protected function prepareField(?array $response): array
     {
 
-        if ($response === null) return [];
+        if ($response === null) {
+            return [];
+        }
 
         $prepared = $this->seperateArrayAndConfigAndPrepare($response['value']);
 
@@ -291,9 +280,11 @@ class Upload extends Basic implements JobInterface, Executable
             : $response;
     }
 
-    private function checkAndRemoveDuplicateKeyFromGetters(null|string $key): void
+    private function checkAndRemoveDuplicateKeyFromGetters(?string $key): void
     {
-        if ($key === null) return;
+        if ($key === null) {
+            return;
+        }
 
         if (($items = $this->getters->filter(fn ($item) => $item->hasKey($key)))->count() > 0) {
 

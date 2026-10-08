@@ -1,8 +1,14 @@
+includes:
+    - vendor/larastan/larastan/extension.neon
+
 parameters:
     level: 3
     paths:
         - src
     ignoreErrors:
+        # the users of a project live in the host application
+        - message: '#App\\Models\\User not found#'
+          path: src/Models/Project.php
         - '#Call to an undefined method#'
         - '#Access to an undefined property#'
     reportUnmatchedIgnoredErrors: false

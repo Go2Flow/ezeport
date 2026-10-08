@@ -15,19 +15,19 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 
 /**
-     * Go2Flow\Ezport\Models\GenericModel
-     * @property int $id
-     * @property int $project_id
-     * @property string $unique_id
-     * @property string $type
-     * @property string $name
-     * @property bool $updated
-     * @property bool $touched
-     * @property ?Collection $content
-     * @property ?Collection shop
-     * @property Pivot $pivot
-     */
-
+ * Go2Flow\Ezport\Models\GenericModel
+ *
+ * @property int $id
+ * @property int $project_id
+ * @property string $unique_id
+ * @property string $type
+ * @property string $name
+ * @property bool $updated
+ * @property bool $touched
+ * @property ?Collection $content
+ * @property ?Collection $shop
+ * @property Pivot $pivot
+ */
 class GenericModel extends BaseModel
 {
     use HasFactory;
@@ -43,16 +43,22 @@ class GenericModel extends BaseModel
 
     public function processRelations(): void
     {
-        if (!$this->content) return;
+        if (! $this->content) {
+            return;
+        }
 
-        foreach ($this->content as $key  => $item) {
-            if (!($string = Str::of($key))->contains('_id')) continue;
+        foreach ($this->content as $key => $item) {
+            if (! ($string = Str::of($key))->contains('_id')) {
+                continue;
+            }
 
             $type = Content::type($string->before('_id')->camel()->ucfirst(), Project::find($this->project_id))
                 ->whereIn('unique_id', collect($item))
                 ->get();
 
-            if ($type->count() == 0) continue;
+            if ($type->count() == 0) {
+                continue;
+            }
 
             $this->getOrSetData([(string) $string->before('_id')->plural() => $type], 'modelRelations');
 
@@ -89,26 +95,28 @@ class GenericModel extends BaseModel
         );
     }
 
-    public function updateOrCreateModel($updated) : array
+    public function updateOrCreateModel($updated): array
     {
         if (is_string($updated)) {
             $updated = collect(['touch', 'update', 'touched', 'updated'])->contains(Str::lower($updated));
         }
 
         $this->updated = $this->updated || $this->isDirty();
-        if ($updated) $this->touched = true;
+        if ($updated) {
+            $this->touched = true;
+        }
 
         $original = $this->getOriginal();
         $exists = $this->exists;
 
-        if ($name = $this->content?->filter(fn ($item, $key) => Str::lower($key) === 'name')?->first()){
+        if ($name = $this->content?->filter(fn ($item, $key) => Str::lower($key) === 'name')?->first()) {
             $this->name = $name;
         }
 
         $this->save();
 
         if ($this->unique_id === null) {
-            $this->update(['unique_id' => $this->id . '-' . $this->type]);
+            $this->update(['unique_id' => $this->id.'-'.$this->type]);
         }
 
         return [$original, $exists];
@@ -119,14 +127,14 @@ class GenericModel extends BaseModel
         return new Generic($this);
     }
 
-    public function setContentAndRelations($data) : self
+    public function setContentAndRelations($data): self
     {
         foreach ($data as $key => $item) {
             $field = ($item instanceof Collection || is_array($item)) && collect($item)->first() instanceof Generic
                 ? 'modelRelations'
                 : 'content';
 
-            $this->$field =  (!$this->$field)
+            $this->$field = (! $this->$field)
                 ? collect([$key => $item])
                 : $this->$field->merge([$key => $item]);
         }
@@ -138,12 +146,14 @@ class GenericModel extends BaseModel
     {
         if (isset($data['unique_id'])) {
 
-            $model = $this->whereType($data['type'] )
+            $model = $this->whereType($data['type'])
                 ->whereUniqueId($data['unique_id'])
                 ->whereProjectId($data['project_id'])
                 ->first();
 
-            if ($model) return $model;
+            if ($model) {
+                return $model;
+            }
         }
 
         return $this->fill([
@@ -153,7 +163,7 @@ class GenericModel extends BaseModel
         ]);
     }
 
-    public function external() : ?MorphTo
+    public function external(): ?MorphTo
     {
         return $this->morphTo(__FUNCTION__, 'morph_type', 'morph_id');
     }
@@ -172,11 +182,10 @@ class GenericModel extends BaseModel
                 );
             }
 
-            if (!in_array($current->id, $visited)) {
+            if (! in_array($current->id, $visited)) {
                 $visited[] = $current->id;
                 $stack = $stack->merge($current->children);
             }
         }
     }
-
 }
