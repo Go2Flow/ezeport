@@ -35,7 +35,9 @@ class DataProcessor
         return $collection->map(
             function ($text) use ($structure) {
 
-                if (!($content = $this->prepareContent($text, $structure))) return null;
+                if (! ($content = $this->prepareContent($text, $structure))) {
+                    return null;
+                }
 
                 return $this->toClass(
                     $content,
@@ -51,7 +53,7 @@ class DataProcessor
             [
                 'type' => $class,
                 'unique_id' => $content['unique_id'],
-                'project_id' => $this->project->id
+                'project_id' => $this->project->id,
             ]
         );
 
@@ -74,7 +76,16 @@ class DataProcessor
 
             foreach ($structure->get('updateIf') as $key => $value) {
 
-                if ($data[$key] !=  $value) return null;
+                if ($data[$key] != $value) {
+                    return null;
+                }
+            }
+        }
+
+        foreach ($structure->get('exclude') ?? [] as $key => $values) {
+
+            if (in_array($data[$key] ?? null, (array) $values, true)) {
+                return null;
             }
         }
 
@@ -113,7 +124,7 @@ class DataProcessor
         return $this->textPrepper
             ->setText(
                 Str::of($text),
-                $path  = collect($component->get('path'))
+                $path = collect($component->get('path'))
             )->process($path->pop());
     }
 
@@ -148,7 +159,7 @@ class DataProcessor
             $string = '';
             foreach ($value as $val) {
 
-                $string .= '-' . $this->getXmlValue($content, $text, $val);
+                $string .= '-'.$this->getXmlValue($content, $text, $val);
             }
 
             return Str::after($string, '-');
@@ -159,7 +170,9 @@ class DataProcessor
             $content = $this->textPrepper->setText($text, $path)->getText();
             $content = $this->extractText($content);
         }
-        if (!$content) return null;
+        if (! $content) {
+            return null;
+        }
 
         return trim((string) $content->$value ?: (string) $content);
     }
@@ -172,7 +185,7 @@ class DataProcessor
             $string = '';
             foreach ($attribute as $val) {
 
-                $string .= '-' . $this->getXmlAttribute($content, $text, $val);
+                $string .= '-'.$this->getXmlAttribute($content, $text, $val);
             }
 
             return Str::after($string, '-');
@@ -196,17 +209,21 @@ class DataProcessor
             $content = $content->children()->$tag;
         }
 
-        if (!$content) return null;
+        if (! $content) {
+            return null;
+        }
 
         return trim((string) $content->attributes()[(string) $attribute]);
     }
 
     private function extractText($text)
     {
-        if (!trim($text instanceof Stringable ? $text->toString() : $text)) return null;
+        if (! trim($text instanceof Stringable ? $text->toString() : $text)) {
+            return null;
+        }
 
         try {
-            return XMLParser::extract($text)->getContent();
+            return XmlParser::extract($text)->getContent();
         } catch (Exception $e) {
 
             Log::info([$e->getMessage(), $text]);

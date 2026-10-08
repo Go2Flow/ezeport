@@ -10,18 +10,29 @@ use Go2Flow\Ezport\Process\Errors\EzportSetterException;
 use Go2Flow\Ezport\Process\Jobs\AssignXml;
 use Illuminate\Support\Collection;
 
-class XmlImport extends Basic implements JobInterface, ImportInstructionInterface {
-
+class XmlImport extends Basic implements ImportInstructionInterface, JobInterface
+{
     protected ?array $path = null;
+
     protected ?string $type = null;
+
     protected Collection $values;
+
     protected Collection $updateIf;
+
+    protected Collection $exclude;
+
     protected Collection $attributes;
+
     protected Collection $arrays;
+
     protected Collection $components;
-    protected ?closure $closure = null;
+
+    protected ?Closure $closure = null;
+
     protected $setStandardFields = ['path', 'type'];
-    protected $setSpecialFields = ['values', 'updateIf', 'attributes', 'arrays', 'components'];
+
+    protected $setSpecialFields = ['values', 'updateIf', 'exclude', 'attributes', 'arrays', 'components'];
 
     public function __construct(string $key, array $config = [])
     {
@@ -40,24 +51,25 @@ class XmlImport extends Basic implements JobInterface, ImportInstructionInterfac
         $this->type = $this->key->singular()->camel()->ucFirst()->toString();
     }
 
-    public function arrays(array|Set|XmlImport $content) : self
+    public function arrays(array|Set|XmlImport $content): self
     {
         return $this->newSet('arrays', $content);
     }
 
-    public function components(array|Set|XmlImport $content) : self
+    public function components(array|Set|XmlImport $content): self
     {
         return $this->newSet('components', $content);
     }
 
-    public function closure(closure $closure) : self {
+    public function closure(Closure $closure): self
+    {
 
         $this->closure = $closure;
 
         return $this;
     }
 
-    private function newSet($name, $content) : self
+    private function newSet($name, $content): self
     {
         $this->$name->push(
             $content instanceof XmlImport
@@ -72,31 +84,31 @@ class XmlImport extends Basic implements JobInterface, ImportInstructionInterfac
      * @method self values(array $content)
      * @method self attributes(array $content)
      * @method self updateIf(array $content)
+     * @method self exclude(array $content) skip an element if a parsed field matches one of the given values, e.g. ['name' => ['Farbe', 'Weite']]
      * @method self path(array $path)
      */
-
     public function __call($method, $arguments)
     {
-        if (method_exists($this, $method)) return $this->$method(...$arguments);
+        if (method_exists($this, $method)) {
+            return $this->$method(...$arguments);
+        }
 
-        if (in_array($method, $this->setSpecialFields))
-        {
+        if (in_array($method, $this->setSpecialFields)) {
             $this->{$method} = $this->$method->merge($arguments[0]);
 
             return $this;
         }
 
-        if (in_array($method, $this->setStandardFields))
-        {
+        if (in_array($method, $this->setStandardFields)) {
             $this->$method = $arguments[0];
 
             return $this;
         }
 
-        throw new EzportSetterException("Method {$method} does not exist in " . __CLASS__);
+        throw new EzportSetterException("Method {$method} does not exist in ".__CLASS__);
     }
 
-    protected function setSpecificFields() : array
+    protected function setSpecificFields(): array
     {
         return [
             'action' => $this->key->toString(),
