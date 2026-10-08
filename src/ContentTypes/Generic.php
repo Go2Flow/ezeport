@@ -434,7 +434,7 @@ class Generic
         }
 
         $this->contentData->modelRelations = $children->groupBy(
-            fn ($child) => $child->pivot->group_type
+            fn ($child) => $child->pivot->getAttribute('group_type')
         )->map(
             fn ($group) => $group->map(fn ($child) => new Generic($child))
         );

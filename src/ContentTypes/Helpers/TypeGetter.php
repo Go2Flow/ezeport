@@ -61,6 +61,7 @@ class TypeGetter implements BuilderContract
         $this->query = null;
     }
 
+    /** @return Builder<GenericModel> */
     public function query(): Builder
     {
         return $this->querySetter();
@@ -225,6 +226,7 @@ class TypeGetter implements BuilderContract
         return false;
     }
 
+    /** @return Builder<GenericModel> */
     private function querySetter(): Builder
     {
         if (! $this->query) {
