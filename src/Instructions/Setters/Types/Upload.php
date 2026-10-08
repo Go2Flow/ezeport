@@ -198,8 +198,8 @@ class Upload extends Basic implements Executable, JobInterface
 
         $ids = collect();
 
-        $response->whereUpdated(true)
-            ->whereTouched(true)
+        $response->where('updated', true)
+            ->where('touched', true)
             ->chunk(25, function ($chunk) use (&$ids) {
 
                 $ids->push($chunk->pluck('id'));

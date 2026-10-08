@@ -164,8 +164,8 @@ class Transform extends Basic implements Assignable, Executable
         }
 
         $this->items = $instruction instanceof Builder
-            ? $instruction->whereTouched(true)
-                ->whereUpdated(true)
+            ? $instruction->where('touched', true)
+                ->where('updated', true)
                 ->pluck('id')
             : $instruction;
 

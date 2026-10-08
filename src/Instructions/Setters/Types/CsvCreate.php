@@ -22,8 +22,8 @@ class CsvCreate extends Upload
         }
 
         return collect([
-            $response->whereUpdated(true)
-                ->whereTouched(true)
+            $response->where('updated', true)
+                ->where('touched', true)
                 ->pluck('id'),
         ]);
     }

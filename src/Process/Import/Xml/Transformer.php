@@ -23,7 +23,7 @@ class Transformer
     {
 
         $this->items = ($instruction = $this->instructions->items()) instanceof Builder
-            ? $instruction->whereUpdated(true)->whereTouched(true)->pluck('id')
+            ? $instruction->where('updated', true)->where('touched', true)->pluck('id')
             : $instruction;
 
         return $this;
