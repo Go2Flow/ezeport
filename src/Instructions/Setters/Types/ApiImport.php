@@ -13,15 +13,22 @@ use Go2Flow\Ezport\Process\Jobs\AssignInstruction;
 use Go2Flow\Ezport\Process\Jobs\ProcessInstruction;
 use Illuminate\Support\Collection;
 
-class ApiImport extends Basic implements ImportInstructionInterface, Assignable, Executable {
-
+class ApiImport extends Basic implements Assignable, Executable, ImportInstructionInterface
+{
     protected string $type;
+
     protected string $uniqueId;
-    protected closure $items;
-    protected ?closure $process;
+
+    protected Closure $items;
+
+    protected ?Closure $process;
+
     protected Collection $properties;
+
     protected Collection $shop;
+
     protected GetProxy $api;
+
     protected int $chunk;
 
     public function __construct(string $key, private array $config = [])
@@ -44,8 +51,8 @@ class ApiImport extends Basic implements ImportInstructionInterface, Assignable,
     /**
      * Set the Api. Use the Find static method or Api class.
      */
-
-    public function api(GetProxy|Api|string $api) : self {
+    public function api(GetProxy|Api|string $api): self
+    {
 
         $this->api = (is_string($api))
             ? Get::api($api)
@@ -59,15 +66,13 @@ class ApiImport extends Basic implements ImportInstructionInterface, Assignable,
      * These will then be individually called and processed in the 'process' closure.
      * If you don't call this method then the process closure will be called with an empty collection.
      */
-
-    public function items(Closure $items) : self
+    public function items(Closure $items): self
     {
         return $this->setProperty('items', $items);
     }
 
     /** set the number of items that will be passed from the 'items' closure to the 'process' closure  */
-
-    public function chunk(int $chunk) : self
+    public function chunk(int $chunk): self
     {
         return $this->setProperty('chunk', $chunk);
     }
