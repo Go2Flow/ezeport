@@ -20,16 +20,16 @@ class Split
 
         $this->collection = collect();
 
+        $xml = new XMLReader;
+
+        if (! is_readable($this->path) || ! $xml->open($this->path)) {
+            throw new EzportImportException(json_encode(['project_id' => $this->project->id, 'message' => "Could not open file {$this->path}"], JSON_UNESCAPED_SLASHES));
+        }
+
         libxml_use_internal_errors(true);
 
         $instruction = Find::instruction($this->project, 'Import')->byKey($name);
         $path = collect([...$instruction->get('path')]);
-
-        $xml = new XMLReader;
-
-        if (! $xml->open($this->path)) {
-            $this->sendEmail("Could not open file {$this->path}");
-        }
 
         foreach ($path as $nodeName) {
             while ($xml->read()) {
