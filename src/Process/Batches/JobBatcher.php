@@ -19,13 +19,15 @@ class JobBatcher
     const CHUNKSIZE = 100;
 
     private ManageActions $action;
+
     private BatchTool $batch;
+
     private Prepare $prepare;
 
     public function __construct(
         protected Project $project,
         UploadManager $uploadManager
-    ){
+    ) {
         $this->action = new ManageActions($this->project);
         $this->batch = new BatchTool;
         $this->prepare = new Prepare($uploadManager, $this->project);
@@ -71,9 +73,9 @@ class JobBatcher
             ->filter(fn ($instruction) => $instruction->getType() == $type && $instruction->correctEnv())
             ->first();
 
-        if (!$instruction) {
+        if (! $instruction) {
             throw new EzportProcessException(
-                'No instruction found for ' . $method . ' and ' . $type . ' and ' . config('app.env')
+                'No instruction found for '.$method.' and '.$type.' and '.config('app.env')
             );
         }
 

@@ -13,12 +13,12 @@ use Go2Flow\Ezport\Models\GenericModel;
 
 class Categories extends BaseInstructions implements InstructionInterface
 {
-    use GeneralHelpers,
-        StandardShopSixArticle,
-        ArticleFields,
-        GeneralFields;
+    use ArticleFields,
+        GeneralFields,
+        GeneralHelpers,
+        StandardShopSixArticle;
 
-    public function get() : array
+    public function get(): array
     {
         return [
             Set::Upload('categories')
@@ -45,7 +45,7 @@ class Categories extends BaseInstructions implements InstructionInterface
                     ['type' => 'page'],
                     ['productAssignmentType' => 'product'],
                     ['displayNestedProducts' => true],
-                    ['name' => fn ($item) => $item->name ],
+                    ['name' => fn ($item) => $item->name],
                     ['metaDescription' => fn ($item) => $item->properties('metaDescription') ?? null],
                     ['metaTitle' => fn ($item) => $item->properties('metaTitle') ?? null],
                     ['metaKeywords' => fn ($item) => $item->properties('metaKeywords') ?? null],
@@ -58,11 +58,11 @@ class Categories extends BaseInstructions implements InstructionInterface
                                 if ($parent = $item->relations('category')) {
                                     return $parent->shopware('id');
                                 }
+
                                 return $this->project->cache('category_ids')['parent'];
                             }
-                        )
+                        ),
                 ]),
         ];
     }
 }
-

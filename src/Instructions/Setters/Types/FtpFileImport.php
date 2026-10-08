@@ -2,7 +2,6 @@
 
 namespace Go2Flow\Ezport\Instructions\Setters\Types;
 
-use Go2Flow\Ezport\Finders\Api;
 use Go2Flow\Ezport\Finders\Find;
 use Go2Flow\Ezport\Instructions\Interfaces\ImportInstructionInterface;
 use Go2Flow\Ezport\Instructions\Setters\Interfaces\Assignable;
@@ -12,11 +11,12 @@ use Go2Flow\Ezport\Process\Jobs\AssignInstruction;
 use Go2Flow\Ezport\Process\Jobs\ProcessInstruction;
 use Illuminate\Support\Collection;
 
-class FtpFileImport extends Basic implements JobInterface, ImportInstructionInterface, Assignable, Executable
+class FtpFileImport extends Basic implements Assignable, Executable, ImportInstructionInterface, JobInterface
 {
-
     protected ?\closure $prepare = null;
+
     protected ?\closure $process;
+
     protected array $config = [];
 
     public function __construct(string $key)
@@ -33,13 +33,16 @@ class FtpFileImport extends Basic implements JobInterface, ImportInstructionInte
         return $this;
     }
 
-    public function prepare(\closure $closure) : self {
+    public function prepare(\closure $closure): self
+    {
 
         $this->prepare = $closure;
 
         return $this;
     }
-    public function process(\closure $closure) : self {
+
+    public function process(\closure $closure): self
+    {
 
         $this->process = $closure;
 

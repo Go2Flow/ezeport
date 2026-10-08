@@ -13,16 +13,16 @@ use Go2Flow\Ezport\Models\Project;
 use Go2Flow\Ezport\Process\Batches\JobBatcher;
 use Go2Flow\Ezport\Process\Batches\Tools\UploadManager;
 use Illuminate\Support\Str;
+
 use function Laravel\Prompts\confirm;
 use function Laravel\Prompts\password;
 use function Laravel\Prompts\progress;
 use function Laravel\Prompts\select;
 use function Laravel\Prompts\text;
 
-
 class ProjectSpecificCommands
 {
-    public function __construct(private readonly Project $project){}
+    public function __construct(private readonly Project $project) {}
 
     public function runSchedule(?string $type = null): string
     {
@@ -30,7 +30,7 @@ class ProjectSpecificCommands
             ? Str::singular($type)
             : select(
                 'What Scheduyle would you like to run?',
-                Find::instruction($this->project, "Schedule")
+                Find::instruction($this->project, 'Schedule')
                     ->collect()
                     ->mapWithKeys(fn ($schedule) => [$schedule->getKey() => $schedule->getKey()])
                     ->toArray()
@@ -40,18 +40,22 @@ class ProjectSpecificCommands
 
             $instruction = Find::instruction($this->project, 'Schedule')->find($type);
 
-            if (! $instruction) return 'No schedule found with key ' . $type;
+            if (! $instruction) {
+                return 'No schedule found with key '.$type;
+            }
 
             $instruction->jobs();
 
-            return 'Schedule ' . $type . ' has been started!';
+            return 'Schedule '.$type.' has been started!';
         }
 
     }
 
     public function addToUpload(?string $type = null): string
     {
-        if ($this->warning($this->project->connectorType('shopSix'))) return 'Operation cancelled';
+        if ($this->warning($this->project->connectorType('shopSix'))) {
+            return 'Operation cancelled';
+        }
 
         $type = $type
             ? Str::singular($type)
@@ -76,9 +80,12 @@ class ProjectSpecificCommands
 
         return 'Content added to upload';
     }
+
     public function removeFromUpload(?string $type = null): string
     {
-        if ($this->warning($this->project->connectorType('shopSix'))) return 'Operation cancelled';
+        if ($this->warning($this->project->connectorType('shopSix'))) {
+            return 'Operation cancelled';
+        }
 
         $type = $type
             ? Str::singular($type)
@@ -113,27 +120,27 @@ class ProjectSpecificCommands
         );
 
         $name = select(
-            label: 'Please give the name of the connector would you like to ' . $newOrUpdate . '?',
+            label: 'Please give the name of the connector would you like to '.$newOrUpdate.'?',
             options: collect(['shopFive', 'shopSix', 'ftp'])->mapWithKeys(fn ($type) => [$type => Str::ucfirst($type)])->toArray(),
         );
 
         $connectorType = select(
-            label: 'What type of connector would you like to ' . $newOrUpdate . '?',
+            label: 'What type of connector would you like to '.$newOrUpdate.'?',
             options: collect(['shopFive', 'shopSix', 'ftp'])->mapWithKeys(fn ($type) => [$type => Str::ucfirst($type)])->toArray(),
         );
 
         $host = text(
-            label: 'Please provide the connector\'s host' . ($newOrUpdate == 'update' ? ' (leave empty to keep current)' : ''),
+            label: 'Please provide the connector\'s host'.($newOrUpdate == 'update' ? ' (leave empty to keep current)' : ''),
             required : $newOrUpdate == 'update' ? false : true
         );
 
         $username = text(
-            label: 'Please provide the connector\'s username' . ($newOrUpdate == 'update' ? ' (leave empty to keep current)' : ''),
+            label: 'Please provide the connector\'s username'.($newOrUpdate == 'update' ? ' (leave empty to keep current)' : ''),
             required : $newOrUpdate == 'update' ? false : true
         );
 
         $password = password(
-            label: 'Please provide the connector\'s password' . ($newOrUpdate == 'update' ? ' (leave empty to keep current)' : ''),
+            label: 'Please provide the connector\'s password'.($newOrUpdate == 'update' ? ' (leave empty to keep current)' : ''),
             required : $newOrUpdate == 'update' ? false : true
         );
 
@@ -142,26 +149,26 @@ class ProjectSpecificCommands
             options: ['production', 'staging']
         );
 
-        $connector = (!$newOrUpdate == 'update')
+        $connector = (! $newOrUpdate == 'update')
             ? new Connector
             : $this->project->connectors()
                 ->whereType($connectorType)
                 ->when(
                     $name,
-                    fn($item) => $item->where('name', $name)
+                    fn ($item) => $item->where('name', $name)
                 )->first();
 
         $connector->fill([
-            'type' => $connectorType ,
+            'type' => $connectorType,
             'host' => $host == '' ? $connector->host : $host,
             'username' => $username == '' ? $connector->username : $username,
             'password' => $password == '' ? $connector->password : $password,
             'environment' => $environment,
             'project_id' => $this->project->id,
-            'name' => $name ?? null
+            'name' => $name ?? null,
         ])->save();
 
-        return 'Connector ' . $newOrUpdate . 'd';
+        return 'Connector '.$newOrUpdate.'d';
     }
 
     public function runJobs(string $method, ?string $type, string $job): void
@@ -180,7 +187,7 @@ class ProjectSpecificCommands
                 options: [
                     'runFtpClean' => 'ftp',
                     'runShopClean' => 'shop',
-                    'runClean' => 'standard'
+                    'runClean' => 'standard',
                 ]
             );
 
@@ -190,7 +197,7 @@ class ProjectSpecificCommands
         }
 
         $type = $type ?? select(
-            label: 'What type of '. $method . ' do you want to run?',
+            label: 'What type of '.$method.' do you want to run?',
             options: $this->getOptions($job)
         );
 
@@ -205,7 +212,7 @@ class ProjectSpecificCommands
     {
         $upload = select(
             label: 'What upload would you like to test?',
-            options: Find::instruction($this->project, "Upload")
+            options: Find::instruction($this->project, 'Upload')
                 ->collect()
                 ->map->getKey()
         );
@@ -215,17 +222,16 @@ class ProjectSpecificCommands
             required: true,
             validate: fn (string $value) => match (true) {
                 ! is_numeric($value) => 'the id must be numeric',
-                ! GenericModel::exists($value) => 'no item found with id ' . $value,
+                ! GenericModel::exists($value) => 'no item found with id '.$value,
                 default => null
             }
         );
 
-        if (! GenericModel::find($id)){
-            return 'No item found with id ' . $id;
-        }
-        else {
+        if (! GenericModel::find($id)) {
+            return 'No item found with id '.$id;
+        } else {
 
-            $instruction = Find::instruction($this->project, "Upload")->find($upload);
+            $instruction = Find::instruction($this->project, 'Upload')->find($upload);
 
             $instruction->getProcessor()
                 ->run(collect([$id]));
@@ -236,10 +242,12 @@ class ProjectSpecificCommands
 
     public function delete(): string
     {
-        if ($this->warning($connector = $this->project->connectorType('shopSix'))) return 'operation cancelled';
+        if ($this->warning($connector = $this->project->connectorType('shopSix'))) {
+            return 'operation cancelled';
+        }
 
         $type = select(
-            label: 'What would you like to delete on ' . $connector->host   . '?',
+            label: 'What would you like to delete on '.$connector->host.'?',
             options: array_merge($options = [
                 'product' => 'Articles',
                 'category' => 'Categories',
@@ -254,6 +262,7 @@ class ProjectSpecificCommands
 
         if ($type !== 'all') {
             $deleter->remove($type);
+
             return 'Delete completed';
         }
 
@@ -274,7 +283,9 @@ class ProjectSpecificCommands
 
     private function warning(Connector $connector): bool
     {
-        if ($connector->environment !== 'production') return false;
+        if ($connector->environment !== 'production') {
+            return false;
+        }
 
         return confirm(
             label: 'This is a production environment! Are you sure?',
@@ -284,12 +295,13 @@ class ProjectSpecificCommands
         ) ? false : true;
     }
 
-    private function getOptions($job) : array {
+    private function getOptions($job): array
+    {
 
-        return Find::instruction(Project::first(), "Jobs")
+        return Find::instruction(Project::first(), 'Jobs')
             ->collect()
-            ->filter(fn($item) => $item->get("key") == $job)
-            ->mapWithKeys(fn($item) => [$item->get("type") => $item->get("type")])
+            ->filter(fn ($item) => $item->get('key') == $job)
+            ->mapWithKeys(fn ($item) => [$item->get('type') => $item->get('type')])
             ->toArray();
     }
 }

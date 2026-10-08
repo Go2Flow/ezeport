@@ -1,9 +1,7 @@
 <?php
 
-
 namespace Go2Flow\Ezport\Helpers\Getters\Uploads\ShopwareSix;
 
-use Go2Flow\Ezport\ContentTypes\Helpers\Content;
 use Go2Flow\Ezport\Finders\Abstracts\BaseInstructions;
 use Go2Flow\Ezport\Finders\Interfaces\InstructionInterface;
 use Go2Flow\Ezport\Helpers\Traits\Processors\GeneralHelpers;
@@ -15,10 +13,10 @@ use Illuminate\Support\Str;
 
 class Customers extends BaseInstructions implements InstructionInterface
 {
-    use GeneralHelpers,
-        StandardShopSixArticle,
-        ArticleFields,
-        GeneralFields;
+    use ArticleFields,
+        GeneralFields,
+        GeneralHelpers,
+        StandardShopSixArticle;
 
     public function get(): array
     {
@@ -32,7 +30,7 @@ class Customers extends BaseInstructions implements InstructionInterface
                     ['salutationId' => fn ($item) => $this->project->cache('salutation_ids')[$item->properties('salutation')]],
                     ['accountType' => 'business'],
                     Set::UploadField()
-                        ->field( function ($item) {
+                        ->field(function ($item) {
                             $address = [
 
                                 'countryId' => $this->project->cache('country_ids')[Str::lower($item->properties('country')) ?? 'ch'],
@@ -55,7 +53,7 @@ class Customers extends BaseInstructions implements InstructionInterface
                     ['boundSalesChannelId' => fn () => $this->project->cache('sales_channel_ids')['standard']],
                     ['languageId' => fn () => $this->project->cache('language_ids')['de']],
                     ['defaultPaymentMethodId' => fn () => $this->project->cache('payment_method_ids')['standard']],
-                    ['company' => fn ($item) => $item->properties('company')]
+                    ['company' => fn ($item) => $item->properties('company')],
                 ]),
         ];
     }

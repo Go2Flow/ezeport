@@ -12,7 +12,7 @@ use Illuminate\Support\Str;
 
 class ImageGroups extends BaseInstructions implements InstructionInterface
 {
-    public function get() : array
+    public function get(): array
     {
         return [
             Set::upload('articleMediaGroups')
@@ -30,15 +30,15 @@ class ImageGroups extends BaseInstructions implements InstructionInterface
 
                                     if (Str::startsWith($key, '01_')) {
                                         $array['coverProducts'] = [
-                                            ['id' => $config['id']]
+                                            ['id' => $config['id']],
                                         ];
                                     }
 
                                     return $array;
                                 }
-                                )->filter(
-                                    fn ($item) => $item['mediaId'] && $item['productId']
-                                )->toArray()
+                            )->filter(
+                                fn ($item) => $item['mediaId'] && $item['productId']
+                            )->toArray()
                         ),
                 ),
 
@@ -61,8 +61,8 @@ class ImageGroups extends BaseInstructions implements InstructionInterface
                                             'title' => (string) $image['name'],
                                             'name' => (string) $image['name'],
                                             'mediaFolder' => [
-                                                'id' => $item->project()->cache('media_folder_ids')['standard']
-                                            ]
+                                                'id' => $item->project()->cache('media_folder_ids')['standard'],
+                                            ],
                                         ];
 
                                         if ($id = $item->shopware('images')?->get($image['name'])) {
@@ -105,13 +105,15 @@ class ImageGroups extends BaseInstructions implements InstructionInterface
 
     private function getImagesFromShop(Collection $items, $api): Collection
     {
-        if (($images = $items->flatMap->shopware('images')->filter())->isEmpty()) return collect();
+        if (($images = $items->flatMap->shopware('images')->filter())->isEmpty()) {
+            return collect();
+        }
 
         $response = $api->media()
             ->filter([
                 'type' => 'equalsAny',
                 'field' => 'id',
-                'value' => $images->flatten()->toArray()
+                'value' => $images->flatten()->toArray(),
             ])->search()
             ->body();
 
@@ -126,7 +128,9 @@ class ImageGroups extends BaseInstructions implements InstructionInterface
         return $databaseItems->map(
             function ($item) use ($imageIds) {
 
-                if (!isset($item['id']) || $imageIds->contains($item['id'])) return $item;
+                if (! isset($item['id']) || $imageIds->contains($item['id'])) {
+                    return $item;
+                }
 
                 unset($item['id']);
 

@@ -9,12 +9,11 @@ use Go2Flow\Ezport\Instructions\Setters\Types\Upload;
 use Go2Flow\Ezport\Instructions\Setters\Types\UploadProcessor;
 use Go2Flow\Ezport\Models\Project;
 
-class Get {
-
+class Get
+{
     /**
      * @return Upload
      */
-
     public static function upload(string $type)
     {
         return new GetProxy(fn (Project $project) => Find::upload($project, $type));
@@ -28,7 +27,6 @@ class Get {
     /**
      * @return Api
      */
-
     public static function api(string $type)
     {
         return new GetProxy(fn (Project $project) => Find::api($project, $type));
@@ -37,7 +35,6 @@ class Get {
     /**
      * @return UploadProcessor
      */
-
     public static function processor(string $type)
     {
         return new GetProxy(fn (Project $project) => Find::processor($project, $type));
@@ -46,7 +43,6 @@ class Get {
     /**
      * @return Transform
      */
-
     public static function transform(string $type)
     {
         return new GetProxy(fn (Project $project) => Find::transform($project, $type));
