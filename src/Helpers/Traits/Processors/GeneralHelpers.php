@@ -2,7 +2,7 @@
 
 namespace Go2Flow\Ezport\Helpers\Traits\Processors;
 
-use Go2Flow\Ezport\Connectors\ApiInterface;
+use Go2Flow\Ezport\Connectors\ShopwareSix\Api as ShopSixApi;
 use Go2Flow\Ezport\Connectors\ShopwareSix\ShopSix;
 use Go2Flow\Ezport\Finders\Api;
 use Illuminate\Support\Collection;
@@ -29,7 +29,7 @@ trait GeneralHelpers
         }
     }
 
-    protected function createOrUpdatePropertyOptions($data, array $options, Api $api): ApiInterface
+    protected function createOrUpdatePropertyOptions($data, array $options, Api $api): ShopSixApi
     {
         for ($i = 0; $i < count($options); $i++) {
             $options[$i]['groupId'] = $data['id'];
@@ -60,7 +60,7 @@ trait GeneralHelpers
             : (array) $response->data[0];
     }
 
-    protected function createOrUpdatePropertyGroupOptions($data, array $options, Api $api): ApiInterface
+    protected function createOrUpdatePropertyGroupOptions($data, array $options, Api $api): ShopSixApi
     {
         for ($i = 0; $i < count($options); $i++) {
             if (! isset($options[$i]['groupId'])) {
