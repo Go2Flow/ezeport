@@ -7,6 +7,7 @@ use Go2Flow\Ezport\ContentTypes\Helpers\Content;
 use Go2Flow\Ezport\Process\Errors\CircularRelationException;
 use Illuminate\Database\Eloquent\Casts\AsCollection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
@@ -27,6 +28,11 @@ use Illuminate\Support\Str;
  * @property ?Collection $content
  * @property ?Collection $shop
  * @property Pivot $pivot
+ * @property ?string $morph_type
+ * @property ?int $morph_id
+ * @property-read ?Model $external
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, GenericModel> $children
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, GenericModel> $parents
  */
 class GenericModel extends BaseModel
 {
@@ -68,6 +74,7 @@ class GenericModel extends BaseModel
         }
     }
 
+    /** @return BelongsToMany<GenericModel, $this> */
     public function children(): BelongsToMany
     {
         return $this->belongsToMany(
@@ -78,6 +85,7 @@ class GenericModel extends BaseModel
         )->withPivot('group_type');
     }
 
+    /** @return BelongsToMany<GenericModel, $this> */
     public function parents(): BelongsToMany
     {
         return $this->belongsToMany(

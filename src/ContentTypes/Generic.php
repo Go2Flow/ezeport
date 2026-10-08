@@ -186,7 +186,7 @@ class Generic
     public function attachExternal(Model $model): self
     {
         $this->contentData->update([
-            'morph_id' => $model->id,
+            'morph_id' => $model->getKey(),
             'morph_type' => get_class($model),
         ]);
 

@@ -1,0 +1,6 @@
+# Application booted by Testbench, and by Larastan for the PHPStan analysis
+# (makes the Collection macros of the package visible).
+providers:
+  - Go2Flow\Ezport\EzportServiceProvider
+  - Go2Flow\Ezport\EzportContentTypeServiceProvider
+  - Go2Flow\Ezport\EzportScheduleServiceProvider

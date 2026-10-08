@@ -12,6 +12,9 @@ use Illuminate\Support\Collection;
  * App\Models\Connector
  *
  * @property int $id
+ * @property string $type
+ * @property string $name
+ * @property string $environment
  * @property string $host
  * @property string $username
  * @property string $password
