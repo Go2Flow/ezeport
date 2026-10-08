@@ -4,13 +4,11 @@ namespace Go2Flow\Ezport\Helpers\Traits\Processors;
 
 use Go2Flow\Ezport\Connectors\ApiInterface;
 use Go2Flow\Ezport\Connectors\ShopwareSix\ShopSix;
-use Go2Flow\Ezport\ContentTypes\Generic;
 use Go2Flow\Ezport\Finders\Api;
 use Illuminate\Support\Collection;
 
 trait GeneralHelpers
 {
-
     protected function updateWithShopwareValue($responseArray, Collection $collection, array $values): void
     {
         for ($i = 0; $i < $collection->count(); $i++) {
@@ -25,11 +23,13 @@ trait GeneralHelpers
                     $update = true;
                 }
             }
-            if ($update) $model->updateOrCreate(false);
+            if ($update) {
+                $model->updateOrCreate(false);
+            }
         }
     }
 
-    protected function createOrUpdatePropertyOptions($data, array $options, Api $api) : ApiInterface
+    protected function createOrUpdatePropertyOptions($data, array $options, Api $api): ApiInterface
     {
         for ($i = 0; $i < count($options); $i++) {
             $options[$i]['groupId'] = $data['id'];
@@ -60,10 +60,10 @@ trait GeneralHelpers
             : (array) $response->data[0];
     }
 
-    protected function createOrUpdatePropertyGroupOptions($data, array $options, Api $api) : ApiInterface
+    protected function createOrUpdatePropertyGroupOptions($data, array $options, Api $api): ApiInterface
     {
         for ($i = 0; $i < count($options); $i++) {
-            if (!isset($options[$i]['groupId'])) {
+            if (! isset($options[$i]['groupId'])) {
                 $options[$i]['groupId'] = $data['id'];
             }
         }
@@ -87,10 +87,11 @@ trait GeneralHelpers
         }
     }
 
-
-    protected function getUniqueImages(Collection $images, Api $api) : Collection
+    protected function getUniqueImages(Collection $images, Api $api): Collection
     {
-        if (($mediaId = $images->pluck('mediaId'))->count() == 0) return collect();
+        if (($mediaId = $images->pluck('mediaId'))->count() == 0) {
+            return collect();
+        }
 
         $response = $this->getShopwareMediaIds($api, $mediaId);
 
@@ -99,13 +100,15 @@ trait GeneralHelpers
         )->filter();
     }
 
-    protected function mediaFolders(string $name, Api $api) : string
+    protected function mediaFolders(string $name, Api $api): string
     {
 
         $folder = collect($api->mediaFolder()->get(30)->body()->data)
             ->filter(fn ($folder) => $folder->name === $name)->first();
 
-        if ($folder) return $folder->id;
+        if ($folder) {
+            return $folder->id;
+        }
 
         $configuration = $api->mediaFolderConfiguration()
             ->get()
@@ -114,23 +117,24 @@ trait GeneralHelpers
         $response = $api->mediaFolder()
             ->create([
                 'configurationId' => $configuration[0]->id,
-                'name' => $name
+                'name' => $name,
             ]);
 
         return $response->body()->data[0]->id;
     }
 
-    private function getShopImage(object $response, array $image) : ?array
+    private function getShopImage(object $response, array $image): ?array
     {
         $shopImage = $response->filter(fn ($media) => $media->id == $image['mediaId'])->first();
+
         return $shopImage && ! collect($shopImage->productMedia)->pluck('productId')->contains($image['productId'])
             ? $image
             : null;
     }
 
-    private function getShopwareMediaIds(Api $api, Collection $mediaIds) : Collection
+    private function getShopwareMediaIds(Api $api, Collection $mediaIds): Collection
     {
-        return  collect($api->media()
+        return collect($api->media()
             ->association(['productMedia' => []])
             ->filter(
                 ShopSix::filter(['type' => 'equalsAny', 'value' => $mediaIds->toArray()])
@@ -138,11 +142,10 @@ trait GeneralHelpers
             ->body()->data);
     }
 
-
-
-    private function checkIfShopHasImages(Api $api) : bool
+    private function checkIfShopHasImages(Api $api): bool
     {
         $response = $api->productMedia()->get()->body();
+
         return isset($response->total) && $response->total > 0
             ? false
             : true;
