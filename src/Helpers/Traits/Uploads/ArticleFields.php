@@ -128,9 +128,4 @@ trait ArticleFields
                 )->toArray()
             );
     }
-
-    protected function checkDiscount($discount): bool
-    {
-        return $discount && Str::replace(',', '', $discount) != 0;
-    }
 }

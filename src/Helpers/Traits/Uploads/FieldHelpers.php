@@ -32,6 +32,11 @@ trait FieldHelpers
             : [$this->formatPrice($full, $currencyId, $addOrRemove, $tax)];
     }
 
+    protected function checkDiscount($discount): bool
+    {
+        return $discount && Str::replace(',', '', $discount) != 0;
+    }
+
     protected function getCollectionFromRelation(?Collection $items, Closure $closure): Collection
     {
         if (! $items) {
