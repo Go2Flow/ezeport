@@ -14,7 +14,7 @@ use Illuminate\Support\Collection;
 
 class ConnectTypes implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, Batchable;
+    use Batchable, Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     /**
      * Create a new job instance.
@@ -35,9 +35,9 @@ class ConnectTypes implements ShouldQueue
                 fn (Collection $chunk) => $chunk->toContentType()
                     ->each(
                         fn ($item) => $item->processRelations()
-                        ->updateOrCreate(true)
-                        ->setRelations()
+                            ->updateOrCreate(true)
+                            ->setRelations()
                     )
-        );
+            );
     }
 }

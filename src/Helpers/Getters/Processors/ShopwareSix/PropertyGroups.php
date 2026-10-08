@@ -14,14 +14,16 @@ class PropertyGroups extends BaseInstructions implements InstructionInterface
 {
     use GeneralHelpers, StandardShopSixArticle;
 
-    public function get() : array
+    public function get(): array
     {
         return [
             Set::UploadProcessor('propertyGroup')
                 ->process(
                     function (Collection $items, Api $api, array $config) {
 
-                        if ($items->isEmpty()) return;
+                        if ($items->isEmpty()) {
+                            return;
+                        }
 
                         $data = $items->toShopArray();
 
@@ -34,7 +36,7 @@ class PropertyGroups extends BaseInstructions implements InstructionInterface
                             }
                         }
 
-                        if (!isset($config['shopware'])) {
+                        if (! isset($config['shopware'])) {
 
                             $config['shopware'] = $this->getOrCreatePropertyGroup(
                                 $config['group'],
@@ -57,7 +59,7 @@ class PropertyGroups extends BaseInstructions implements InstructionInterface
                         } else {
                             $items->each(fn ($item) => $item->logError([
                                 'reason' => 'failed to upload property group options',
-                                'api-error-messages' => $api->getClient()->getErrorMessages()
+                                'api-error-messages' => $api->getClient()->getErrorMessages(),
                             ]));
                         }
                     }

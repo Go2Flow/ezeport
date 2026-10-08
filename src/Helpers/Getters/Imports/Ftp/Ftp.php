@@ -8,9 +8,10 @@ use Go2Flow\Ezport\Finders\Interfaces\InstructionInterface;
 use Go2Flow\Ezport\Instructions\Setters\Set;
 use Illuminate\Support\Str;
 
-class Ftp extends BaseInstructions implements InstructionInterface {
-
-    public function get () : array{
+class Ftp extends BaseInstructions implements InstructionInterface
+{
+    public function get(): array
+    {
 
         return [
             Set::FtpFileImport('createImageGroups')
@@ -25,48 +26,47 @@ class Ftp extends BaseInstructions implements InstructionInterface {
                             ->list();
 
                         return $files->map(
-                            fn($key) => Str::of($key)
-                                ->after("/")
-                                ->before("_")
+                            fn ($key) => Str::of($key)
+                                ->after('/')
+                                ->before('_')
                                 ->toString()
-                            )->unique()
+                        )->unique()
                             ->mapWithKeys(
-                                fn($name) => [
-                                $name => $files->filter(
-                                    fn ($file) => $this->checkConfig(
-                                        $config,
-                                        'filter',
-                                        fn ($file) => Str::of($file)->after('/')->startsWith($name . '_')
-                                    )($file)
-                                )
+                                fn ($name) => [
+                                    $name => $files->filter(
+                                        fn ($file) => $this->checkConfig(
+                                            $config,
+                                            'filter',
+                                            fn ($file) => Str::of($file)->after('/')->startsWith($name.'_')
+                                        )($file)
+                                    ),
                                 ]
                             );
                     }
                 )->process(
-                    fn ($collection, $config, $api) =>
-                        $collection->each(
-                            fn ($content, $name) => (
-                                (new Generic([
-                                    'project_id' => $this->project->id,
-                                    'unique_id' => $name,
-                                    'type' => 'ImageGroup'
-                                ])
-                                )->setContentAndRelations([
+                    fn ($collection, $config, $api) => $collection->each(
+                        fn ($content, $name) => (
+                            (new Generic([
+                                'project_id' => $this->project->id,
+                                'unique_id' => $name,
+                                'type' => 'ImageGroup',
+                            ])
+                            )->setContentAndRelations([
 
-                                    'images' => $content->map(
-                                        fn ($file) => $this->checkConfig(
-                                            $config,
-                                            'file',
-                                            fn ($file) => [
-                                                'name' => Str::of($file)->after($name . '_')->beforeLast('.')->toString(),
-                                                'path' => $file,
-                                                'modified' => $api->image()->lastModified($file)
-                                            ]
-                                        )($file)
-                                    )
-                                ])->updateOrCreate(true)
-                            )
+                                'images' => $content->map(
+                                    fn ($file) => $this->checkConfig(
+                                        $config,
+                                        'file',
+                                        fn ($file) => [
+                                            'name' => Str::of($file)->after($name.'_')->beforeLast('.')->toString(),
+                                            'path' => $file,
+                                            'modified' => $api->image()->lastModified($file),
+                                        ]
+                                    )($file)
+                                ),
+                            ])->updateOrCreate(true)
                         )
+                    )
                 ),
         ];
     }

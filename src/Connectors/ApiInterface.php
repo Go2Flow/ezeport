@@ -2,6 +2,4 @@
 
 namespace Go2Flow\Ezport\Connectors;
 
-interface ApiInterface {
-
-}
+interface ApiInterface {}

@@ -5,22 +5,28 @@ namespace Go2Flow\Ezport\Instructions\Setters\Types;
 use Go2Flow\Ezport\ContentTypes\Generic;
 use Go2Flow\Ezport\Instructions\Setters\Interfaces\Assignable;
 use Go2Flow\Ezport\Instructions\Setters\Interfaces\Executable;
+use Go2Flow\Ezport\Instructions\Setters\Special\Relation;
+use Go2Flow\Ezport\Models\GenericModel;
 use Go2Flow\Ezport\Process\Errors\EzportSetterException;
 use Go2Flow\Ezport\Process\Jobs\AssignInstruction;
 use Go2Flow\Ezport\Process\Jobs\ProcessInstruction;
-use Go2Flow\Ezport\Models\GenericModel;
 use Illuminate\Contracts\Database\Query\Builder;
 use Illuminate\Support\Collection;
-use Go2Flow\Ezport\Instructions\Setters\Special\Relation;
 
 class Transform extends Basic implements Assignable, Executable
 {
     protected ?\closure $prepare = null;
+
     protected Collection $processes;
+
     protected Collection $relations;
+
     protected ?\closure $config = null;
+
     protected ?Collection $items;
+
     protected bool $shouldSave = true;
+
     protected int $chunk = 50;
 
     public function __construct(string $key, array $config = [])
@@ -29,7 +35,9 @@ class Transform extends Basic implements Assignable, Executable
 
         foreach (['prepare', 'process'] as $type) {
             if (isset($config[$type])) {
-                if (!is_callable($config[$type])) throw new \Exception("{$type} must be a closure");
+                if (! is_callable($config[$type])) {
+                    throw new \Exception("{$type} must be a closure");
+                }
 
                 $this->$type = $config[$type];
             }
@@ -40,13 +48,13 @@ class Transform extends Basic implements Assignable, Executable
         $this->processes = collect();
         $this->relations = collect();
     }
+
     /**
      * the prepare closure must return an instance of Builder or Collection
      * if you return a collection, it must be a collection of GenericModel ids (not unique_ids)
      * If you return a Query Builder the program will check if 'updated' and 'touched' are set to true
      */
-
-    public function prepare(\closure $prepare) : self
+    public function prepare(\closure $prepare): self
     {
         $this->prepare = $prepare;
 
@@ -57,49 +65,49 @@ class Transform extends Basic implements Assignable, Executable
      * each generic object created in the prepare closure will be passed to the process closure individually
      * if you don't have a prepare closure, the process closure will be called without parameters
      */
-
-    public function process(\closure $process) : self
+    public function process(\closure $process): self
     {
         $this->processes->push($process);
 
         return $this;
     }
 
-    public function processes(array $processes) : self
+    public function processes(array $processes): self
     {
         $this->processes = collect($processes);
 
         return $this;
     }
 
-    public function relation(\closure $relation) : self
+    public function relation(\closure $relation): self
     {
         $this->relations->push($relation);
 
         return $this;
     }
 
-    public function relations(array $relations) : self
+    public function relations(array $relations): self
     {
         $this->relations = collect($relations);
 
         return $this;
     }
 
-    public function dontSave() : self
+    public function dontSave(): self
     {
         $this->shouldSave = false;
+
         return $this;
     }
 
-    public function config(\closure $config) : self
+    public function config(\closure $config): self
     {
         $this->config = $config;
 
         return $this;
     }
 
-    public function chunk(int $chunk) : self
+    public function chunk(int $chunk): self
     {
         $this->chunk = $chunk;
 
@@ -111,7 +119,7 @@ class Transform extends Basic implements Assignable, Executable
         $this->pluck();
         $config = $this->config ? ($this->config)() : collect();
 
-        return !$this->items
+        return ! $this->items
             ? collect([new ProcessInstruction($this->project->id, array_merge([
                 'instructionType' => $this->instructionType,
                 'key' => $this->key,
@@ -144,6 +152,7 @@ class Transform extends Basic implements Assignable, Executable
     {
         if (! $this->prepare) {
             $this->items = null;
+
             return $this;
         }
 
@@ -151,7 +160,7 @@ class Transform extends Basic implements Assignable, Executable
 
         if (! $instruction instanceof Builder && ! $instruction instanceof Collection) {
 
-            throw new EzportSetterException("the prepare closure must return a collection or a query builder");
+            throw new EzportSetterException('the prepare closure must return a collection or a query builder');
         }
 
         $this->items = $instruction instanceof Builder
@@ -171,13 +180,12 @@ class Transform extends Basic implements Assignable, Executable
                 ->whereIn('id', $chunk)
                 ->lazy()
                 ->each(fn (GenericModel $model) => $this->runThroughFunctionality($model->toContentType(), $config));
-        }
-        else {
+        } else {
             $this->runThrough('processes', null, $config);
         }
     }
 
-    private function runThroughFunctionality(?Generic $item, array|Collection $config) : void
+    private function runThroughFunctionality(?Generic $item, array|Collection $config): void
     {
         $relations = $this->runThrough('relations', $item, $config);
 
@@ -192,12 +200,14 @@ class Transform extends Basic implements Assignable, Executable
 
         $this->runThrough('processes', $item, $config);
 
-        if(! $this->shouldSave) return;
+        if (! $this->shouldSave) {
+            return;
+        }
 
         $item->updateOrCreate()->setRelations();
     }
 
-    private function runThrough(string $name, ?Generic $item, array|Collection $config) : Collection
+    private function runThrough(string $name, ?Generic $item, array|Collection $config): Collection
     {
         return $this->$name->flatMap(
             fn ($closure) => $closure instanceof Relation

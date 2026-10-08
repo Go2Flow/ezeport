@@ -13,7 +13,7 @@ use Illuminate\Queue\SerializesModels;
 
 class AssignBatch implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, Batchable;
+    use Batchable, Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     /**
      * Create a new job instance.

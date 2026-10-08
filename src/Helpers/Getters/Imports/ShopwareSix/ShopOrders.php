@@ -10,10 +10,9 @@ use Go2Flow\Ezport\Instructions\Getters\Get;
 use Go2Flow\Ezport\Instructions\Setters\Set;
 use Illuminate\Support\Collection;
 
-class ShopOrders  extends BaseInstructions implements InstructionInterface {
-
-
-    public function get() : array
+class ShopOrders extends BaseInstructions implements InstructionInterface
+{
+    public function get(): array
     {
         return [
             Set::ShopImport('shopOrders')
@@ -22,11 +21,11 @@ class ShopOrders  extends BaseInstructions implements InstructionInterface {
                 ->job(
                     Set::Job()
                         ->config([
-                            'type' => 'orders'
-                            ])
+                            'type' => 'orders',
+                        ])
                 )->uniqueId('orderNumber')
                 ->items(
-                    fn (Api $api) : Collection => collect(
+                    fn (Api $api): Collection => collect(
                         $api->order()
                             ->filter([
                                 'type' => 'equalsAny',
@@ -46,40 +45,40 @@ class ShopOrders  extends BaseInstructions implements InstructionInterface {
                             ])->association([
                                 'language' => [
                                     'associations' => [
-                                        'translationCode' => []
-                                    ]
+                                        'translationCode' => [],
+                                    ],
                                 ],
                                 'deliveries' => [
                                     'associations' => [
                                         'shippingOrderAddress' => [
                                             'associations' => [
                                                 'country' => [],
-                                                'salutation' => []
-                                            ]
-                                        ]
-                                    ]
+                                                'salutation' => [],
+                                            ],
+                                        ],
+                                    ],
                                 ],
                                 'billingAddress' => [
                                     'associations' => [
                                         'country' => [],
-                                        'salutation' => []
-                                    ]
+                                        'salutation' => [],
+                                    ],
                                 ],
                                 'transactions' => [
                                     'associations' => [
-                                        'paymentMethod' => []
+                                        'paymentMethod' => [],
                                     ],
                                 ],
                                 'lineItems' => [
                                     'associations' => [
-                                        'product' => []
-                                    ]
+                                        'product' => [],
+                                    ],
                                 ],
                                 'orderCustomer' => [
                                     'associations' => [
-                                        'salutation' => []
-                                    ]
-                                ]
+                                        'salutation' => [],
+                                    ],
+                                ],
                             ])->search()
                             ->body()
                             ?->data
@@ -106,7 +105,7 @@ class ShopOrders  extends BaseInstructions implements InstructionInterface {
                                     'ProductName' => $lineItem->product->name,
                                     'ean' => $lineItem->product->ean,
                                     'PositionId' => $lineItem->payload->productNumber,
-                                ]
+                                ],
                             ]
                         ),
                         'Update' => 0,
@@ -148,7 +147,7 @@ class ShopOrders  extends BaseInstructions implements InstructionInterface {
                         'Payment' => [
                             'Partner' => $item->transactions[0]->paymentMethod->name,
                             'Status' => 1,
-                        ]
+                        ],
                     ]
                 )->shop(
                     fn ($item) => [
@@ -159,7 +158,7 @@ class ShopOrders  extends BaseInstructions implements InstructionInterface {
                                     $lineItem->productId => [
                                         'id' => $lineItem->productId,
                                         'optionsId' => $lineItem->payload->optionIds[0] ?? null,
-                                    ]
+                                    ],
                                 ]
                             ),
                         'state' => $item->stateMachineState->_uniqueIdentifier,

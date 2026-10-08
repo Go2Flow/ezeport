@@ -12,9 +12,10 @@ class Error extends Model implements LogInterface
 {
     use HasFactory;
 
-    protected $guarded  = [];
+    protected $guarded = [];
 
-    public function action() : BelongsTo {
+    public function action(): BelongsTo
+    {
 
         return $this->belongsTo(Action::class);
     }

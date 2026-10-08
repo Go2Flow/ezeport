@@ -14,7 +14,7 @@ class Media extends BaseInstructions implements InstructionInterface
 {
     use GeneralHelpers, StandardShopSixArticle;
 
-    public function get() : array
+    public function get(): array
     {
         return [
             Set::UploadProcessor('media')
@@ -30,15 +30,14 @@ class Media extends BaseInstructions implements InstructionInterface
 
                             for ($i = 0; $i < count($items); $i++) {
                                 $items[$i]->shopware([
-                                    'id' => $response->data->media[$i]
+                                    'id' => $response->data->media[$i],
                                 ]);
                                 $items[$i]->updateOrCreate();
                             }
-                        }
-                        else {
+                        } else {
                             $items->each(fn ($item) => $item->logError([
                                 'reason' => 'failed to create or update media',
-                                'api-error-messages' => $api->getClient()->getErrorMessages()
+                                'api-error-messages' => $api->getClient()->getErrorMessages(),
                             ]));
                         }
 

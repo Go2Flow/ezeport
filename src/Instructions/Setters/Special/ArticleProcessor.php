@@ -10,12 +10,14 @@ use Go2Flow\Ezport\Instructions\Setters\Types\UploadProcessor;
 use Go2Flow\Ezport\Logger\LogError;
 use Illuminate\Support\Collection;
 
-class ArticleProcessor extends UploadProcessor {
-
+class ArticleProcessor extends UploadProcessor
+{
     private ArticleProcessorApiCalls $apiCalls;
+
     private ArticleProcessorPatch $patch;
 
-    public function __construct(string $key = null) {
+    public function __construct(?string $key = null)
+    {
         parent::__construct($key);
 
         $this->process = function (Collection $items, Api $api) {
@@ -25,7 +27,7 @@ class ArticleProcessor extends UploadProcessor {
         };
     }
 
-    private function articleProcess(Collection $items) : void
+    private function articleProcess(Collection $items): void
     {
         $create = collect();
         $patch = collect();
@@ -36,26 +38,32 @@ class ArticleProcessor extends UploadProcessor {
                 : $create->push($item)
         );
 
-        if ($create->count() > 0) $this->createArticles($create);
-        if ($patch->count() > 0) $this->patchArticles($patch);
+        if ($create->count() > 0) {
+            $this->createArticles($create);
+        }
+        if ($patch->count() > 0) {
+            $this->patchArticles($patch);
+        }
     }
 
-    private function createArticles(Collection $items) : void {
+    private function createArticles(Collection $items): void
+    {
 
         $response = $this->apiCalls->bulkProducts($items->toShopArray());
 
         $products = $response->body()?->data->product;
 
-        if (!$products) {
-            $string = 'uploading of Products to shopware failed. Product ids: ' . $items->map(fn ($item) => $item->unique_id)->implode(', ');
+        if (! $products) {
+            $string = 'uploading of Products to shopware failed. Product ids: '.$items->map(fn ($item) => $item->unique_id)->implode(', ');
 
             $this->logProblem($string, 'high');
 
             $items->each(fn ($item) => $item->logError([
                 'reason' => 'uploading of Product to shopware failed.',
-                'api-error-messages' => $this->apiCalls->getErrorMessages()
+                'api-error-messages' => $this->apiCalls->getErrorMessages(),
 
-                ]));
+            ]));
+
             return;
         }
 
@@ -83,7 +91,8 @@ class ArticleProcessor extends UploadProcessor {
         }
     }
 
-    private function patchArticles(Collection $items) : void {
+    private function patchArticles(Collection $items): void
+    {
 
         $products = $this->apiCalls->getProducts(
             $items->map(fn ($item) => $item->shop($this->getCorrectIdField()))->toArray()
@@ -99,13 +108,13 @@ class ArticleProcessor extends UploadProcessor {
 
             foreach ($missing as $item) {
                 $this->logProblem(
-                    'could not find Product ' . $item->unique_id . 'with id '. $item->shopware($this->getCorrectIdField()) . ' in Shopware',
+                    'could not find Product '.$item->unique_id.'with id '.$item->shopware($this->getCorrectIdField()).' in Shopware',
                     'high'
                 );
 
                 $item->logError([
                     'reason' => 'could not find Product in Shopware',
-                    'api-error-messages' => $this->apiCalls->getErrorMessages()
+                    'api-error-messages' => $this->apiCalls->getErrorMessages(),
                 ]);
             }
 
@@ -134,7 +143,8 @@ class ArticleProcessor extends UploadProcessor {
             ->log(json_encode($problem));
     }
 
-    private function getCorrectIdField() :string {
+    private function getCorrectIdField(): string
+    {
 
         return $this->config['shop_field'] ?? 'id';
 

@@ -20,7 +20,7 @@ class CsvImport extends Basic implements Assignable, Executable
 
     private array $config = [];
 
-    protected \Closure|null $process;
+    protected ?\Closure $process;
 
     private int $chunk = 25;
 
@@ -32,36 +32,35 @@ class CsvImport extends Basic implements Assignable, Executable
             ->class(AssignInstruction::class);
     }
 
-    public function config(array $config) : self
+    public function config(array $config): self
     {
         $this->config = $config;
 
         return $this;
     }
 
-    public function process(\Closure $closure) : self
+    public function process(\Closure $closure): self
     {
         $this->process = $closure;
 
         return $this;
     }
 
-    public function file(string $file) : self
+    public function file(string $file): self
     {
         $this->file = $file;
 
         return $this;
     }
 
-    public function folder(string $folder) : self
+    public function folder(string $folder): self
     {
         $this->folder = $folder;
 
         return $this;
     }
 
-
-    public function chunk(int $chunk) : self
+    public function chunk(int $chunk): self
     {
         $this->chunk = $chunk;
 
@@ -104,18 +103,19 @@ class CsvImport extends Basic implements Assignable, Executable
             );
     }
 
-    private function fileAndFolder($disk) : array {
+    private function fileAndFolder($disk): array
+    {
 
         $array = [];
         $base = Str::ucfirst($this->project->identifier);
 
         if ($this->file) {
-            $array[] = $base . '/' . $this->file;
+            $array[] = $base.'/'.$this->file;
         }
 
         if ($this->folder) {
 
-            foreach ($disk->files($base . '/' . $this->folder) as $file) {
+            foreach ($disk->files($base.'/'.$this->folder) as $file) {
                 $array[] = $file;
             }
         }

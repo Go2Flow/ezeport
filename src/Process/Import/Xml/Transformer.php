@@ -11,6 +11,7 @@ use Illuminate\Contracts\Database\Query\Builder;
 class Transformer
 {
     private $instructions;
+
     private $items;
 
     public function __construct(private Project $project, private string $type)
@@ -48,5 +49,5 @@ class Transformer
             ->each(
                 fn ($item) => $this->instructions->process($item)
             );
-        }
+    }
 }

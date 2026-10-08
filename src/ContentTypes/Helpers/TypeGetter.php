@@ -44,11 +44,11 @@ use Go2Flow\Ezport\Models\GenericModel;
 use Go2Flow\Ezport\Models\Project;
 use Go2Flow\Ezport\Process\Errors\EzportContentTypeException;
 use Illuminate\Contracts\Database\Query\Builder as BuilderContract;
+use Illuminate\Database\Concerns\BuildsQueries;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Query\Builder as QueryBuilder;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
-use Illuminate\Database\Concerns\BuildsQueries;
-use Illuminate\Database\Query\Builder as QueryBuilder;
 
 class TypeGetter implements BuilderContract
 {
@@ -57,8 +57,7 @@ class TypeGetter implements BuilderContract
     public function __construct(
         private readonly string $type,
         private readonly Project $project
-    )
-    {
+    ) {
         $this->query = null;
     }
 
@@ -70,7 +69,7 @@ class TypeGetter implements BuilderContract
     /**
      * Where the content type is on shopware
      */
-    public function whereOnShop() : self
+    public function whereOnShop(): self
     {
         $this->query = $this->querySetter()->whereNot('shop', '[]');
 
@@ -93,22 +92,20 @@ class TypeGetter implements BuilderContract
         return $this->querySetter()->find($id)?->toContentType();
     }
 
-    public function findByName(string $name) : ?Generic
+    public function findByName(string $name): ?Generic
     {
         return $this->querySetter()->firstWhere('name', $name)?->toContentType();
     }
 
     /** like a standard model create, but you don't ne`ed to set 'type' and 'project_id' as that was already set in the constructor */
-
     public function create(array|Collection $attributes = []): Generic
     {
 
-        if (Content::type($this->type, $this->project)->find($attributes['unique_id'] ?? null) ===  null)
-        {
+        if (Content::type($this->type, $this->project)->find($attributes['unique_id'] ?? null) === null) {
             return GenericModel::create(
                 collect($attributes)->merge([
                     'type' => $this->type,
-                    'project_id' => $this->project->id
+                    'project_id' => $this->project->id,
                 ])->toArray()
             )->toContentType();
         }
@@ -118,18 +115,22 @@ class TypeGetter implements BuilderContract
         );
     }
 
-    public function firstOrNew(string $unique_id) : Generic {
+    public function firstOrNew(string $unique_id): Generic
+    {
 
-        if ($original = Content::type($this->type, $this->project)->find($unique_id)) return $original;
+        if ($original = Content::type($this->type, $this->project)->find($unique_id)) {
+            return $original;
+        }
 
         return new Generic([
             'unique_id' => $unique_id,
             'project_id' => $this->project->id,
-            'type' => $this->type
+            'type' => $this->type,
         ]);
     }
 
-    public function updateOrCreate(array $attributes, array $values) : Generic {
+    public function updateOrCreate(array $attributes, array $values): Generic
+    {
 
         return CreationLock::run(
             $this->project->id,
@@ -139,7 +140,8 @@ class TypeGetter implements BuilderContract
         );
     }
 
-    private function updateOrCreateUnlocked(array $attributes, array $values) : Generic {
+    private function updateOrCreateUnlocked(array $attributes, array $values): Generic
+    {
 
         $values = $this->setPropertiesToContent($values);
 
@@ -170,11 +172,15 @@ class TypeGetter implements BuilderContract
         return $original->save();
     }
 
-    public function __call($method, array|null $parameters)
+    public function __call($method, ?array $parameters)
     {
-        if (method_exists($this, $method)) return $this->$method(...$parameters);
+        if (method_exists($this, $method)) {
+            return $this->$method(...$parameters);
+        }
 
-        if ($response = $this->checkIfExistsOnQueryBuilder($method, $parameters)) return $response;
+        if ($response = $this->checkIfExistsOnQueryBuilder($method, $parameters)) {
+            return $response;
+        }
 
         if (Str::startsWith($method, 'where')) {
 
@@ -183,19 +189,27 @@ class TypeGetter implements BuilderContract
             return $this;
         }
 
-        throw new EzportContentTypeException('Method ' . $method . ' does not exist');
+        throw new EzportContentTypeException('Method '.$method.' does not exist');
     }
 
     private function checkIfExistsOnQueryBuilder(string $name, ?array $arguments): mixed
     {
-        if (!$this->checkExistence($name)) return false;
+        if (! $this->checkExistence($name)) {
+            return false;
+        }
 
         $response = $this->querySetter()->$name(...$arguments);
 
-        if ($response instanceof Generic) return $response;
-        if ($response instanceof GenericModel || $response instanceof Collection) return $response->toContentType();
+        if ($response instanceof Generic) {
+            return $response;
+        }
+        if ($response instanceof GenericModel || $response instanceof Collection) {
+            return $response->toContentType();
+        }
 
-        if ($response instanceof BuilderContract) $this->query = $response;
+        if ($response instanceof BuilderContract) {
+            $this->query = $response;
+        }
 
         return $this;
     }
@@ -203,24 +217,26 @@ class TypeGetter implements BuilderContract
     private function checkExistence(string $name): bool
     {
         foreach ([Builder::class, BuildsQueries::class, QueryBuilder::class] as $class) {
-            if (method_exists($class, $name)) return true;
+            if (method_exists($class, $name)) {
+                return true;
+            }
         }
 
         return false;
     }
 
-    private function querySetter() : Builder
+    private function querySetter(): Builder
     {
         if (! $this->query) {
 
             $this->query = GenericModel::where('type', $this->type)
                 ->where('project_id', $this->project->id);
-            }
+        }
 
         return $this->query;
     }
 
-    private function setPropertiesToContent(array $values) : array
+    private function setPropertiesToContent(array $values): array
     {
         if (isset($values['properties'])) {
             $values['content'] = $values['properties'];
