@@ -388,6 +388,16 @@ class Generic
         return Content::type($this->getType(), $this->project())->find($this->unique_id);
     }
 
+    /**
+     * Forgets the projects cached by project(). Called before every queued job (see
+     * EzportServiceProvider), so a long-running worker never keeps a stale project cache or
+     * settings snapshot; within a job the cache still saves the repeated lookups.
+     */
+    public static function flushProjectCache(): void
+    {
+        self::$projectCache = [];
+    }
+
     public function project(): Project
     {
         return $this->project = $this->project

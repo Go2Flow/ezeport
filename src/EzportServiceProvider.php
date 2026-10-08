@@ -5,10 +5,12 @@ namespace Go2Flow\Ezport;
 use Go2Flow\Ezport\Commands\MakeCustomer;
 use Go2Flow\Ezport\Commands\PrepareProject;
 use Go2Flow\Ezport\Commands\PublishHelpers;
+use Go2Flow\Ezport\ContentTypes\Generic;
 use Go2Flow\Ezport\Events\Listeners\JobFailed as JobFailedListener;
 use Illuminate\Foundation\AliasLoader;
 use Illuminate\Queue\Events\JobFailed;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\ServiceProvider;
 
 class EzportServiceProvider extends ServiceProvider
@@ -26,6 +28,8 @@ class EzportServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        Queue::before(fn () => Generic::flushProjectCache());
+
         Event::listen(
             JobFailed::class,
             JobFailedListener::class,
