@@ -4,6 +4,7 @@ namespace Go2Flow\Ezport\Process\Jobs;
 
 use Closure;
 use Go2Flow\Ezport\Finders\Find;
+use Go2Flow\Ezport\Helpers\FileNameFilter;
 use Go2Flow\Ezport\Models\Project;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
@@ -12,13 +13,13 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Str;
 
 class GetFiles implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, Batchable;
+    use Batchable, Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public $timeout = 120;
+
     public $tries = 10;
 
     /**
@@ -40,10 +41,14 @@ class GetFiles implements ShouldQueue
             $api = $api->{$this->array['path']}();
         }
 
-        if (isset($this->array['name']))
-        {
+        // the listing is cached for an hour; files that arrived or were moved since must count
+        if (method_exists($api, 'forceRefreshCache')) {
+            $api->forceRefreshCache();
+        }
+
+        if (isset($this->array['name'])) {
             $this->tryCatch(
-                fn() => $api->findAndStore(
+                fn () => $api->findAndStore(
                     $this->array['name'],
                     $this->getDestinationFolder()
                 )
@@ -52,22 +57,25 @@ class GetFiles implements ShouldQueue
             return;
         }
 
-        if ($this->setAndTrue('newest')) {
+        // file names carry a sortable time stamp: 'oldest' processes them in order, 'newest' takes the latest
+        if ($this->setAndTrue('oldest') || $this->setAndTrue('newest')) {
 
             $this->tryCatch(
-                fn() => $api->findAndStore(
-                    $this->filterList($api)->first(),
+                fn () => $api->findAndStore(
+                    $this->pickOne($this->filterList($api)->sort()),
                     $this->getDestinationFolder()
                 )
             );
+
             return;
         }
+
         if ($this->setAndTrue('files')) {
 
             $this->tryCatch(
-                fn() => $this->filterList($api)
+                fn () => $this->filterList($api)
                     ->each(
-                        fn($file) => $api->findAndStore(
+                        fn ($file) => $api->findAndStore(
                             $file,
                             $this->getDestinationFolder()
                         )
@@ -76,32 +84,32 @@ class GetFiles implements ShouldQueue
         }
     }
 
-    private function filterList($api) : Collection
+    private function filterList($api): Collection
     {
-        $list = $api->list();
+        return (new FileNameFilter($this->array))->filter($api->list());
+    }
 
-        if (isset($this->array['not'])) {
+    private function pickOne(Collection $sorted): string
+    {
+        $file = $this->setAndTrue('newest') ? $sorted->last() : $sorted->first();
 
-            $list = $list->filter(fn ($file) => $file !== $this->array['not']);
+        if ($file === null) {
+            throw new \RuntimeException('no file matches');
         }
 
-        if (isset($this->array['type'])) {
-
-            $list = $list->filter(fn ($file) => Str::endsWith($file, $this->array['type']));
-        }
-
-        return $list;
+        return $file;
     }
 
     private function tryCatch(Closure $method): void
     {
         try {
             $method();
-        }
-        catch (\Exception $e) {
-            if ($this->setAndTrue('continue')) return;
+        } catch (\Exception $e) {
+            if ($this->setAndTrue('continue')) {
+                return;
+            }
 
-            $this->fail('File not found on ftp');
+            $this->fail('File not found on ftp: '.$e->getMessage());
         }
     }
 
@@ -110,7 +118,7 @@ class GetFiles implements ShouldQueue
         return isset($this->array[$key]) && $this->array[$key] === true;
     }
 
-    private function getDestinationFolder() : string
+    private function getDestinationFolder(): string
     {
         return $this->array['destination'] ?? $this->array['path'] ?? '/';
     }

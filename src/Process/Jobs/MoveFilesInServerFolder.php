@@ -3,6 +3,7 @@
 namespace Go2Flow\Ezport\Process\Jobs;
 
 use Go2Flow\Ezport\Finders\Find;
+use Go2Flow\Ezport\Helpers\FileNameFilter;
 use Go2Flow\Ezport\Models\Project;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
@@ -10,7 +11,6 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Str;
 
 class MoveFilesInServerFolder implements ShouldQueue
 {
@@ -42,6 +42,6 @@ class MoveFilesInServerFolder implements ShouldQueue
 
     private function shouldNotMove(string $file): bool
     {
-        return collect($this->config['not'] ?? [])->contains(Str::afterLast($file, '/'));
+        return ! (new FileNameFilter($this->config))->accepts($file);
     }
 }
