@@ -13,7 +13,6 @@ use Illuminate\Support\ServiceProvider;
 
 class EzportScheduleServiceProvider extends ServiceProvider
 {
-
     /**
      * Register any application services.
      */
@@ -38,7 +37,9 @@ class EzportScheduleServiceProvider extends ServiceProvider
                                 ->each(
                                     function ($instruction, $loop) {
 
-                                        if (!$instruction->isTime()) return;
+                                        if (! $instruction->isTime() || ! $instruction->conditionMet()) {
+                                            return;
+                                        }
 
                                         if ($instruction->get('unique')) {
                                             $lock = Cache::lock(
@@ -46,7 +47,9 @@ class EzportScheduleServiceProvider extends ServiceProvider
                                                 3600
                                             );
 
-                                            if (!$lock->get()) return;
+                                            if (! $lock->get()) {
+                                                return;
+                                            }
                                         }
 
                                         $instruction->jobs($lock ?? []);
@@ -73,7 +76,7 @@ class EzportScheduleServiceProvider extends ServiceProvider
                 )->everyThirtyMinutes();
 
                 $schedule->job(
-                    (new CleanActivityLog())->onConnection('redis')->onQueue(SmallestQueue::get())
+                    (new CleanActivityLog)->onConnection('redis')->onQueue(SmallestQueue::get())
                 )->daily();
 
             });

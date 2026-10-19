@@ -2,6 +2,7 @@
 
 namespace Go2Flow\Ezport\Instructions\Setters\Types;
 
+use Closure;
 use Go2Flow\Ezport\Instructions\Setters\Tools\TimeChecker;
 use Go2Flow\Ezport\Process\Batches\JobBatcher;
 use Go2Flow\Ezport\Process\Batches\Tools\UploadManager;
@@ -15,14 +16,21 @@ use Illuminate\Support\Stringable;
 
 class Schedule extends Base
 {
-
     protected ?string $event;
+
     protected ?string $type;
+
     protected Collection $times;
+
     protected ?array $days = null;
+
     protected bool $unique = false;
+
     protected ?Schedule $after = null;
+
     protected ?Stringable $key = null;
+
+    protected ?Closure $condition = null;
 
     protected array $daysArray = [
         'sunday' => 0,
@@ -31,7 +39,7 @@ class Schedule extends Base
         'wednesday' => 3,
         'thursday' => 4,
         'friday' => 5,
-        'saturday' => 6
+        'saturday' => 6,
     ];
 
     protected array $numbers = [
@@ -58,12 +66,14 @@ class Schedule extends Base
      * set the event to 'import'. This will run the jobs called 'import' in the project's job instructions.
      * you will still need to set the type of import (full or partial)
      */
-
-    public function __construct(?string $key = null){
+    public function __construct(?string $key = null)
+    {
 
         $this->times = collect();
 
-        if ($key) $this->key = $this->processKey($key);
+        if ($key) {
+            $this->key = $this->processKey($key);
+        }
     }
 
     public function import(): self
@@ -80,7 +90,6 @@ class Schedule extends Base
      * set the event to 'upload'. This will run the jobs called 'upload' in the project's job instructions.
      * you will still need to set the type of upload (full or partial)
      */
-
     public function upload(): self
     {
         return $this->set('event', 'upload');
@@ -90,7 +99,6 @@ class Schedule extends Base
      * set the event to 'shopClean'. This will run the jobs called 'shopClean' in the project's job instructions.
      * you will still need to set the type of clean (full or partial)
      */
-
     public function shopClean(): self
     {
         return $this->set('event', 'shopClean');
@@ -100,18 +108,17 @@ class Schedule extends Base
      * set the event to 'ftpClean'. This will run the jobs called 'ftpClean' in the project's job instructions.
      * you will still need to set the type of clean (full or partial)
      */
-
     public function ftpClean(): self
     {
         return $this->set('event', 'ftpClean');
     }
 
-  public function clean(): self
+    public function clean(): self
     {
         return $this->set('event', 'clean');
     }
 
-    public function type($string) : self
+    public function type($string): self
     {
         return $this->set('type', $string);
     }
@@ -119,16 +126,34 @@ class Schedule extends Base
     /**
      * set the task to be performed at a specific time of day
      */
-
     public function dailyAt(string $time): self
     {
         return $this->addToTimes('dailyAt', $time);
     }
 
     /**
+     * start the task only when this returns true, checked once it is time, e.g. whether an
+     * import file is waiting. Not for a task passed to after(): that one is queued and a
+     * closure cannot be serialized.
+     */
+    public function onlyWhen(Closure $condition): self
+    {
+        $this->condition = $condition;
+
+        return $this;
+    }
+
+    /**
+     * whether the condition set with onlyWhen() allows the task to start
+     */
+    public function conditionMet(): bool
+    {
+        return ! $this->condition || (bool) ($this->condition)();
+    }
+
+    /**
      * this task should be unique and not run if it is already running
      */
-
     public function unique(): self
     {
         $this->unique = true;
@@ -139,7 +164,6 @@ class Schedule extends Base
     /**
      * set the task to be performed only on week days
      */
-
     public function weekDays(): self
     {
         return $this->days([1, 2, 3, 4, 5]);
@@ -148,15 +172,18 @@ class Schedule extends Base
     /**
      * set the task to be performed on the days specified. Days can be numerical (0-6) or written out (e.g. 'monday', 'tuesday')
      */
-
     public function days(array $days): self
     {
         $this->days = collect($days)->map(
             function ($day) {
-                if (is_string($day)) return $this->daysArray[Str::lower($day)];
-                if (is_int($day) && $day < 7 && $day >= 0) return $day;
+                if (is_string($day)) {
+                    return $this->daysArray[Str::lower($day)];
+                }
+                if (is_int($day) && $day < 7 && $day >= 0) {
+                    return $day;
+                }
 
-                throw new EzportSetterException("Days must be a week day written out or an integer between 0 and 6");
+                throw new EzportSetterException('Days must be a week day written out or an integer between 0 and 6');
             }
         )->toArray();
 
@@ -166,11 +193,10 @@ class Schedule extends Base
     /**
      * set the task to be performed between the times specified. Times must be in 24 hour format (e.g. '00:00', '23:59')
      */
-
     public function between(string $start, string $end): self
     {
         foreach (['start', 'end'] as $time) {
-            if (!preg_match('/^([0-1][0-9]|2[0-3]):([0-5][0-9])$/', $$time)) {
+            if (! preg_match('/^([0-1][0-9]|2[0-3]):([0-5][0-9])$/', $$time)) {
                 throw new EzportSetterException("{$$time} is not a valid time");
             }
         }
@@ -187,10 +213,9 @@ class Schedule extends Base
     /**
      * This is the key for the lock that will be used to prevent the task from running multiple times
      */
-
     public function setKey(int $key): self
     {
-        $this->key = Str::of($this->project->identifier . '-' . $this->event . '-' . $this->type . '-' . $key);
+        $this->key = Str::of($this->project->identifier.'-'.$this->event.'-'.$this->type.'-'.$key);
 
         return $this;
     }
@@ -199,7 +224,6 @@ class Schedule extends Base
      * provide another Schedule task here to have it run directly after.
      * If you use 'unique' the lock will be passed to the next task
      */
-
     public function after(Schedule $schedule): self
     {
         $this->after = $schedule;
@@ -210,7 +234,6 @@ class Schedule extends Base
     /**
      * get the Jobs for this task
      */
-
     public function jobs(Lock|array $lock = []): ?Batch
     {
 
@@ -225,7 +248,6 @@ class Schedule extends Base
     /**
      * this will return if the current time matches the scheduled time
      */
-
     public function isTime(): bool
     {
         return (new TimeChecker($this->times, $this->days))->isTime();
@@ -238,7 +260,7 @@ class Schedule extends Base
                 $this->after,
                 fn ($collection) => $collection->push(
                     collect([
-                        new AssignBatch($this->project->id, $this->after, $lock)
+                        new AssignBatch($this->project->id, $this->after, $lock),
                     ])
                 )
             );
@@ -246,26 +268,28 @@ class Schedule extends Base
 
     public function __call($method, $arguments)
     {
-        if (method_exists($this, $method)) return $this->$method(...$arguments);
+        if (method_exists($this, $method)) {
+            return $this->$method(...$arguments);
+        }
 
         if (Str::of($method)->lower()->startsWith('every')) {
 
             foreach ($this->GetTimes() as $key => $function) {
 
-                if (Str::contains($method, $key)) return $this->checkAndSetTime($function($method));
+                if (Str::contains($method, $key)) {
+                    return $this->checkAndSetTime($function($method));
+                }
             }
         }
 
         throw new EzportSetterException("{$method} is not a valid method");
     }
 
-    private function addToTimes($key, $time, $overwrite = false) : self
+    private function addToTimes($key, $time, $overwrite = false): self
     {
         if ($overwrite) {
             $this->times[$key] = collect([$time]);
-        }
-
-        else {
+        } else {
             if (! $this->times->has($key)) {
 
                 $this->times[$key] = collect();
@@ -277,7 +301,7 @@ class Schedule extends Base
         return $this;
     }
 
-    private function getTimes() : array
+    private function getTimes(): array
     {
         return [
             'Minutes' => fn ($name) => [$this->prepareTimeString($name, 'minute'), 'Minute'],
@@ -287,7 +311,7 @@ class Schedule extends Base
         ];
     }
 
-    private function prepareTimeString(string $name, string $type) : string
+    private function prepareTimeString(string $name, string $type): string
     {
         return Str::of($name)
             ->lower()
@@ -296,9 +320,11 @@ class Schedule extends Base
             ->__toString();
     }
 
-    private function checkAndSetTime($array) : self
+    private function checkAndSetTime($array): self
     {
-        if (! isset ($this->numbers[Str::lower($array[0])])) throw new \Exception("{$array[0]} is not a supported number");
+        if (! isset($this->numbers[Str::lower($array[0])])) {
+            throw new \Exception("{$array[0]} is not a supported number");
+        }
         $number = $this->numbers[Str::lower($array[0])];
 
         return $this->addToTimes(
@@ -307,14 +333,16 @@ class Schedule extends Base
         );
     }
 
-    private function prepareLock(array|Lock $lock) : array
+    private function prepareLock(array|Lock $lock): array
     {
 
-        if (is_array($lock)) return $lock;
+        if (is_array($lock)) {
+            return $lock;
+        }
 
         return [
-            'owner'=> $lock->owner(),
-            'key' => $this->get('key')
+            'owner' => $lock->owner(),
+            'key' => $this->get('key'),
         ];
     }
 
