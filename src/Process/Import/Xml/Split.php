@@ -17,23 +17,37 @@ class Split
 
     public function batch(string $name): self
     {
+        $this->assertReadable();
 
-        $this->collection = collect();
+        $instruction = Find::instruction($this->project, 'Import')->byKey($name);
+
+        $this->collection = collect([$name => $this->elements([...$instruction->get('path')])]);
+
+        return $this;
+    }
+
+    /**
+     * The outer XML of every element at the end of $path, e.g. each Artikel of
+     * ['Artikeldaten', 'Artikel'], each wrapped in a collection.
+     */
+    public function elements(array $path): Collection
+    {
+        $this->assertReadable();
 
         $xml = new XMLReader;
 
-        if (! is_readable($this->path) || ! $xml->open($this->path)) {
-            throw new EzportImportException(json_encode(['project_id' => $this->project->id, 'message' => "Could not open file {$this->path}"], JSON_UNESCAPED_SLASHES));
+        if (! $xml->open($this->path)) {
+            $this->cannotOpen();
         }
 
         libxml_use_internal_errors(true);
 
-        $instruction = Find::instruction($this->project, 'Import')->byKey($name);
-        $path = collect([...$instruction->get('path')]);
+        $node = array_pop($path);
 
-        foreach ($path as $nodeName) {
+        // only the parents: stopping on the first $node here would make the search below skip it
+        foreach ($path as $parent) {
             while ($xml->read()) {
-                if ($xml->nodeType == XMLReader::ELEMENT && $xml->name == $nodeName) {
+                if ($xml->nodeType == XMLReader::ELEMENT && $xml->name == $parent) {
                     break;
                 }
             }
@@ -51,19 +65,30 @@ class Split
             throw new EzportImportException(json_encode(['project_id' => $this->project->id, 'message' => $string]));
         }
 
-        $node = $path->pop();
-        $this->collection[$name] = collect();
+        $elements = collect();
 
         while ($xml->read() && ! ($xml->nodeType === XMLReader::ELEMENT && $xml->name === $node)) {
 
         }
 
         while ($xml->nodeType === XMLReader::ELEMENT && $xml->name === $node) {
-            $this->collection[$name]->push(collect($xml->readOuterXML()));
+            $elements->push(collect($xml->readOuterXML()));
             $xml->next($node);
         }
 
-        return $this;
+        return $elements;
+    }
+
+    private function assertReadable(): void
+    {
+        if (! is_readable($this->path)) {
+            $this->cannotOpen();
+        }
+    }
+
+    private function cannotOpen(): never
+    {
+        throw new EzportImportException(json_encode(['project_id' => $this->project->id, 'message' => "Could not open file {$this->path}"], JSON_UNESCAPED_SLASHES));
     }
 
     public function getCollection(): Collection
