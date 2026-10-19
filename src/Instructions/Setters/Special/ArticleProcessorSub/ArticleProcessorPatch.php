@@ -3,6 +3,7 @@
 namespace Go2Flow\Ezport\Instructions\Setters\Special\ArticleProcessorSub;
 
 use Go2Flow\Ezport\Finders\Config;
+use Go2Flow\Ezport\Helpers\VariantMatcher;
 use Illuminate\Support\Collection;
 
 class ArticleProcessorPatch
@@ -256,14 +257,15 @@ class ArticleProcessorPatch
 
                         $child['parentId'] = $databaseProduct['id'];
 
-                        $shopwareChild = collect($product['children'])->filter(
-                            fn ($variant) => $variant->productNumber == $child['productNumber']
-                        )->first();
+                        $shopwareChild = VariantMatcher::match(collect($product['children']), $child);
 
                         if ($shopwareChild) {
                             if (!isset($child['id'])) {
                                 $child['id'] = $shopwareChild->id;
                             }
+
+                            // the variant keeps its number, the response is keyed by it
+                            $child['productNumber'] = $shopwareChild->productNumber;
 
                             $newOptionIds = collect($child['options'] ?? [])->pluck('id');
                             $oldOptionIds = collect($shopwareChild->optionIds ?? []);
